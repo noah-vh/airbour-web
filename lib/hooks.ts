@@ -368,7 +368,7 @@ export function useAutoRefresh(
   interval: number = REFRESH_INTERVALS.SIGNALS,
   enabled: boolean = true
 ) {
-  const intervalRef = useRef<NodeJS.Timeout>();
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const isVisibleRef = useRef(true);
 
   useEffect(() => {
@@ -411,7 +411,7 @@ export function useAutoRefresh(
  */
 export function useIntersectionObserver(
   options: IntersectionObserverInit = {}
-): [React.RefObject<HTMLElement>, boolean] {
+): [React.RefObject<HTMLElement | null>, boolean] {
   const [isIntersecting, setIsIntersecting] = useState(false);
   const elementRef = useRef<HTMLElement>(null);
 
@@ -454,7 +454,7 @@ export function useModal(initialOpen: boolean = false) {
  * Hook for previous value
  */
 export function usePrevious<T>(value: T): T | undefined {
-  const ref = useRef<T>();
+  const ref = useRef<T | undefined>(undefined);
 
   useEffect(() => {
     ref.current = value;

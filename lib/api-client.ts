@@ -55,8 +55,7 @@ class ApiClient {
         throw new ApiError(
           response.status.toString(),
           data.message || ERROR_MESSAGES.SERVER_ERROR,
-          data,
-          Date.now()
+          data
         );
       }
 
@@ -76,8 +75,7 @@ class ApiClient {
         throw new ApiError(
           "NETWORK_ERROR",
           ERROR_MESSAGES.NETWORK_ERROR,
-          {},
-          Date.now()
+          {}
         );
       }
 
@@ -85,8 +83,7 @@ class ApiClient {
       throw new ApiError(
         "UNKNOWN_ERROR",
         ERROR_MESSAGES.GENERIC,
-        { originalError: error },
-        Date.now()
+        { originalError: error }
       );
     }
   }
@@ -195,8 +192,7 @@ class ApiClient {
       throw new ApiError(
         "DOWNLOAD_ERROR",
         `Failed to download file: ${error instanceof Error ? error.message : "Unknown error"}`,
-        { endpoint },
-        Date.now()
+        { endpoint }
       );
     }
   }

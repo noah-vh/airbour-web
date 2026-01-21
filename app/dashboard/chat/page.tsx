@@ -59,7 +59,7 @@ export default function ChatPage() {
     // Create new conversation if none exists
     if (!conversation) {
       conversation = createNewConversation();
-      setConversations(prev => [...prev, conversation]);
+      setConversations(prev => [...prev, conversation!]);
       setCurrentConversationId(conversation.id);
     }
 

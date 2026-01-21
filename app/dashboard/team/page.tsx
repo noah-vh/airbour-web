@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { useQuery, useMutation, api } from "@/lib/mockConvexTyped";
+import type { TeamProfile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +30,7 @@ export default function TeamDashboard() {
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
 
   // Queries
-  const teamProfiles = useQuery(api.teamProfiles.getAllTeamProfiles, {});
+  const teamProfiles = useQuery<TeamProfile[]>(api.teamProfiles.getAllTeamProfiles);
   const initializeProfiles = useMutation(api.teamProfiles.initializeDefaultProfiles);
 
   // Initialize default profiles if none exist

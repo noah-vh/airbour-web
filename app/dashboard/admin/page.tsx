@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { useQuery, useMutation, api } from "@/lib/mockConvexTyped";
+import type { AdminControl } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { AlertTriangle, CheckCircle, Settings, Pause, Play, Shield } from "lucide-react";
 import { toast } from "sonner";
@@ -14,8 +14,8 @@ export default function AdminDashboard() {
   const { isCollapsed } = useSidebar();
 
   // Queries
-  const adminControls = useQuery(api.adminControls.getAdminControls);
-  const isLLMEnabled = useQuery(api.adminControls.isLLMProcessingEnabled);
+  const adminControls = useQuery<AdminControl[]>(api.adminControls.getAdminControls);
+  const isLLMEnabled = useQuery<boolean>(api.adminControls.isLLMProcessingEnabled);
 
   // Mutations
   const setControlValue = useMutation(api.adminControls.setControlValue);
@@ -24,7 +24,7 @@ export default function AdminDashboard() {
 
   // Initialize controls if they don't exist
   useEffect(() => {
-    if (adminControls && adminControls.length === 0) {
+    if (adminControls && Array.isArray(adminControls) && adminControls.length === 0) {
       initializeControls({ adminUserId })
         .then(() => {
           toast.success("Admin controls initialized");
@@ -195,12 +195,6 @@ export default function AdminDashboard() {
                       <p className="text-sm text-[#a3a3a3]">
                         {control.description}
                       </p>
-                      {control.lastUpdatedBy && (
-                        <p className="text-xs text-[#666] mt-1">
-                          Last updated by {control.lastUpdatedBy} at{" "}
-                          {new Date(control.lastUpdatedAt).toLocaleString()}
-                        </p>
-                      )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">

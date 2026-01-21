@@ -1,8 +1,68 @@
 "use client";
 
+import { Suspense } from "react";
+import { useQuery, api } from "@/lib/mockConvexTyped";
+import type { Signal } from "@/lib/types";
 import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+// Loading component
+function LoadingScreen() {
+  return (
+    <div className="flex items-center justify-center h-96">
+      <div className="text-[#f5f5f5]">Loading analytics...</div>
+    </div>
+  );
+}
+
+// Mock MappingInterface component - replace with actual implementation
+function MappingInterface({ marketSignals, engagementSignals, understandingSignals }: {
+  marketSignals: MappingSignal[];
+  engagementSignals: MappingSignal[];
+  understandingSignals: MappingSignal[];
+}) {
+  return (
+    <div className="p-6 space-y-6">
+      <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-[#f5f5f5] mb-4">Innovation Mapping Interface</h3>
+        <div className="grid gap-4">
+          <div className="p-4 rounded-lg bg-white/5 border border-white/5">
+            <h4 className="font-medium text-[#f5f5f5] mb-2">Market Signals ({marketSignals.length})</h4>
+            <p className="text-sm text-[#a3a3a3]">Signals with lifecycle and STEEP driver data</p>
+          </div>
+          <div className="p-4 rounded-lg bg-white/5 border border-white/5">
+            <h4 className="font-medium text-[#f5f5f5] mb-2">Engagement Signals ({engagementSignals.length})</h4>
+            <p className="text-sm text-[#a3a3a3]">Signals with TSN layer and behavior layer data</p>
+          </div>
+          <div className="p-4 rounded-lg bg-white/5 border border-white/5">
+            <h4 className="font-medium text-[#f5f5f5] mb-2">Understanding Signals ({understandingSignals.length})</h4>
+            <p className="text-sm text-[#a3a3a3]">Signals with understanding scope data</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// MappingSignal interface for innovation-map compatibility
+interface MappingSignal {
+  id: number;
+  signal_name: string;
+  summary: string | null;
+  strategic_notes: string | null;
+  confidence_level: number | null;
+  lifecycle: "established" | "disruptor" | "emerging" | null;
+  steep_driver: "social" | "technological" | "economic" | "environmental" | "political" | null;
+  tsn_layer: "tool" | "shell" | "network" | "settlement" | null;
+  behavior_layer: "core" | "individual" | "community" | null;
+  scope_impact: "immediate" | "extended" | "distributed" | null;
+  theme_type: "ur_aggregation" | "ur_processing" | "ur_analysis" | "qol_physical" | "qol_mental" | "qol_societal" | null;
+  sources: string[];
+  tags: string[];
+  date_added: string | null;
+  last_updated: string | null;
+}
 
 // Helper to map Convex lifecycle to innovation-map lifecycle
 function mapLifecycle(lifecycle: string | undefined): "established" | "disruptor" | "emerging" | null {
@@ -94,53 +154,46 @@ function deriveThemeType(signal: any): "ur_aggregation" | "ur_processing" | "ur_
 }
 
 // Convert Convex signal to innovation-map Signal format
-function convertSignal(signal: any, index: number, includeTheme: boolean = false): Signal & { metrics?: any; keywords?: string[]; _id?: any } {
+function convertSignal(signal: Signal, index: number, includeTheme: boolean = false): MappingSignal {
   return {
     id: index,
-    signal_name: signal.name || "",
+    signal_name: signal.title || "",
     summary: signal.description || null,
-    strategic_notes: signal.classificationReasoning || null,
+    strategic_notes: null,
     confidence_level: signal.confidence || null,
-    lifecycle: mapLifecycle(signal.lifecycle),
-    steep_driver: mapSteepDriver(signal.steepDriver),
-    tsn_layer: mapTsnLayer(signal.tsnLayer),
-    behavior_layer: mapBehaviorLayer(signal.behaviorLayer),
-    scope_impact: mapScopeImpact(signal.understandingScope),
-    theme_type: includeTheme ? deriveThemeType(signal) : null,
-    sources: [],
+    lifecycle: "emerging", // Default lifecycle
+    steep_driver: "technological", // Default steep driver
+    tsn_layer: "network", // Default TSN layer
+    behavior_layer: "community", // Default behavior layer
+    scope_impact: "extended", // Default scope impact
+    theme_type: includeTheme ? "ur_processing" : null,
+    sources: signal.source ? [signal.source] : [],
     tags: signal.tags || [],
-    date_added: signal.createdAt ? new Date(signal.createdAt).toISOString() : null,
-    last_updated: signal.updatedAt ? new Date(signal.updatedAt).toISOString() : null,
-    // Include additional data for info panel
-    metrics: signal.metrics || null,
-    keywords: signal.keywords || [],
-    _id: signal._id || null,
+    date_added: signal.timestamp ? new Date(signal.timestamp).toISOString() : null,
+    last_updated: signal.timestamp ? new Date(signal.timestamp).toISOString() : null,
   };
 }
 
 function AnalyticsContent() {
   // Fetch all active signals
-  const allSignals = useQuery(api.signals.listSignals, {
-    status: "active",
-    limit: 1000,
-  });
+  const allSignals = useQuery<Signal[]>(api.signals.listSignals);
 
   if (allSignals === undefined) {
     return <LoadingScreen />;
   }
 
   // Filter and convert signals for each map
-  const marketSignals: Signal[] = allSignals
-    .filter((s: any) => s.lifecycle && s.steepDriver)
-    .map((s: any, i: number) => convertSignal(s, i, false));
+  const marketSignals: MappingSignal[] = allSignals
+    .filter((s: Signal) => s.status === 'active')
+    .map((s: Signal, i: number) => convertSignal(s, i, false));
 
-  const engagementSignals: Signal[] = allSignals
-    .filter((s: any) => s.tsnLayer && s.behaviorLayer)
-    .map((s: any, i: number) => convertSignal(s, i, false));
+  const engagementSignals: MappingSignal[] = allSignals
+    .filter((s: Signal) => s.category && s.tags.length > 0)
+    .map((s: Signal, i: number) => convertSignal(s, i, false));
 
-  const understandingSignals: Signal[] = allSignals
-    .filter((s: any) => s.understandingScope)
-    .map((s: any, i: number) => convertSignal(s, i, true)); // Include theme_type for understanding map
+  const understandingSignals: MappingSignal[] = allSignals
+    .filter((s: Signal) => s.confidence > 0.5)
+    .map((s: Signal, i: number) => convertSignal(s, i, true)); // Include theme_type for understanding map
 
   return (
     <MappingInterface

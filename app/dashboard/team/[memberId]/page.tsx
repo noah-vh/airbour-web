@@ -1,589 +1,309 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { useParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useSidebar } from "@/components/dashboard/sidebar-context";
+import { cn } from "@/lib/utils";
 import {
   User,
-  Settings,
-  FileText,
-  Brain,
-  TrendingUp,
-  Upload,
-  Edit,
-  Save,
-  Plus,
-  MessageSquare,
-  BarChart3,
+  Mail,
+  Phone,
+  MapPin,
+  Briefcase,
+  GraduationCap,
   Calendar,
-  Tag,
-  Lightbulb
+  Edit3,
+  Save,
+  X,
+  FileText,
+  TrendingUp,
+  Clock,
+  Target,
 } from "lucide-react";
-import { motion } from "framer-motion";
-import { toast } from "sonner";
-import Link from "next/link";
-import type { Id } from "@/convex/_generated/dataModel";
 
-export default function TeamMemberPage() {
+// Mock data
+const mockProfile = {
+  _id: "profile_1",
+  name: "Alex Thompson",
+  email: "alex.thompson@sysinno.com",
+  role: "Senior Innovation Analyst",
+  department: "Research & Development",
+  phone: "+1 (555) 123-4567",
+  location: "San Francisco, CA",
+  joinDate: "2022-03-15",
+  bio: "Passionate about emerging technologies and their impact on business transformation. Specializes in AI/ML trends and quantum computing applications.",
+  skills: ["AI/ML", "Quantum Computing", "Data Analysis", "Strategic Planning", "Innovation Management"],
+  interests: ["Technological Disruption", "Sustainable Innovation", "Digital Transformation"],
+  recentActivity: "Last active 2 hours ago",
+};
+
+const mockDocuments = [
+  {
+    _id: "doc_1",
+    title: "Quantum Computing Market Analysis Q4 2024",
+    type: "analysis",
+    status: "completed",
+    lastUpdated: "2024-01-18",
+    confidenceScore: 0.92,
+  },
+  {
+    _id: "doc_2",
+    title: "AI Ethics Framework Implementation",
+    type: "framework",
+    status: "in-progress",
+    lastUpdated: "2024-01-19",
+    confidenceScore: 0.78,
+  },
+  {
+    _id: "doc_3",
+    title: "Emerging Tech Trends 2025 Forecast",
+    type: "forecast",
+    status: "draft",
+    lastUpdated: "2024-01-20",
+    confidenceScore: 0.65,
+  },
+];
+
+const mockStats = {
+  totalDocuments: 24,
+  completedThisMonth: 7,
+  averageConfidence: 0.84,
+  topSkillAreas: ["AI/ML", "Quantum Computing", "Strategic Analysis"],
+};
+
+export default function TeamMemberProfile() {
   const { isCollapsed } = useSidebar();
   const params = useParams();
-  const memberId = params.memberId as Id<"team_member_profiles">;
+  const memberId = params.memberId as string;
 
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<any>(null);
 
-  // Queries
-  const teamProfile = useQuery(api.teamProfiles.getTeamProfile, { profileId: memberId });
-  const documents = useQuery(api.personalDocuments.getDocumentsByTeamMember, {
-    teamMemberId: memberId,
-  });
-  const documentStats = useQuery(api.personalDocuments.getDocumentStats, {
-    teamMemberId: memberId,
-  });
-
-  // Mutations
-  const updateProfile = useMutation(api.teamProfiles.updateTeamProfile);
-  const generateRecommendations = useMutation(api.actions.generatePersonalizedContent.getPersonalizedContentRecommendations);
-
   const handleSave = async () => {
-    if (!editData) return;
+    // Mock save functionality
+    console.log("Saving profile changes:", editData);
+    setIsEditing(false);
+    setEditData(null);
+  };
 
-    try {
-      await updateProfile({
-        profileId: memberId,
-        updates: editData,
-      });
-      toast.success("Profile updated successfully");
-      setIsEditing(false);
-      setEditData(null);
-    } catch (error: any) {
-      toast.error("Failed to update profile: " + error.message);
+  const handleEdit = () => {
+    setIsEditing(true);
+    setEditData({ ...mockProfile });
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditData(null);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-500/10 text-green-400 border-green-500/20";
+      case "in-progress":
+        return "bg-blue-500/10 text-blue-400 border-blue-500/20";
+      case "draft":
+        return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
+      default:
+        return "bg-gray-500/10 text-gray-400 border-gray-500/20";
     }
   };
 
-  const startEditing = () => {
-    setEditData({
-      name: teamProfile?.name,
-      role: teamProfile?.role,
-      primaryExpertise: teamProfile?.primaryExpertise || [],
-      secondaryExpertise: teamProfile?.secondaryExpertise || [],
-      focusAreas: teamProfile?.focusAreas || [],
-    });
-    setIsEditing(true);
-  };
-
-  if (!teamProfile) {
-    return (
-      <div className={`transition-all duration-300 ${isCollapsed ? 'ml-16' : 'ml-64'}`}>
-        <div className="p-8">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <User className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Team Member Not Found</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                The requested team member profile doesn't exist.
-              </p>
-              <Button asChild>
-                <Link href="/dashboard/team">Back to Team Dashboard</Link>
-              </Button>
+  return (
+    <div className={cn(
+      "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-[#0a0a0a]",
+      isCollapsed ? "left-16" : "left-64"
+    )}>
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
+              <User className="h-6 w-6 text-purple-400" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold text-[#f5f5f5] tracking-tight">Team Member Profile</h1>
+              <p className="text-sm text-[#a3a3a3]">Detailed view and analytics</p>
             </div>
           </div>
+          {!isEditing ? (
+            <button
+              onClick={handleEdit}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 hover:bg-blue-500/20 transition-standard"
+            >
+              <Edit3 className="h-4 w-4" />
+              <span className="text-sm font-medium">Edit Profile</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleCancel}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-500/10 border border-gray-500/20 text-gray-400 hover:bg-gray-500/20 transition-standard"
+              >
+                <X className="h-4 w-4" />
+                <span className="text-sm font-medium">Cancel</span>
+              </button>
+              <button
+                onClick={handleSave}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/20 text-green-300 hover:bg-green-500/20 transition-standard"
+              >
+                <Save className="h-4 w-4" />
+                <span className="text-sm font-medium">Save</span>
+              </button>
+            </div>
+          )}
         </div>
-      </div>
-    );
-  }
 
-  return (
-    <div className={`transition-all duration-300 ${isCollapsed ? 'ml-16' : 'ml-64'}`}>
-      <div className="p-8 max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          className="mb-8"
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16">
-                <AvatarImage src={teamProfile.avatarUrl} />
-                <AvatarFallback className="bg-blue-100 text-blue-600 text-xl">
-                  {teamProfile.name.split(" ").map(n => n[0]).join("")}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                {isEditing ? (
-                  <div className="space-y-2">
-                    <Input
-                      value={editData?.name || ""}
-                      onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                      className="text-2xl font-bold"
-                    />
-                    <Input
-                      value={editData?.role || ""}
-                      onChange={(e) => setEditData({ ...editData, role: e.target.value })}
-                      className="text-gray-600"
-                    />
+        {/* Profile Information */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Profile Details */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-[#f5f5f5] mb-4">Personal Information</h3>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
+                    <User className="h-8 w-8 text-purple-400" />
                   </div>
-                ) : (
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                      {teamProfile.name}
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-400 text-lg">
-                      {teamProfile.role}
-                    </p>
+                    <h2 className="text-xl font-semibold text-[#f5f5f5]">{mockProfile.name}</h2>
+                    <p className="text-[#a3a3a3]">{mockProfile.role}</p>
+                    <p className="text-sm text-[#666]">{mockProfile.department}</p>
                   </div>
-                )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                    <Mail className="h-4 w-4 text-[#a3a3a3]" />
+                    <span className="text-[#f5f5f5]">{mockProfile.email}</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                    <Phone className="h-4 w-4 text-[#a3a3a3]" />
+                    <span className="text-[#f5f5f5]">{mockProfile.phone}</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                    <MapPin className="h-4 w-4 text-[#a3a3a3]" />
+                    <span className="text-[#f5f5f5]">{mockProfile.location}</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                    <Calendar className="h-4 w-4 text-[#a3a3a3]" />
+                    <span className="text-[#f5f5f5]">Joined {formatDate(mockProfile.joinDate)}</span>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-lg bg-white/5 border border-white/5">
+                  <h4 className="font-medium text-[#f5f5f5] mb-2">Bio</h4>
+                  <p className="text-[#a3a3a3] text-sm leading-relaxed">{mockProfile.bio}</p>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              {isEditing ? (
-                <>
-                  <Button variant="outline" onClick={() => setIsEditing(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleSave}>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Changes
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="outline" onClick={startEditing}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Profile
-                  </Button>
-                  <Button asChild>
-                    <Link href={`/dashboard/team/${memberId}/create-content`}>
-                      <Brain className="h-4 w-4 mr-2" />
-                      Create Content
-                    </Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Status and Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Status</p>
-                    <Badge variant={teamProfile.isActive ? "default" : "secondary"} className="mt-1">
-                      {teamProfile.isActive ? "Active" : "Inactive"}
-                    </Badge>
-                  </div>
-                  <User className="h-8 w-8 text-blue-500" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Documents</p>
-                    <p className="text-2xl font-bold">{documentStats?.totalDocuments || 0}</p>
-                  </div>
-                  <FileText className="h-8 w-8 text-green-500" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Insights</p>
-                    <p className="text-2xl font-bold">{documentStats?.totalInsights || 0}</p>
-                  </div>
-                  <Lightbulb className="h-8 w-8 text-purple-500" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Performance</p>
-                    <p className="text-2xl font-bold">85%</p>
-                  </div>
-                  <TrendingUp className="h-8 w-8 text-orange-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </motion.div>
-
-        {/* Main Content */}
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid grid-cols-5 w-full max-w-md">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="content">Content</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
-
-          {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Expertise */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Expertise & Focus Areas</CardTitle>
-                  <CardDescription>
-                    Core competencies and areas of specialization
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium">Primary Expertise</Label>
-                    {isEditing ? (
-                      <Textarea
-                        value={editData?.primaryExpertise?.join(", ") || ""}
-                        onChange={(e) => setEditData({
-                          ...editData,
-                          primaryExpertise: e.target.value.split(", ").filter(Boolean)
-                        })}
-                        placeholder="Enter comma-separated expertise areas"
-                        className="mt-2"
-                      />
-                    ) : (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {teamProfile.primaryExpertise.map((expertise) => (
-                          <Badge key={expertise} variant="default">
-                            {expertise}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label className="text-sm font-medium">Secondary Expertise</Label>
-                    {isEditing ? (
-                      <Textarea
-                        value={editData?.secondaryExpertise?.join(", ") || ""}
-                        onChange={(e) => setEditData({
-                          ...editData,
-                          secondaryExpertise: e.target.value.split(", ").filter(Boolean)
-                        })}
-                        placeholder="Enter comma-separated expertise areas"
-                        className="mt-2"
-                      />
-                    ) : (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {teamProfile.secondaryExpertise.map((expertise) => (
-                          <Badge key={expertise} variant="outline">
-                            {expertise}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label className="text-sm font-medium">Focus Areas</Label>
-                    {isEditing ? (
-                      <Textarea
-                        value={editData?.focusAreas?.join(", ") || ""}
-                        onChange={(e) => setEditData({
-                          ...editData,
-                          focusAreas: e.target.value.split(", ").filter(Boolean)
-                        })}
-                        placeholder="Enter comma-separated focus areas"
-                        className="mt-2"
-                      />
-                    ) : (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {teamProfile.focusAreas.map((area) => (
-                          <Badge key={area} variant="secondary">
-                            {area}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Communication Style */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Communication Style</CardTitle>
-                  <CardDescription>
-                    How this team member communicates and creates content
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium">Tone</Label>
-                      <p className="text-lg font-semibold capitalize mt-1">
-                        {teamProfile.communicationStyle.tone}
-                      </p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">Formality</Label>
-                      <p className="text-lg font-semibold capitalize mt-1">
-                        {teamProfile.communicationStyle.formality}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label className="text-sm font-medium">Preferred Formats</Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {teamProfile.communicationStyle.preferredFormats.map((format) => (
-                        <Badge key={format} variant="outline">
-                          {format}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Content Characteristics</Label>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Uses Case Studies</span>
-                        <Badge variant={teamProfile.communicationStyle.usesCaseStudies ? "default" : "secondary"}>
-                          {teamProfile.communicationStyle.usesCaseStudies ? "Yes" : "No"}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Uses Data & Stats</span>
-                        <Badge variant={teamProfile.communicationStyle.usesDataAndStats ? "default" : "secondary"}>
-                          {teamProfile.communicationStyle.usesDataAndStats ? "Yes" : "No"}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Uses Personal Stories</span>
-                        <Badge variant={teamProfile.communicationStyle.usesPersonalStories ? "default" : "secondary"}>
-                          {teamProfile.communicationStyle.usesPersonalStories ? "Yes" : "No"}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Content Preferences */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Content Preferences</CardTitle>
-                <CardDescription>
-                  Topics, hashtags, and call-to-action styles this member prefers
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Skills & Interests */}
+            <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-[#f5f5f5] mb-4">Skills & Expertise</h3>
+              <div className="space-y-4">
                 <div>
-                  <Label className="text-sm font-medium">Favorite Topics</Label>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {teamProfile.contentPreferences?.favoriteTopics?.map((topic) => (
-                      <Badge key={topic} variant="outline">
-                        {topic}
-                      </Badge>
+                  <h4 className="font-medium text-[#f5f5f5] mb-2">Core Skills</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {mockProfile.skills.map((skill, index) => (
+                      <span key={index} className="px-2 py-1 rounded text-xs font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                        {skill}
+                      </span>
                     ))}
                   </div>
                 </div>
-
                 <div>
-                  <Label className="text-sm font-medium">Common Hashtags</Label>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {teamProfile.contentPreferences?.commonHashtags?.map((hashtag) => (
-                      <Badge key={hashtag} variant="secondary" className="text-xs">
-                        #{hashtag}
-                      </Badge>
+                  <h4 className="font-medium text-[#f5f5f5] mb-2">Research Interests</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {mockProfile.interests.map((interest, index) => (
+                      <span key={index} className="px-2 py-1 rounded text-xs font-medium bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                        {interest}
+                      </span>
                     ))}
                   </div>
                 </div>
-
-                <div>
-                  <Label className="text-sm font-medium">Call-to-Action Style</Label>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                    {teamProfile.contentPreferences?.callToActionStyle || "Standard"}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Documents Tab */}
-          <TabsContent value="documents" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle>Personal Documents</CardTitle>
-                  <CardDescription>
-                    Documents uploaded to personalize content generation
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {documents && documents.length > 0 ? (
-                    <div className="space-y-4">
-                      {documents.map((doc) => (
-                        <div key={doc._id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <FileText className="h-8 w-8 text-blue-500" />
-                            <div>
-                              <p className="font-medium">{doc.title}</p>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                {doc.insights?.length || 0} insights extracted
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline">{doc.category}</Badge>
-                            <Button variant="ghost" size="sm">
-                              <MessageSquare className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No Documents Yet</h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-4">
-                        Upload documents to personalize content generation for this team member
-                      </p>
-                      <Button>
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload Document
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Document Stats</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Total Documents</span>
-                    <span className="font-semibold">{documentStats?.totalDocuments || 0}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Total Insights</span>
-                    <span className="font-semibold">{documentStats?.totalInsights || 0}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Categories</span>
-                    <span className="font-semibold">{documentStats?.categories || 0}</span>
-                  </div>
-                </CardContent>
-              </Card>
+              </div>
             </div>
-          </TabsContent>
+          </div>
 
-          {/* Content Tab */}
-          <TabsContent value="content" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Generated Content</CardTitle>
-                <CardDescription>
-                  Content pieces created for this team member
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Content Generated Yet</h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    Start generating personalized content for this team member
-                  </p>
-                  <Button asChild>
-                    <Link href={`/dashboard/team/${memberId}/create-content`}>
-                      <Brain className="h-4 w-4 mr-2" />
-                      Generate Content
-                    </Link>
-                  </Button>
+          {/* Right Column - Stats & Activity */}
+          <div className="space-y-6">
+            {/* Performance Stats */}
+            <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-[#f5f5f5] mb-4">Performance</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-white/5">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-4 w-4 text-blue-400" />
+                    <span className="text-[#f5f5f5]">Total Documents</span>
+                  </div>
+                  <span className="text-xl font-bold text-blue-400">{mockStats.totalDocuments}</span>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Analytics Tab */}
-          <TabsContent value="analytics" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Analytics</CardTitle>
-                <CardDescription>
-                  Content performance and engagement metrics
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Analytics Coming Soon</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Detailed analytics will be available once content is generated
-                  </p>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-white/5">
+                  <div className="flex items-center gap-3">
+                    <TrendingUp className="h-4 w-4 text-green-400" />
+                    <span className="text-[#f5f5f5]">This Month</span>
+                  </div>
+                  <span className="text-xl font-bold text-green-400">{mockStats.completedThisMonth}</span>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-white/5">
+                  <div className="flex items-center gap-3">
+                    <Target className="h-4 w-4 text-purple-400" />
+                    <span className="text-[#f5f5f5]">Avg Confidence</span>
+                  </div>
+                  <span className="text-xl font-bold text-purple-400">
+                    {Math.round(mockStats.averageConfidence * 100)}%
+                  </span>
+                </div>
+              </div>
+            </div>
 
-          {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Settings</CardTitle>
-                <CardDescription>
-                  Manage account settings and preferences
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
+            {/* Recent Activity */}
+            <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-[#f5f5f5] mb-4">Recent Activity</h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                  <Clock className="h-4 w-4 text-[#a3a3a3]" />
                   <div>
-                    <Label className="text-base font-medium">Active Status</Label>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Enable or disable this team member profile
-                    </p>
+                    <p className="text-sm text-[#f5f5f5]">{mockProfile.recentActivity}</p>
                   </div>
-                  <Badge variant={teamProfile.isActive ? "default" : "secondary"}>
-                    {teamProfile.isActive ? "Active" : "Inactive"}
-                  </Badge>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                <div className="border-t pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-base font-medium text-red-600">Danger Zone</Label>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Permanently delete this team member profile
-                      </p>
+        {/* Recent Documents */}
+        <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-[#f5f5f5] mb-4">Recent Documents</h3>
+          <div className="space-y-3">
+            {mockDocuments.map((doc) => (
+              <div key={doc._id} className="p-4 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-standard">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-[#f5f5f5] mb-1">{doc.title}</h4>
+                    <div className="flex items-center gap-3 text-sm text-[#a3a3a3]">
+                      <span>Updated {formatDate(doc.lastUpdated)}</span>
+                      <span>•</span>
+                      <span>Confidence: {Math.round(doc.confidenceScore * 100)}%</span>
                     </div>
-                    <Button variant="destructive">
-                      Delete Profile
-                    </Button>
+                  </div>
+                  <div className={cn("px-2 py-1 rounded text-xs font-medium border", getStatusColor(doc.status))}>
+                    {doc.status.replace('-', ' ')}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

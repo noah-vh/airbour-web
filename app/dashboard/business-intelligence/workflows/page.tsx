@@ -33,7 +33,7 @@ import {
   Download,
   Eye,
   EyeOff,
-  Toggle,
+  ToggleLeft,
   ChevronRight,
   ChevronDown,
   Link as LinkIcon,

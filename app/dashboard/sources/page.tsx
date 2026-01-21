@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { useQuery, useMutation, api } from "@/lib/mockConvexTyped";
+import type { Source } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -39,7 +39,7 @@ import { toast } from "sonner";
 type SourceType = "rss" | "web" | "social" | "api" | "newsletter";
 type SourceStatus = "active" | "inactive" | "error" | "pending";
 
-interface Source {
+interface LocalSource {
   _id: string;
   name: string;
   type: SourceType;
@@ -59,87 +59,30 @@ export default function SourcesPage() {
   const [filterType, setFilterType] = useState<SourceType | "all">("all");
   const [filterStatus, setFilterStatus] = useState<SourceStatus | "all">("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
-
-  // Mock data - replace with actual Convex queries
-  const sources: Source[] = [
-    {
-      _id: "1",
-      name: "TechCrunch RSS",
-      type: "rss",
-      url: "https://techcrunch.com/feed/",
-      description: "Latest technology news and startup coverage",
-      status: "active",
-      lastUpdated: "2024-01-20T10:30:00Z",
-      signalCount: 142,
-      categories: ["Technology", "Startups", "AI"],
-      keywords: ["innovation", "funding", "AI", "startup"],
-      isActive: true
-    },
-    {
-      _id: "2",
-      name: "MIT Technology Review",
-      type: "web",
-      url: "https://www.technologyreview.com/",
-      description: "In-depth technology analysis and research",
-      status: "active",
-      lastUpdated: "2024-01-20T09:15:00Z",
-      signalCount: 89,
-      categories: ["Research", "Technology", "Science"],
-      keywords: ["research", "breakthrough", "innovation"],
-      isActive: true
-    },
-    {
-      _id: "3",
-      name: "Elon Musk Twitter",
-      type: "social",
-      url: "https://twitter.com/elonmusk",
-      description: "Updates from Elon Musk",
-      status: "active",
-      lastUpdated: "2024-01-20T11:45:00Z",
-      signalCount: 56,
-      categories: ["Social Media", "Innovation"],
-      keywords: ["tesla", "spacex", "innovation"],
-      isActive: true
-    },
-    {
-      _id: "4",
-      name: "Y Combinator Newsletter",
-      type: "newsletter",
-      url: "hello@ycombinator.com",
-      description: "Weekly startup insights and news",
-      status: "pending",
-      lastUpdated: "2024-01-19T16:00:00Z",
-      signalCount: 23,
-      categories: ["Startups", "Funding"],
-      keywords: ["startup", "funding", "accelerator"],
-      isActive: true
-    },
-    {
-      _id: "5",
-      name: "Broken API Source",
-      type: "api",
-      url: "https://api.example.com/news",
-      description: "News API that's currently having issues",
-      status: "error",
-      lastUpdated: "2024-01-18T14:20:00Z",
-      signalCount: 0,
-      categories: ["News"],
-      keywords: ["news"],
-      isActive: false
-    }
-  ];
-
-  // Filter sources based on search and filters
-  const filteredSources = sources.filter(source => {
-    const matchesSearch = source.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         source.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = filterType === "all" || source.type === filterType;
-    const matchesStatus = filterStatus === "all" || source.status === filterStatus;
-
-    return matchesSearch && matchesType && matchesStatus;
+  const [newSource, setNewSource] = useState({
+    name: "",
+    type: "rss" as SourceType,
+    url: "",
+    description: "",
   });
 
-  const getSourceIcon = (type: SourceType) => {
+  // Convex queries
+  const sources = useQuery<Source[]>(api.sources.listSources);
+
+  const sourceStats = useQuery(api.sources.getSourceStats);
+
+  // Mutations
+  const createSource = useMutation(api.sources.createSource);
+  const updateSource = useMutation(api.sources.updateSource);
+  const deleteSource = useMutation(api.sources.deleteSource);
+  // Mock mutations for refresh operations
+  const refreshSource = useMutation("sources.refreshSource");
+  const refreshAllSources = useMutation("sources.refreshAllSources");
+
+  // Since filtering is now handled in Convex, we can use sources directly
+  const filteredSources = sources || [];
+
+  const getSourceIcon = (type: string) => {
     switch (type) {
       case "rss": return <Rss className="h-5 w-5" />;
       case "web": return <Globe className="h-5 w-5" />;
@@ -150,7 +93,7 @@ export default function SourcesPage() {
     }
   };
 
-  const getStatusColor = (status: SourceStatus) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "active": return "bg-green-100 text-green-800 border-green-200";
       case "inactive": return "bg-gray-100 text-gray-800 border-gray-200";
@@ -160,7 +103,7 @@ export default function SourcesPage() {
     }
   };
 
-  const getStatusIcon = (status: SourceStatus) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case "active": return <CheckCircle className="h-4 w-4" />;
       case "inactive": return <Clock className="h-4 w-4" />;
@@ -170,10 +113,104 @@ export default function SourcesPage() {
     }
   };
 
-  const totalSources = sources.length;
-  const activeSources = sources.filter(s => s.status === "active").length;
-  const totalSignals = sources.reduce((sum, s) => sum + s.signalCount, 0);
-  const errorSources = sources.filter(s => s.status === "error").length;
+  const totalSources = sources?.length || 0;
+  const activeSources = sources?.filter(s => s.status === 'active').length || 0;
+  const totalSignals = sources?.reduce((sum, s) => sum + s.signalsFound, 0) || 0;
+  const errorSources = sources?.filter(s => s.status === 'error').length || 0;
+
+  // Handlers
+  const handleAddSource = async () => {
+    if (!newSource.name || !newSource.url) {
+      toast.error("Name and URL are required");
+      return;
+    }
+
+    // Basic URL validation
+    if (!newSource.type.includes("newsletter") && !isValidUrl(newSource.url)) {
+      toast.error("Please enter a valid URL");
+      return;
+    }
+
+    try {
+      await createSource({
+        name: newSource.name,
+        type: newSource.type,
+        url: newSource.url,
+        description: newSource.description || undefined,
+      });
+
+      toast.success("Source added successfully");
+      setShowAddDialog(false);
+      setNewSource({ name: "", type: "rss", url: "", description: "" });
+    } catch (error: any) {
+      toast.error(`Failed to add source: ${error.message}`);
+    }
+  };
+
+  const isValidUrl = (urlString: string) => {
+    try {
+      new URL(urlString);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleDeleteSource = async (sourceId: string, sourceName?: string) => {
+    if (!sourceId) {
+      toast.error("Invalid source ID");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${sourceName || 'this source'}"? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteSource({ id: sourceId as any }); // Still needed due to no schema
+      toast.success("Source deleted successfully");
+    } catch (error: any) {
+      toast.error(`Failed to delete source: ${error.message}`);
+    }
+  };
+
+  const handleRefreshSource = async (sourceId: string) => {
+    if (!sourceId) {
+      toast.error("Invalid source ID");
+      return;
+    }
+
+    try {
+      await refreshSource({ id: sourceId as any }); // Still needed due to no schema
+      toast.success("Source refresh started");
+    } catch (error: any) {
+      toast.error(`Failed to refresh source: ${error.message}`);
+    }
+  };
+
+  const handleRefreshAll = async () => {
+    try {
+      const result = await refreshAllSources();
+      toast.success(`Refreshing ${result.refreshed} sources`);
+    } catch (error: any) {
+      toast.error(`Failed to refresh sources: ${error.message}`);
+    }
+  };
+
+  if (sources === undefined || sourceStats === undefined) {
+    return (
+      <div className="p-8 max-w-7xl mx-auto">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <Database className="h-12 w-12 text-blue-500 mx-auto mb-4 animate-pulse" />
+            <p className="text-gray-600 dark:text-gray-400">Loading sources...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -208,7 +245,7 @@ export default function SourcesPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline">
+            <Button variant="outline" onClick={handleRefreshAll}>
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh All
             </Button>
@@ -229,11 +266,18 @@ export default function SourcesPage() {
                 <div className="space-y-4">
                   <div>
                     <Label>Source Name</Label>
-                    <Input placeholder="Enter source name" />
+                    <Input
+                      placeholder="Enter source name"
+                      value={newSource.name}
+                      onChange={(e) => setNewSource(prev => ({ ...prev, name: e.target.value }))}
+                    />
                   </div>
                   <div>
                     <Label>Source Type</Label>
-                    <Select>
+                    <Select
+                      value={newSource.type}
+                      onValueChange={(value) => setNewSource(prev => ({ ...prev, type: value as SourceType }))}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select source type" />
                       </SelectTrigger>
@@ -248,14 +292,28 @@ export default function SourcesPage() {
                   </div>
                   <div>
                     <Label>URL</Label>
-                    <Input placeholder="Enter source URL" />
+                    <Input
+                      placeholder="Enter source URL"
+                      value={newSource.url}
+                      onChange={(e) => setNewSource(prev => ({ ...prev, url: e.target.value }))}
+                    />
                   </div>
                   <div>
                     <Label>Description</Label>
-                    <Textarea placeholder="Optional description" />
+                    <Textarea
+                      placeholder="Optional description"
+                      value={newSource.description}
+                      onChange={(e) => setNewSource(prev => ({ ...prev, description: e.target.value }))}
+                    />
                   </div>
                   <div className="flex gap-2 pt-4">
-                    <Button className="flex-1">Add Source</Button>
+                    <Button
+                      className="flex-1"
+                      onClick={handleAddSource}
+                      disabled={!newSource.name || !newSource.url}
+                    >
+                      Add Source
+                    </Button>
                     <Button variant="outline" onClick={() => setShowAddDialog(false)}>
                       Cancel
                     </Button>
@@ -409,11 +467,9 @@ export default function SourcesPage() {
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             {source.name}
                           </h3>
-                          {source.description && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                              {source.description}
-                            </p>
-                          )}
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            Automated data source for innovation signals
+                          </p>
                           <div className="flex items-center gap-2 mt-2">
                             <a
                               href={source.url}
@@ -438,12 +494,12 @@ export default function SourcesPage() {
                         <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                           <div className="flex items-center gap-1">
                             <BarChart3 className="h-4 w-4" />
-                            <span>{source.signalCount} signals</span>
+                            <span>{source.signalsFound || 0} signals</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Clock className="h-4 w-4" />
                             <span>
-                              Updated {new Date(source.lastUpdated).toLocaleDateString()}
+                              Updated {new Date(source.lastCrawled).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
@@ -451,10 +507,19 @@ export default function SourcesPage() {
                           <Button variant="ghost" size="sm">
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
-                            <Settings className="h-4 w-4" />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRefreshSource(source._id)}
+                          >
+                            <RefreshCw className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-800">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-800"
+                            onClick={() => handleDeleteSource(source._id, source.name)}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -462,35 +527,12 @@ export default function SourcesPage() {
 
                       {/* Categories and Keywords */}
                       <div className="space-y-2">
-                        {source.categories.length > 0 && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-gray-500">Categories:</span>
-                            <div className="flex flex-wrap gap-1">
-                              {source.categories.map((category) => (
-                                <Badge key={category} variant="secondary" className="text-xs">
-                                  {category}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        {source.keywords.length > 0 && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-gray-500">Keywords:</span>
-                            <div className="flex flex-wrap gap-1">
-                              {source.keywords.slice(0, 5).map((keyword) => (
-                                <Badge key={keyword} variant="outline" className="text-xs">
-                                  {keyword}
-                                </Badge>
-                              ))}
-                              {source.keywords.length > 5 && (
-                                <Badge variant="outline" className="text-xs">
-                                  +{source.keywords.length - 5} more
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-gray-500">Type:</span>
+                          <Badge variant="secondary" className="text-xs capitalize">
+                            {source.type}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useQuery, api } from "@/lib/mockConvex";
 import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
 import { Radio, Database, Bell, TrendingUp } from "lucide-react";
@@ -87,32 +87,32 @@ export default function DashboardPage() {
           <div className="space-y-3 mb-6">
             <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
               <div className="h-2 w-2 rounded-full bg-green-400"></div>
-              <span className="text-sm text-[#f5f5f5]">Convex Provider Connected</span>
+              <span className="text-sm text-[#f5f5f5]">Frontend Application Running</span>
             </div>
             <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
               <div className="h-2 w-2 rounded-full bg-green-400"></div>
-              <span className="text-sm text-[#f5f5f5]">Deployment: hidden-seahorse-339</span>
+              <span className="text-sm text-[#f5f5f5]">Mock Data System Active</span>
             </div>
             <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
               <div className="h-2 w-2 rounded-full bg-green-400"></div>
-              <span className="text-sm text-[#f5f5f5]">URL: https://hidden-seahorse-339.convex.cloud</span>
+              <span className="text-sm text-[#f5f5f5]">All Dashboard Pages Available</span>
             </div>
           </div>
 
           <div className="border border-white/5 rounded-lg p-4 bg-blue-500/5">
-            <p className="text-sm font-medium text-blue-300 mb-2">Next Steps</p>
+            <p className="text-sm font-medium text-blue-300 mb-2">Available Features</p>
             <ul className="text-sm text-[#a3a3a3] space-y-1.5">
               <li className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 shrink-0"></div>
-                <span>Run <code className="bg-white/10 text-blue-300 px-1.5 py-0.5 rounded text-xs font-mono">npx convex dev</code> to generate API types</span>
+                <span>Navigate through all dashboard sections using the sidebar</span>
               </li>
               <li className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 shrink-0"></div>
-                <span>Import and use Convex queries in components</span>
+                <span>View team profiles, signals, sources, and analytics with mock data</span>
               </li>
               <li className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 shrink-0"></div>
-                <span>Create dashboard pages for Sources, Signals, and Analytics</span>
+                <span>All components styled and fully functional for demo purposes</span>
               </li>
             </ul>
           </div>

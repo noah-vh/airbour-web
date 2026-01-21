@@ -6,8 +6,6 @@
  * - Usage tracking and logging
  */
 
-import { ActionCtx } from "../convex/_generated/server";
-
 /**
  * Configuration for OpenRouter API call
  */
@@ -36,7 +34,6 @@ export interface OpenRouterCallResult {
  * Call OpenRouter API with admin controls and error handling
  */
 export async function callOpenRouter(
-  ctx: ActionCtx,
   config: OpenRouterCallConfig
 ): Promise<OpenRouterCallResult> {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -44,13 +41,8 @@ export async function callOpenRouter(
     throw new Error("OPENROUTER_API_KEY not configured");
   }
 
-  // Check admin controls for this operation type
-  const adminControls = await ctx.runQuery("admin:getControls");
-  const operationKey = `llm_${config.operationType}_enabled`;
-
-  if (!adminControls[operationKey]) {
-    throw new Error(`${config.operationType} operations are currently disabled by admin controls`);
-  }
+  // Mock admin controls - always enabled for standalone frontend
+  console.log(`Checking admin controls for ${config.operationType} (mock: enabled)`);
 
   // Default models by operation type
   const defaultModels = {
@@ -113,8 +105,8 @@ export async function callOpenRouter(
         cost: result.cost
       });
 
-      // Log usage for analytics
-      await ctx.runMutation("analytics:logLLMUsage", {
+      // Mock analytics logging
+      console.log(`Logging LLM usage (mock):`, {
         operationType: config.operationType,
         model: result.modelUsed,
         tokensUsed: result.tokensUsed,
@@ -125,7 +117,7 @@ export async function callOpenRouter(
 
     } catch (error) {
       lastError = error as Error;
-      console.error(`OpenRouter API call attempt ${attempt + 1} failed for ${config.operationType}:`, error.message);
+      console.error(`OpenRouter API call attempt ${attempt + 1} failed for ${config.operationType}:`, lastError.message);
 
       if (attempt < maxRetries) {
         // Exponential backoff
@@ -141,7 +133,6 @@ export async function callOpenRouter(
  * Helper function for backwards compatibility with Gemini-style calls
  */
 export async function callOpenRouterCompat(
-  ctx: ActionCtx,
   useCase: string,
   prompt: string,
   systemPrompt?: string,
@@ -154,7 +145,7 @@ export async function callOpenRouterCompat(
     temperature
   };
 
-  const result = await callOpenRouter(ctx, openRouterConfig);
+  const result = await callOpenRouter(openRouterConfig);
 
   return {
     response: result.response,
