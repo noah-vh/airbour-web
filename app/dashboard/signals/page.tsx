@@ -26,7 +26,8 @@ import {
   BarChart3,
   Zap,
   Target,
-  Lightbulb
+  Lightbulb,
+  Radio
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -459,8 +460,7 @@ export default function SignalsDashboard() {
               </Select>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
       {/* Signals Table */}
       <Card>
@@ -615,10 +615,9 @@ export default function SignalsDashboard() {
               )}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Edit Signal Dialog */}
+        {/* Edit Signal Dialog */}
       {editingSignal && (
         <Dialog open={!!editingSignal} onOpenChange={() => setEditingSignal(null)}>
           <DialogContent className="max-w-2xl">
