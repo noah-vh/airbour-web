@@ -178,3 +178,258 @@ export const refreshAllSources = mutation({
     return { refreshed: sources.length };
   },
 });
+
+export const getSource = query({
+  args: {
+    id: v.id("sources"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
+export const getSourcesDueForCollection = query({
+  args: {
+    intervalHours: v.optional(v.number()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const intervalHours = args.intervalHours || 24;
+    const cutoffTime = Date.now() - (intervalHours * 60 * 60 * 1000);
+
+    let query = ctx.db.query("sources")
+      .filter(q => q.eq(q.field("isActive"), true));
+
+    const sources = await query.collect();
+
+    // Filter sources that haven't been updated recently
+    const dueForCollection = sources.filter(source => {
+      const lastUpdated = new Date(source.lastUpdated).getTime();
+      return lastUpdated < cutoffTime;
+    });
+
+    const limit = args.limit || 50;
+    return dueForCollection.slice(0, limit);
+  },
+});
+
+export const getSourcesByUser = query({
+  args: {
+    userId: v.string(),
+    status: v.optional(v.string()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    let query = ctx.db.query("sources");
+
+    if (args.status) {
+      query = query.filter(q => q.eq(q.field("status"), args.status));
+    }
+
+    const sources = await query.collect();
+
+    // Filter by user if userId tracking was implemented
+    // For now, return all sources as placeholder
+    const limit = args.limit || 50;
+    return sources.slice(0, limit);
+  },
+});
+
+export const getSourceHealthStats = query({
+  args: {
+    timeframe: v.optional(v.string()), // "24h", "7d", "30d"
+  },
+  handler: async (ctx, args) => {
+    const sources = await ctx.db.query("sources").collect();
+
+    const now = Date.now();
+    let cutoffTime = now - (24 * 60 * 60 * 1000); // Default 24h
+
+    switch (args.timeframe) {
+      case "7d":
+        cutoffTime = now - (7 * 24 * 60 * 60 * 1000);
+        break;
+      case "30d":
+        cutoffTime = now - (30 * 24 * 60 * 60 * 1000);
+        break;
+    }
+
+    const recentSources = sources.filter(source => {
+      const lastUpdated = new Date(source.lastUpdated).getTime();
+      return lastUpdated >= cutoffTime;
+    });
+
+    const healthyCount = recentSources.filter(s => s.status === "active").length;
+    const errorCount = recentSources.filter(s => s.status === "error").length;
+    const stalledCount = sources.filter(source => {
+      const lastUpdated = new Date(source.lastUpdated).getTime();
+      return lastUpdated < cutoffTime && source.isActive;
+    }).length;
+
+    return {
+      total: sources.length,
+      healthy: healthyCount,
+      errors: errorCount,
+      stalled: stalledCount,
+      healthPercentage: sources.length > 0 ? Math.round((healthyCount / sources.length) * 100) : 0,
+      avgSignalsPerSource: sources.length > 0
+        ? Math.round(sources.reduce((sum, s) => sum + (s.signalCount || 0), 0) / sources.length)
+        : 0,
+    };
+  },
+});
+
+export const toggleSource = mutation({
+  args: {
+    id: v.id("sources"),
+  },
+  handler: async (ctx, args) => {
+    const source = await ctx.db.get(args.id);
+    if (!source) {
+      throw new Error("Source not found");
+    }
+
+    await ctx.db.patch(args.id, {
+      isActive: !source.isActive,
+      status: !source.isActive ? "pending" : "inactive",
+      lastUpdated: new Date().toISOString(),
+    });
+
+    return { success: true, isActive: !source.isActive };
+  },
+});
+
+export const updateSourceHealth = mutation({
+  args: {
+    id: v.id("sources"),
+    healthScore: v.number(),
+    errorCount: v.optional(v.number()),
+    lastError: v.optional(v.string()),
+    successfulCollections: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...healthData } = args;
+
+    await ctx.db.patch(id, {
+      ...healthData,
+      lastHealthCheck: new Date().toISOString(),
+      updatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+export const updateSourceCoverage = mutation({
+  args: {
+    id: v.id("sources"),
+    signalCount: v.number(),
+    coverageScore: v.optional(v.number()),
+    topicsCovered: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...coverageData } = args;
+
+    await ctx.db.patch(id, {
+      signalCount: coverageData.signalCount,
+      coverageScore: coverageData.coverageScore,
+      topicsCovered: coverageData.topicsCovered,
+      lastCoverageUpdate: new Date().toISOString(),
+      updatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+export const updateRateLimitCounters = mutation({
+  args: {
+    id: v.id("sources"),
+    requestsToday: v.number(),
+    requestsThisHour: v.number(),
+    tokensUsed: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...rateLimitData } = args;
+
+    await ctx.db.patch(id, {
+      ...rateLimitData,
+      lastRateLimitUpdate: new Date().toISOString(),
+      updatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+export const createUniversalSource = mutation({
+  args: {
+    name: v.string(),
+    type: v.string(),
+    url: v.string(),
+    description: v.optional(v.string()),
+    categories: v.array(v.string()),
+    keywords: v.array(v.string()),
+    collectionFrequency: v.optional(v.string()), // "hourly", "daily", "weekly"
+    isGlobal: v.boolean(),
+    priority: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const sourceId = await ctx.db.insert("sources", {
+      name: args.name,
+      type: args.type as any,
+      url: args.url,
+      description: args.description,
+      categories: args.categories,
+      keywords: args.keywords,
+      collectionFrequency: args.collectionFrequency || "daily",
+      isGlobal: args.isGlobal,
+      priority: args.priority || 1,
+      status: "pending" as any,
+      isActive: true,
+      signalCount: 0,
+      healthScore: 1.0,
+      coverageScore: 0,
+      requestsToday: 0,
+      requestsThisHour: 0,
+      tokensUsed: 0,
+      lastUpdated: new Date().toISOString(),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    return sourceId;
+  },
+});
+
+export const updateUniversalSourceAnalysis = mutation({
+  args: {
+    id: v.id("sources"),
+    analysisResult: v.object({
+      qualityScore: v.number(),
+      relevanceScore: v.number(),
+      freshnessScore: v.number(),
+      uniquenessScore: v.number(),
+      recommendedFrequency: v.string(),
+      topTopics: v.array(v.string()),
+      sentimentTrend: v.number(),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const { qualityScore, relevanceScore, freshnessScore, uniquenessScore } = args.analysisResult;
+
+    // Calculate overall coverage score
+    const overallScore = (qualityScore + relevanceScore + freshnessScore + uniquenessScore) / 4;
+
+    await ctx.db.patch(args.id, {
+      coverageScore: overallScore,
+      qualityMetrics: args.analysisResult,
+      collectionFrequency: args.analysisResult.recommendedFrequency,
+      topicsCovered: args.analysisResult.topTopics,
+      lastAnalysis: new Date().toISOString(),
+      updatedAt: Date.now(),
+    });
+
+    return { success: true, overallScore };
+  },
+});

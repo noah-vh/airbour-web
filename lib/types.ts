@@ -68,12 +68,15 @@ export interface Mention {
 export interface AdminControl {
   _id: string;
   key: string;
-  label: string;
+  label?: string;
   description: string;
   type: "boolean" | "number" | "string";
   value: boolean | number | string;
   category: string;
-  order: number;
+  order?: number;
+  lastUpdatedBy?: string;
+  lastUpdatedAt?: number;
+  createdAt?: number;
 }
 
 export interface Signal {

@@ -41,7 +41,7 @@ const navigation = [
   },
   {
     name: "Maps",
-    href: "/dashboard/analytics",
+    href: "/dashboard/maps",
     icon: Map,
   },
   {

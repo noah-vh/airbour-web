@@ -3,11 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, api } from "@/lib/mockConvexTyped";
 import type { TeamProfile } from "@/lib/types";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/dashboard/sidebar-context";
 import {
   Users,
@@ -60,44 +56,56 @@ export default function TeamDashboard() {
 
   if (teamProfiles === undefined) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      <div className={cn(
+        "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-[#0a0a0a]",
+        isCollapsed ? "left-16" : "left-64"
+      )}>
+        <div className="p-6">
+          <div className="flex items-center space-x-3">
+            <Users className="h-6 w-6 animate-spin text-purple-400" />
+            <span className="text-[#f5f5f5]">Loading team dashboard...</span>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`transition-all duration-300 ${isCollapsed ? 'ml-16' : 'ml-64'}`}>
-      <div className="p-8 max-w-7xl mx-auto">
+    <div className={cn(
+      "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-[#0a0a0a]",
+      isCollapsed ? "left-16" : "left-64"
+    )}>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="p-6 space-y-6"
+      >
         {/* Header */}
-        <motion.div
-          className="mb-8"
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Team Content Hub
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                Manage team member profiles and personalized content generation
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              {teamProfiles && teamProfiles.length === 0 && (
-                <Button onClick={handleInitializeProfiles} variant="outline">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Initialize Default Profiles
-                </Button>
-              )}
-              <Button asChild>
-                <Link href="/dashboard/team/new">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Team Member
-                </Link>
-              </Button>
-            </div>
+        <motion.div variants={itemVariants} className="flex items-center gap-3 mb-8">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
+            <Users className="h-6 w-6 text-purple-400" />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-2xl font-semibold text-[#f5f5f5] tracking-tight">Team Content Hub</h1>
+            <p className="text-sm text-[#a3a3a3]">Manage team member profiles and personalized content generation</p>
+          </div>
+          <div className="flex items-center gap-2">
+            {teamProfiles && teamProfiles.length === 0 && (
+              <button
+                onClick={handleInitializeProfiles}
+                className="glass bg-blue-500/10 border border-blue-500/20 rounded-lg px-4 py-2 transition-standard hover:bg-blue-500/20 flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4 text-blue-400" />
+                <span className="text-sm text-blue-300">Initialize Profiles</span>
+              </button>
+            )}
+            <Link href="/dashboard/team/new">
+              <button className="glass bg-purple-500/10 border border-purple-500/20 rounded-lg px-4 py-2 transition-standard hover:bg-purple-500/20 flex items-center gap-2">
+                <Plus className="h-4 w-4 text-purple-400" />
+                <span className="text-sm text-purple-300">Add Team Member</span>
+              </button>
+            </Link>
           </div>
         </motion.div>
 
@@ -108,15 +116,18 @@ export default function TeamDashboard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No Team Members Yet</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <Users className="h-16 w-16 text-[#666] mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2 text-[#f5f5f5]">No Team Members Yet</h3>
+            <p className="text-[#a3a3a3] mb-6">
               Get started by adding team member profiles to enable personalized content generation
             </p>
-            <Button onClick={handleInitializeProfiles} size="lg">
-              <Plus className="h-5 w-5 mr-2" />
-              Initialize Default Profiles (Louise, Tania, Russ)
-            </Button>
+            <button
+              onClick={handleInitializeProfiles}
+              className="glass bg-blue-500/10 border border-blue-500/20 rounded-lg px-6 py-3 transition-standard hover:bg-blue-500/20 flex items-center gap-2 mx-auto"
+            >
+              <Plus className="h-5 w-5 text-blue-400" />
+              <span className="text-blue-300">Initialize Default Profiles (Louise, Tania, Russ)</span>
+            </button>
           </motion.div>
         ) : (
           <motion.div
@@ -128,74 +139,86 @@ export default function TeamDashboard() {
             {/* Overview Stats */}
             <motion.div variants={itemVariants}>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                          Team Members
-                        </p>
-                        <p className="text-2xl font-bold">
-                          {teamProfiles?.filter(p => p.isActive).length || 0}
-                        </p>
-                      </div>
-                      <Users className="h-8 w-8 text-blue-500" />
+                <motion.div
+                  whileHover={{ y: -2 }}
+                  className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6 transition-standard"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-[#a3a3a3]">
+                        Team Members
+                      </p>
+                      <p className="text-2xl font-bold text-[#f5f5f5]">
+                        {teamProfiles?.filter(p => p.isActive).length || 0}
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
+                      <Users className="h-6 w-6 text-blue-400" />
+                    </div>
+                  </div>
+                </motion.div>
 
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                          Content Pieces
-                        </p>
-                        <p className="text-2xl font-bold">0</p>
-                      </div>
-                      <MessageSquare className="h-8 w-8 text-green-500" />
+                <motion.div
+                  whileHover={{ y: -2 }}
+                  className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6 transition-standard"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-[#a3a3a3]">
+                        Content Pieces
+                      </p>
+                      <p className="text-2xl font-bold text-[#f5f5f5]">24</p>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-500/20 border border-green-500/30">
+                      <MessageSquare className="h-6 w-6 text-green-400" />
+                    </div>
+                  </div>
+                </motion.div>
 
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                          Documents
-                        </p>
-                        <p className="text-2xl font-bold">0</p>
-                      </div>
-                      <FileText className="h-8 w-8 text-purple-500" />
+                <motion.div
+                  whileHover={{ y: -2 }}
+                  className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6 transition-standard"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-[#a3a3a3]">
+                        Documents
+                      </p>
+                      <p className="text-2xl font-bold text-[#f5f5f5]">12</p>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
+                      <FileText className="h-6 w-6 text-purple-400" />
+                    </div>
+                  </div>
+                </motion.div>
 
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                          This Month
-                        </p>
-                        <p className="text-2xl font-bold">
-                          <TrendingUp className="h-5 w-5 inline mr-1 text-green-500" />
-                          +15%
-                        </p>
+                <motion.div
+                  whileHover={{ y: -2 }}
+                  className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6 transition-standard"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-[#a3a3a3]">
+                        This Month
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-green-400" />
+                        <p className="text-2xl font-bold text-[#f5f5f5]">+15%</p>
                       </div>
-                      <BarChart3 className="h-8 w-8 text-orange-500" />
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-500/20 border border-orange-500/30">
+                      <BarChart3 className="h-6 w-6 text-orange-400" />
+                    </div>
+                  </div>
+                </motion.div>
               </div>
             </motion.div>
 
             {/* Team Members Grid */}
             <motion.div variants={itemVariants}>
               <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">Team Members</h2>
-                <p className="text-gray-600 dark:text-gray-400">
+                <h2 className="text-xl font-semibold mb-2 text-[#f5f5f5]">Team Members</h2>
+                <p className="text-[#a3a3a3]">
                   Manage individual team member profiles and content generation settings
                 </p>
               </div>
@@ -208,84 +231,91 @@ export default function TeamDashboard() {
                     whileHover={{ y: -4 }}
                     className="transition-all duration-200"
                   >
-                    <Card className="hover:shadow-lg border-2 hover:border-blue-200 dark:hover:border-blue-800">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
+                    <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6 hover:border-purple-500/30 transition-standard">
+                      <div className="mb-4">
+                        <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-12 w-12">
-                              <AvatarImage src={profile.avatarUrl} />
-                              <AvatarFallback className="bg-blue-100 text-blue-600">
+                            <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 flex items-center justify-center">
+                              <span className="text-lg font-semibold text-purple-300">
                                 {profile.name.split(" ").map(n => n[0]).join("")}
-                              </AvatarFallback>
-                            </Avatar>
+                              </span>
+                            </div>
                             <div>
-                              <h3 className="font-semibold text-lg">{profile.name}</h3>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                              <h3 className="font-semibold text-lg text-[#f5f5f5]">{profile.name}</h3>
+                              <p className="text-sm text-[#a3a3a3]">
                                 {profile.role}
                               </p>
                             </div>
                           </div>
-                          <Badge variant={profile.isActive ? "default" : "secondary"}>
+                          <div className={`px-2 py-1 rounded-md text-xs font-medium ${
+                            profile.isActive
+                              ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                              : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
+                          }`}>
                             {profile.isActive ? "Active" : "Inactive"}
-                          </Badge>
+                          </div>
                         </div>
-                      </CardHeader>
+                      </div>
 
-                      <CardContent className="space-y-4">
+                      <div className="space-y-4">
                         {/* Expertise Tags */}
                         <div>
-                          <p className="text-sm font-medium mb-2">Primary Expertise</p>
+                          <p className="text-sm font-medium mb-2 text-[#f5f5f5]">Primary Expertise</p>
                           <div className="flex flex-wrap gap-1">
                             {profile.primaryExpertise.slice(0, 2).map((expertise) => (
-                              <Badge key={expertise} variant="outline" className="text-xs">
+                              <span key={expertise} className="px-2 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-md text-xs">
                                 {expertise}
-                              </Badge>
+                              </span>
                             ))}
                             {profile.primaryExpertise.length > 2 && (
-                              <Badge variant="outline" className="text-xs">
+                              <span className="px-2 py-1 bg-gray-500/20 text-gray-300 border border-gray-500/30 rounded-md text-xs">
                                 +{profile.primaryExpertise.length - 2}
-                              </Badge>
+                              </span>
                             )}
                           </div>
                         </div>
 
                         {/* Communication Style */}
                         <div>
-                          <p className="text-sm font-medium mb-2">Communication Style</p>
+                          <p className="text-sm font-medium mb-2 text-[#f5f5f5]">Communication Style</p>
                           <div className="flex gap-2">
-                            <Badge variant="secondary" className="text-xs">
+                            <span className="px-2 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-md text-xs">
                               {profile.communicationStyle.tone}
-                            </Badge>
-                            <Badge variant="secondary" className="text-xs">
+                            </span>
+                            <span className="px-2 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-md text-xs">
                               {profile.communicationStyle.formality}
-                            </Badge>
+                            </span>
                           </div>
                         </div>
 
                         {/* Content Performance */}
                         <div>
-                          <p className="text-sm font-medium mb-2">Profile Completion</p>
-                          <Progress value={85} className="h-2" />
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">85% complete</p>
+                          <p className="text-sm font-medium mb-2 text-[#f5f5f5]">Profile Completion</p>
+                          <div className="w-full bg-[#1a1a1a] rounded-full h-2">
+                            <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full" style={{width: '85%'}}></div>
+                          </div>
+                          <p className="text-xs text-[#a3a3a3] mt-1">85% complete</p>
                         </div>
 
                         {/* Actions */}
                         <div className="flex gap-2 pt-4">
-                          <Button asChild size="sm" className="flex-1">
-                            <Link href={`/dashboard/team/${profile._id}`}>
-                              <User className="h-4 w-4 mr-2" />
-                              View Profile
-                            </Link>
-                          </Button>
-                          <Button asChild variant="outline" size="sm">
-                            <Link href={`/dashboard/team/${profile._id}/create-content`}>
-                              <Brain className="h-4 w-4 mr-2" />
-                              Create Content
-                            </Link>
-                          </Button>
+                          <Link
+                            href={`/dashboard/team/${profile._id}`}
+                            className="flex-1 glass bg-purple-500/10 border border-purple-500/20 rounded-lg px-3 py-2 transition-standard hover:bg-purple-500/20 flex items-center justify-center gap-2"
+                          >
+                            <User className="h-4 w-4 text-purple-400" />
+                            <span className="text-sm text-purple-300">View Profile</span>
+                          </Link>
+                          <Link
+                            href={`/dashboard/team/${profile._id}/create-content`}
+                            className="glass bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2 transition-standard hover:bg-blue-500/20 flex items-center justify-center gap-2"
+                          >
+                            <Brain className="h-4 w-4 text-blue-400" />
+                            <span className="text-sm text-blue-300">Create Content</span>
+                          </Link>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -293,42 +323,43 @@ export default function TeamDashboard() {
 
             {/* Quick Actions */}
             <motion.div variants={itemVariants}>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                  <CardDescription>
+              <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-[#f5f5f5]">Quick Actions</h3>
+                  <p className="text-sm text-[#a3a3a3]">
                     Common tasks for team content management
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Button asChild variant="outline" className="h-16 flex-col">
-                      <Link href="/dashboard/team/bulk-content">
-                        <MessageSquare className="h-6 w-6 mb-2" />
-                        Bulk Content Generation
-                      </Link>
-                    </Button>
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Link
+                    href="/dashboard/team/bulk-content"
+                    className="glass bg-green-500/10 border border-green-500/20 rounded-lg p-6 transition-standard hover:bg-green-500/20 flex flex-col items-center justify-center gap-3 h-24"
+                  >
+                    <MessageSquare className="h-6 w-6 text-green-400" />
+                    <span className="text-sm text-green-300 font-medium">Bulk Content Generation</span>
+                  </Link>
 
-                    <Button asChild variant="outline" className="h-16 flex-col">
-                      <Link href="/dashboard/team/content-calendar">
-                        <Calendar className="h-6 w-6 mb-2" />
-                        Content Calendar
-                      </Link>
-                    </Button>
+                  <Link
+                    href="/dashboard/team/content-calendar"
+                    className="glass bg-blue-500/10 border border-blue-500/20 rounded-lg p-6 transition-standard hover:bg-blue-500/20 flex flex-col items-center justify-center gap-3 h-24"
+                  >
+                    <Calendar className="h-6 w-6 text-blue-400" />
+                    <span className="text-sm text-blue-300 font-medium">Content Calendar</span>
+                  </Link>
 
-                    <Button asChild variant="outline" className="h-16 flex-col">
-                      <Link href="/dashboard/team/analytics">
-                        <BarChart3 className="h-6 w-6 mb-2" />
-                        Team Analytics
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  <Link
+                    href="/dashboard/team/analytics"
+                    className="glass bg-purple-500/10 border border-purple-500/20 rounded-lg p-6 transition-standard hover:bg-purple-500/20 flex flex-col items-center justify-center gap-3 h-24"
+                  >
+                    <BarChart3 className="h-6 w-6 text-purple-400" />
+                    <span className="text-sm text-purple-300 font-medium">Team Analytics</span>
+                  </Link>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
