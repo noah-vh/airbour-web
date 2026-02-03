@@ -9,6 +9,7 @@
  */
 
 import type * as actions_analyzeDocument from "../actions/analyzeDocument.js";
+import type * as actions_billing from "../actions/billing.js";
 import type * as actions_chat from "../actions/chat.js";
 import type * as actions_classify from "../actions/classify.js";
 import type * as actions_contentGeneration from "../actions/contentGeneration.js";
@@ -18,6 +19,7 @@ import type * as actions_generateContentIdeas from "../actions/generateContentId
 import type * as actions_generateNewsletter from "../actions/generateNewsletter.js";
 import type * as actions_generatePersonalizedContent from "../actions/generatePersonalizedContent.js";
 import type * as actions_newsletterGeneration from "../actions/newsletterGeneration.js";
+import type * as actions_selfOptimization from "../actions/selfOptimization.js";
 import type * as actions_testOpenRouter from "../actions/testOpenRouter.js";
 import type * as adminControls from "../adminControls.js";
 import type * as chat from "../chat.js";
@@ -40,6 +42,7 @@ import type * as lightweight from "../lightweight.js";
 import type * as mentions from "../mentions.js";
 import type * as metrics from "../metrics.js";
 import type * as newsletters from "../newsletters.js";
+import type * as organizations from "../organizations.js";
 import type * as personalDocuments from "../personalDocuments.js";
 import type * as platformFormats from "../platformFormats.js";
 import type * as processingJobs from "../processingJobs.js";
@@ -59,6 +62,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   "actions/analyzeDocument": typeof actions_analyzeDocument;
+  "actions/billing": typeof actions_billing;
   "actions/chat": typeof actions_chat;
   "actions/classify": typeof actions_classify;
   "actions/contentGeneration": typeof actions_contentGeneration;
@@ -68,6 +72,7 @@ declare const fullApi: ApiFromModules<{
   "actions/generateNewsletter": typeof actions_generateNewsletter;
   "actions/generatePersonalizedContent": typeof actions_generatePersonalizedContent;
   "actions/newsletterGeneration": typeof actions_newsletterGeneration;
+  "actions/selfOptimization": typeof actions_selfOptimization;
   "actions/testOpenRouter": typeof actions_testOpenRouter;
   adminControls: typeof adminControls;
   chat: typeof chat;
@@ -90,6 +95,7 @@ declare const fullApi: ApiFromModules<{
   mentions: typeof mentions;
   metrics: typeof metrics;
   newsletters: typeof newsletters;
+  organizations: typeof organizations;
   personalDocuments: typeof personalDocuments;
   platformFormats: typeof platformFormats;
   processingJobs: typeof processingJobs;

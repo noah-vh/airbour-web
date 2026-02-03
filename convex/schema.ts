@@ -6,6 +6,19 @@ import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 
 export default defineSchema({
+  // Multi-tenancy Organizations
+  organizations: defineTable({
+    name: v.string(),
+    slug: v.string(),
+    ownerId: v.string(), // Clerk user ID
+    plan: v.string(), // "free", "starter", "pro"
+    stripeCustomerId: v.optional(v.string()),
+    stripeSubscriptionId: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_owner", ["ownerId"]),
+
   signals: defineTable(v.any())
     .index("by_lifecycle", ["lifecycle"])
     .index("by_creation", ["createdAt"])
