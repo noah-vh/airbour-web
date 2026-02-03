@@ -112,4 +112,28 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_platform", ["platform"]),
+
+  // Newsletter SaaS - Subscriber Management
+  subscribers: defineTable({
+    email: v.string(),
+    name: v.optional(v.string()),
+    status: v.string(), // "active", "unsubscribed", "bounced"
+    source: v.string(), // "landing", "import", "api"
+    tags: v.optional(v.array(v.string())),
+    createdAt: v.number(),
+  })
+    .index("by_email", ["email"])
+    .index("by_status", ["status"]),
+
+  // Newsletter SaaS - Email Engagement Tracking
+  email_events: defineTable({
+    subscriberId: v.optional(v.id("subscribers")),
+    newsletterId: v.id("newsletters"),
+    eventType: v.string(), // "sent", "delivered", "opened", "clicked", "bounced"
+    metadata: v.optional(v.any()),
+    timestamp: v.number(),
+  })
+    .index("by_newsletter", ["newsletterId"])
+    .index("by_type", ["eventType"])
+    .index("by_subscriber", ["subscriberId"]),
 })

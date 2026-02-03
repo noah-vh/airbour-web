@@ -12,6 +12,7 @@ import type * as actions_analyzeDocument from "../actions/analyzeDocument.js";
 import type * as actions_chat from "../actions/chat.js";
 import type * as actions_classify from "../actions/classify.js";
 import type * as actions_contentGeneration from "../actions/contentGeneration.js";
+import type * as actions_emailDelivery from "../actions/emailDelivery.js";
 import type * as actions_enrichSignal from "../actions/enrichSignal.js";
 import type * as actions_generateContentIdeas from "../actions/generateContentIdeas.js";
 import type * as actions_generateNewsletter from "../actions/generateNewsletter.js";
@@ -31,7 +32,9 @@ import type * as collectors_rssNews from "../collectors/rssNews.js";
 import type * as contentDrafts from "../contentDrafts.js";
 import type * as contentIdeas from "../contentIdeas.js";
 import type * as contentIdeation from "../contentIdeation.js";
+import type * as crons from "../crons.js";
 import type * as diagnostics from "../diagnostics.js";
+import type * as emailEvents from "../emailEvents.js";
 import type * as lib_rate_limiter from "../lib/rate_limiter.js";
 import type * as lightweight from "../lightweight.js";
 import type * as mentions from "../mentions.js";
@@ -41,9 +44,11 @@ import type * as personalDocuments from "../personalDocuments.js";
 import type * as platformFormats from "../platformFormats.js";
 import type * as processingJobs from "../processingJobs.js";
 import type * as rateLimiter from "../rateLimiter.js";
+import type * as scheduler from "../scheduler.js";
 import type * as seed_platformFormats from "../seed/platformFormats.js";
 import type * as signals from "../signals.js";
 import type * as sources from "../sources.js";
+import type * as subscribers from "../subscribers.js";
 import type * as teamProfiles from "../teamProfiles.js";
 
 import type {
@@ -57,6 +62,7 @@ declare const fullApi: ApiFromModules<{
   "actions/chat": typeof actions_chat;
   "actions/classify": typeof actions_classify;
   "actions/contentGeneration": typeof actions_contentGeneration;
+  "actions/emailDelivery": typeof actions_emailDelivery;
   "actions/enrichSignal": typeof actions_enrichSignal;
   "actions/generateContentIdeas": typeof actions_generateContentIdeas;
   "actions/generateNewsletter": typeof actions_generateNewsletter;
@@ -76,7 +82,9 @@ declare const fullApi: ApiFromModules<{
   contentDrafts: typeof contentDrafts;
   contentIdeas: typeof contentIdeas;
   contentIdeation: typeof contentIdeation;
+  crons: typeof crons;
   diagnostics: typeof diagnostics;
+  emailEvents: typeof emailEvents;
   "lib/rate_limiter": typeof lib_rate_limiter;
   lightweight: typeof lightweight;
   mentions: typeof mentions;
@@ -86,9 +94,11 @@ declare const fullApi: ApiFromModules<{
   platformFormats: typeof platformFormats;
   processingJobs: typeof processingJobs;
   rateLimiter: typeof rateLimiter;
+  scheduler: typeof scheduler;
   "seed/platformFormats": typeof seed_platformFormats;
   signals: typeof signals;
   sources: typeof sources;
+  subscribers: typeof subscribers;
   teamProfiles: typeof teamProfiles;
 }>;
 
