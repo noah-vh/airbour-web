@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
+import { Id } from "@/convex/_generated/dataModel";
 import {
   Mail,
   Plus,
@@ -33,62 +34,120 @@ import Link from "next/link";
 
 interface NewsletterSection {
   id: string;
-  type: "header" | "signal_highlight" | "trending_mentions" | "custom_content" | "footer";
+  type: "header" | "signal_highlight" | "trending_mentions" | "data_insights" | "expert_commentary" | "quick_takes" | "innovation_spotlight" | "resources" | "custom_content" | "footer";
   title: string;
   content: string;
-  signalIds?: string[];
-  mentionIds?: string[];
+  signalIds?: Id<"signals">[];
+  mentionIds?: Id<"raw_mentions">[];
   order: number;
+  aiGenerated?: boolean;
+  generatedAt?: number;
 }
+
+import {
+  BarChart3,
+  Lightbulb,
+  Link,
+  Zap,
+  AlignCenter,
+  MessageSquare
+} from "lucide-react";
 
 const SECTION_TYPES = [
   {
     type: "header",
-    label: "Header Section",
-    description: "Newsletter introduction and branding",
+    label: "Header",
+    description: "Newsletter introduction",
     icon: FileText,
     defaultContent: "Welcome to this week's innovation insights..."
   },
   {
     type: "signal_highlight",
     label: "Signal Highlight",
-    description: "Showcase selected innovation signals",
+    description: "Showcase innovation signals",
     icon: Radio,
     defaultContent: "This week's most important innovation signals..."
   },
   {
     type: "trending_mentions",
     label: "Trending Mentions",
-    description: "Popular mentions and discussions",
+    description: "Popular discussions",
     icon: TrendingUp,
     defaultContent: "What's trending in the innovation community..."
   },
   {
+    type: "data_insights",
+    label: "Data Insights",
+    description: "Charts and statistics",
+    icon: BarChart3,
+    defaultContent: "Key data insights from our signals..."
+  },
+  {
+    type: "expert_commentary",
+    label: "Expert Commentary",
+    description: "Curated expert opinions",
+    icon: MessageSquare,
+    defaultContent: "What experts are saying..."
+  },
+  {
+    type: "quick_takes",
+    label: "Quick Takes",
+    description: "Brief micro-trend summaries",
+    icon: Zap,
+    defaultContent: "Quick takes on emerging trends..."
+  },
+  {
+    type: "innovation_spotlight",
+    label: "Innovation Spotlight",
+    description: "Deep dive on major signal",
+    icon: Lightbulb,
+    defaultContent: "This week's innovation spotlight..."
+  },
+  {
+    type: "resources",
+    label: "Resources",
+    description: "Curated links and tools",
+    icon: Link,
+    defaultContent: "Recommended resources..."
+  },
+  {
     type: "custom_content",
     label: "Custom Content",
-    description: "Your own editorial content",
+    description: "Your own content",
     icon: Edit,
     defaultContent: "Add your thoughts and insights..."
   },
   {
     type: "footer",
     label: "Footer",
-    description: "Newsletter footer and unsubscribe",
-    icon: Mail,
+    description: "Newsletter footer",
+    icon: AlignCenter,
     defaultContent: "Thank you for reading! Stay innovative..."
   }
 ] as const;
 
 export default function CreateNewsletterPage() {
   const { isCollapsed } = useSidebar();
-  const [selectedSignalIds, setSelectedSignalIds] = useState<string[]>([]);
-  const [selectedMentionIds, setSelectedMentionIds] = useState<string[]>([]);
+  const [selectedSignalIds, setSelectedSignalIds] = useState<Id<"signals">[]>([]);
+  const [selectedMentionIds, setSelectedMentionIds] = useState<Id<"raw_mentions">[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterLifecycle, setFilterLifecycle] = useState<string>("");
   const [newsletterTitle, setNewsletterTitle] = useState("");
   const [newsletterSubject, setNewsletterSubject] = useState("");
   const [sections, setSections] = useState<NewsletterSection[]>([]);
   const [editingSection, setEditingSection] = useState<string | null>(null);
+  const [generatingSections, setGeneratingSections] = useState<Set<string>>(new Set());
+  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+
+  // Actions
+  const generateSectionAction = useAction(api.actions.newsletterGeneration.generateNewsletterSection);
+
+  // Calculate statistics
+  const totalWords = sections.reduce((sum, section) => {
+    return sum + section.content.split(/\s+/).filter(w => w.length > 0).length;
+  }, 0);
+  const aiGeneratedCount = sections.filter(s => s.aiGenerated).length;
 
   // Queries
   const signals = useQuery(api.signals.listSignals, {
@@ -130,14 +189,26 @@ export default function CreateNewsletterPage() {
     const sectionType = SECTION_TYPES.find(s => s.type === type);
     if (!sectionType) return;
 
+    // Auto-assign signals/mentions based on section type
+    let assignedSignalIds: Id<"signals">[] = [];
+    let assignedMentionIds: Id<"raw_mentions">[] = [];
+
+    if (['signal_highlight', 'data_insights', 'innovation_spotlight', 'quick_takes', 'resources'].includes(type)) {
+      assignedSignalIds = [...selectedSignalIds];
+    }
+    if (['trending_mentions', 'expert_commentary'].includes(type)) {
+      assignedMentionIds = [...selectedMentionIds];
+    }
+
     const newSection: NewsletterSection = {
       id: `section-${Date.now()}`,
       type,
       title: sectionType.label,
       content: sectionType.defaultContent,
-      signalIds: type === "signal_highlight" ? [...selectedSignalIds] : [],
-      mentionIds: type === "trending_mentions" ? [...selectedMentionIds] : [],
-      order: sections.length
+      signalIds: assignedSignalIds,
+      mentionIds: assignedMentionIds,
+      order: sections.length,
+      aiGenerated: false,
     };
 
     setSections(prev => [...prev, newSection]);
@@ -170,12 +241,82 @@ export default function CreateNewsletterPage() {
     });
   };
 
-  const generateNewsletterContent = () => {
+  // Generate content for a single section
+  const generateNewsletterSection = async (sectionId: string) => {
+    const section = sections.find(s => s.id === sectionId);
+    if (!section) return;
+
+    setGeneratingSections(prev => new Set(prev).add(sectionId));
+
+    try {
+      const result = await generateSectionAction({
+        sectionType: section.type,
+        signalIds: section.signalIds || [],
+        mentionIds: section.mentionIds || [],
+      });
+
+      setSections(prev => prev.map(s =>
+        s.id === sectionId
+          ? { ...s, content: result.content, aiGenerated: true, generatedAt: Date.now() }
+          : s
+      ));
+
+      toast.success(`${section.title} generated successfully`);
+    } catch (error: any) {
+      toast.error(`Failed to generate: ${error.message}`);
+    } finally {
+      setGeneratingSections(prev => {
+        const next = new Set(prev);
+        next.delete(sectionId);
+        return next;
+      });
+    }
+  };
+
+  // Generate all sections at once
+  const generateNewsletterContent = async () => {
     if (sections.length === 0) {
       toast.error("Add at least one section to generate content");
       return;
     }
-    toast.success("Newsletter content generated with AI assistance");
+
+    setIsGeneratingAll(true);
+    let successCount = 0;
+    let errorCount = 0;
+
+    try {
+      // Generate all sections in parallel
+      await Promise.all(
+        sections.map(async (section) => {
+          try {
+            const result = await generateSectionAction({
+              sectionType: section.type,
+              signalIds: section.signalIds || [],
+              mentionIds: section.mentionIds || [],
+            });
+
+            setSections(prev => prev.map(s =>
+              s.id === section.id
+                ? { ...s, content: result.content, aiGenerated: true, generatedAt: Date.now() }
+                : s
+            ));
+
+            successCount++;
+          } catch (error) {
+            errorCount++;
+          }
+        })
+      );
+
+      if (successCount > 0) {
+        toast.success(`Generated ${successCount} sections successfully`);
+      }
+      if (errorCount > 0) {
+        toast.error(`Failed to generate ${errorCount} sections`);
+      }
+    } finally {
+      setIsGeneratingAll(false);
+    }
   };
 
   const saveNewsletter = () => {
@@ -215,12 +356,46 @@ export default function CreateNewsletterPage() {
             <p className="text-sm text-[#a3a3a3]">Build your newsletter with signals, mentions, and custom content</p>
           </div>
           <div className="flex items-center gap-2">
+            {sections.length > 0 && (
+              <div className="flex items-center gap-3 mr-4 text-sm">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                  <span className="text-[#a3a3a3]">{sections.length} sections</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="h-3 w-3 text-purple-400" />
+                  <span className="text-[#a3a3a3]">{aiGeneratedCount} AI-generated</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <FileText className="h-3 w-3 text-orange-400" />
+                  <span className="text-[#a3a3a3]">{totalWords} words</span>
+                </div>
+              </div>
+            )}
+            <button
+              onClick={() => setShowPreview(!showPreview)}
+              disabled={sections.length === 0}
+              className="glass bg-white/5 border border-white/10 rounded-lg px-4 py-2 transition-standard hover:bg-white/10 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Eye className="h-4 w-4 text-[#a3a3a3]" />
+              <span className="text-sm text-[#f5f5f5]">{showPreview ? 'Edit' : 'Preview'}</span>
+            </button>
             <button
               onClick={generateNewsletterContent}
-              className="glass bg-purple-500/10 border border-purple-500/20 rounded-lg px-4 py-2 transition-standard hover:bg-purple-500/20 flex items-center gap-2"
+              disabled={isGeneratingAll || sections.length === 0}
+              className="glass bg-purple-500/10 border border-purple-500/20 rounded-lg px-4 py-2 transition-standard hover:bg-purple-500/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Sparkles className="h-4 w-4 text-purple-400" />
-              <span className="text-sm text-purple-300">AI Generate</span>
+              {isGeneratingAll ? (
+                <>
+                  <div className="h-4 w-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-sm text-purple-300">Generating...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 text-purple-400" />
+                  <span className="text-sm text-purple-300">AI Generate All</span>
+                </>
+              )}
             </button>
             <button
               onClick={saveNewsletter}
@@ -416,14 +591,39 @@ export default function CreateNewsletterPage() {
               </div>
             </div>
 
-            {/* Newsletter Structure */}
+            {/* Newsletter Structure / Preview */}
             <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-[#f5f5f5]">Newsletter Structure</h3>
+                <h3 className="text-lg font-semibold text-[#f5f5f5]">
+                  {showPreview ? 'Newsletter Preview' : 'Newsletter Structure'}
+                </h3>
                 <div className="text-sm text-[#666]">{sections.length} sections</div>
               </div>
 
-              {sections.length > 0 ? (
+              {showPreview && sections.length > 0 ? (
+                <div className="max-w-2xl mx-auto">
+                  {/* Email Preview */}
+                  <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                    {/* Email Header */}
+                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
+                      <h1 className="text-2xl font-bold mb-2">{newsletterTitle || 'Your Newsletter Title'}</h1>
+                      <p className="text-blue-100">{newsletterSubject || 'Newsletter subject line'}</p>
+                    </div>
+
+                    {/* Email Body */}
+                    <div className="p-8 space-y-6">
+                      {sections.map((section) => (
+                        <div key={section.id} className="border-b border-gray-200 pb-6 last:border-0">
+                          <h2 className="text-xl font-semibold text-gray-900 mb-3">{section.title}</h2>
+                          <div className="text-gray-700 whitespace-pre-wrap prose prose-sm max-w-none">
+                            {section.content}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : sections.length > 0 ? (
                 <Reorder.Group values={sections} onReorder={setSections} className="space-y-3">
                   {sections.map((section, index) => {
                     const sectionType = SECTION_TYPES.find(s => s.type === section.type);
@@ -446,15 +646,21 @@ export default function CreateNewsletterPage() {
                           </div>
 
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
                               <h4 className="text-sm font-semibold text-[#f5f5f5]">{section.title}</h4>
+                              {section.aiGenerated && (
+                                <div className="px-2 py-0.5 rounded-full bg-purple-500/20 text-xs text-purple-300 border border-purple-500/30 flex items-center gap-1">
+                                  <Sparkles className="h-2.5 w-2.5" />
+                                  AI
+                                </div>
+                              )}
                               {section.signalIds && section.signalIds.length > 0 && (
-                                <div className="px-2 py-1 rounded bg-blue-500/20 text-xs text-blue-300">
+                                <div className="px-2 py-0.5 rounded-full bg-blue-500/20 text-xs text-blue-300 border border-blue-500/30">
                                   {section.signalIds.length} signals
                                 </div>
                               )}
                               {section.mentionIds && section.mentionIds.length > 0 && (
-                                <div className="px-2 py-1 rounded bg-green-500/20 text-xs text-green-300">
+                                <div className="px-2 py-0.5 rounded-full bg-green-500/20 text-xs text-green-300 border border-green-500/30">
                                   {section.mentionIds.length} mentions
                                 </div>
                               )}
@@ -492,6 +698,18 @@ export default function CreateNewsletterPage() {
                           </div>
 
                           <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => generateNewsletterSection(section.id)}
+                              disabled={generatingSections.has(section.id)}
+                              className="flex h-6 w-6 items-center justify-center rounded text-[#a3a3a3] hover:bg-white/10 hover:text-purple-400 transition-standard disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Generate content with AI"
+                            >
+                              {generatingSections.has(section.id) ? (
+                                <div className="h-3 w-3 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                <Sparkles className="h-3 w-3" />
+                              )}
+                            </button>
                             <button
                               onClick={() => moveSection(section.id, "up")}
                               disabled={index === 0}

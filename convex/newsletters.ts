@@ -244,3 +244,110 @@ export const listScheduledNewsletters = query({
     }))
   },
 })
+
+// AI Content Generation functions
+export const create = mutation({
+  args: {
+    title: v.string(),
+    subject: v.string(),
+    sections: v.array(v.object({
+      id: v.string(),
+      type: v.string(),
+      title: v.string(),
+      content: v.string(),
+      order: v.number(),
+      signalIds: v.optional(v.array(v.id("signals"))),
+      mentionIds: v.optional(v.array(v.id("raw_mentions"))),
+      aiGenerated: v.boolean(),
+      generatedAt: v.optional(v.number()),
+    })),
+    templateId: v.optional(v.id("newsletter_templates")),
+    sourceSignalIds: v.optional(v.array(v.id("signals"))),
+    sourceMentionIds: v.optional(v.array(v.id("raw_mentions"))),
+    createdBy: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const newsletterId = await ctx.db.insert("newsletters", {
+      title: args.title,
+      subject: args.subject,
+      status: "draft",
+      sections: args.sections,
+      templateId: args.templateId,
+      sourceSignalIds: args.sourceSignalIds || [],
+      sourceMentionIds: args.sourceMentionIds || [],
+      createdBy: args.createdBy,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      version: 1,
+    });
+
+    return newsletterId;
+  },
+});
+
+export const update = mutation({
+  args: {
+    id: v.id("newsletters"),
+    title: v.optional(v.string()),
+    subject: v.optional(v.string()),
+    status: v.optional(v.union(v.literal("draft"), v.literal("scheduled"), v.literal("sent"), v.literal("archived"))),
+    sections: v.optional(v.array(v.object({
+      id: v.string(),
+      type: v.string(),
+      title: v.string(),
+      content: v.string(),
+      order: v.number(),
+      signalIds: v.optional(v.array(v.id("signals"))),
+      mentionIds: v.optional(v.array(v.id("raw_mentions"))),
+      aiGenerated: v.boolean(),
+      generatedAt: v.optional(v.number()),
+    }))),
+    scheduledFor: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...updates } = args;
+
+    await ctx.db.patch(id, {
+      ...updates,
+      updatedAt: Date.now(),
+    });
+
+    return id;
+  },
+});
+
+export const remove = mutation({
+  args: { id: v.id("newsletters") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});
+
+export const get = query({
+  args: { id: v.id("newsletters") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
+export const list = query({
+  args: {
+    status: v.optional(v.union(v.literal("draft"), v.literal("scheduled"), v.literal("sent"), v.literal("archived"))),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    let query = ctx.db.query("newsletters");
+
+    if (args.status) {
+      query = query.withIndex("by_status", (q) => q.eq("status", args.status));
+    } else {
+      query = query.withIndex("by_created");
+    }
+
+    const newsletters = await query
+      .order("desc")
+      .take(args.limit || 50);
+
+    return newsletters;
+  },
+});

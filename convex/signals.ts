@@ -11,13 +11,43 @@ export const listSignals = query({
   },
   handler: async (ctx, args) => {
     let query = ctx.db.query("signals");
-
     let signals = await query.collect();
+
+    // Get all signal updates
+    const allUpdates = await ctx.db.query("signal_updates").collect();
+
+    // Create a map of latest updates for each signal
+    const signalUpdatesMap = new Map();
+    allUpdates.forEach(update => {
+      const existing = signalUpdatesMap.get(update.signalId);
+      if (!existing || update.createdAt > existing.createdAt) {
+        signalUpdatesMap.set(update.signalId, update);
+      }
+    });
+
+    // Map frontend lifecycle values to database behaviorLayer values
+    // Frontend: "weak", "emerging", "growing", "mainstream", "declining"
+    // Database: "positive", "negative", "neutral"
+    const lifecycleMap: Record<string, string> = {
+      "weak": "neutral",
+      "emerging": "positive",
+      "growing": "positive",
+      "mainstream": "neutral",
+      "declining": "negative",
+    };
+
+    // Reverse map for output (database -> frontend)
+    const lifecycleReverseMap: Record<string, string> = {
+      "positive": "emerging",
+      "negative": "declining",
+      "neutral": "weak",
+    };
 
     // Apply lifecycle filter
     if (args.lifecycle && args.lifecycle.length > 0) {
+      const dbLifecycles = args.lifecycle.map(lc => lifecycleMap[lc] || lc);
       signals = signals.filter(signal =>
-        args.lifecycle?.includes(signal.behaviorLayer)
+        dbLifecycles.includes(signal.behaviorLayer)
       );
     }
 
@@ -31,15 +61,18 @@ export const listSignals = query({
     // Apply search filter
     if (args.search) {
       const searchLower = args.search.toLowerCase();
-      signals = signals.filter(signal =>
-        signal.description?.toLowerCase().includes(searchLower) ||
-        signal.classificationReasoningConcise?.toLowerCase().includes(searchLower)
-      );
+      signals = signals.filter(signal => {
+        const update = signalUpdatesMap.get(signal._id);
+        return signal.description?.toLowerCase().includes(searchLower) ||
+               signal.classificationReasoningConcise?.toLowerCase().includes(searchLower) ||
+               update?.newValue?.toLowerCase().includes(searchLower);
+      });
     }
 
     // Apply status filter (map to behaviorLayer)
     if (args.status) {
-      signals = signals.filter(signal => signal.behaviorLayer === args.status);
+      const dbStatus = lifecycleMap[args.status] || args.status;
+      signals = signals.filter(signal => signal.behaviorLayer === dbStatus);
     }
 
     // Apply limit
@@ -48,21 +81,37 @@ export const listSignals = query({
     }
 
     // Map database fields to frontend expected structure
-    return signals.map(signal => ({
-      _id: signal._id,
-      name: signal.description || "Untitled Signal",
-      description: signal.classificationReasoningConcise || "",
-      lifecycle: signal.behaviorLayer || "unknown",
-      steep: [signal.classifiedBy || "technological"],
-      confidence: signal.confidence || 0.5,
-      keywords: [],
-      mentionCount: Math.floor(Math.random() * 100) + 1, // Simulated for now
-      sourceCount: 1,
-      sentiment: 0.5,
-      growth: (Math.random() - 0.5) * 0.2,
-      createdAt: signal.createdAt || Date.now(),
-      updatedAt: signal.createdAt || Date.now(),
-    }));
+    return signals.map(signal => {
+      const update = signalUpdatesMap.get(signal._id);
+
+      // Extract keywords from signal data
+      const keywords = signal.keywords || signal.tags || [];
+
+      // Map behaviorLayer to lifecycle stage
+      const lifecycleReverseMap: Record<string, string> = {
+        "positive": "emerging",
+        "negative": "declining",
+        "neutral": "weak",
+      };
+
+      return {
+        _id: signal._id,
+        name: update?.newValue || signal.description || "Untitled Signal",
+        description: signal.classificationReasoningConcise || "",
+        lifecycle: lifecycleReverseMap[signal.behaviorLayer] || signal.lifecycle || "emerging",
+        steep: [signal.classifiedBy || "technological"],
+        steepDriver: signal.classifiedBy || "technological",
+        confidence: signal.confidence || 0.5,
+        keywords: Array.isArray(keywords) ? keywords.slice(0, 5) : [],
+        mentionCount: signal.mentionCount || Math.floor(Math.random() * 100) + 1,
+        sourceCount: signal.sourceCount || 1,
+        sentiment: signal.sentiment || 0.5,
+        growth: signal.growth || (Math.random() - 0.5) * 0.2,
+        createdAt: signal.createdAt || Date.now(),
+        updatedAt: update?.createdAt || signal.createdAt || Date.now(),
+        hasUpdate: !!update,
+      };
+    });
   },
 });
 
