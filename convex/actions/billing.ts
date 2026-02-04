@@ -1,4 +1,5 @@
 "use node";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { action } from "../_generated/server";
 import { v } from "convex/values";
@@ -23,7 +24,7 @@ const PRICE_IDS = {
 };
 
 // Create a Stripe Checkout Session for subscription
-export const createCheckoutSession = action({
+export const createCheckoutSession: ReturnType<typeof action> = action({
   args: {
     organizationId: v.id("organizations"),
     priceId: v.string(),
@@ -92,7 +93,7 @@ export const createCheckoutSession = action({
 });
 
 // Create a Stripe Customer Portal session for managing billing
-export const createPortalSession = action({
+export const createPortalSession: ReturnType<typeof action> = action({
   args: {
     organizationId: v.id("organizations"),
     returnUrl: v.string(),
@@ -126,7 +127,7 @@ export const createPortalSession = action({
 });
 
 // Handle subscription created event from webhook
-export const handleSubscriptionCreated = action({
+export const handleSubscriptionCreated: ReturnType<typeof action> = action({
   args: {
     stripeSubscriptionId: v.string(),
     stripeCustomerId: v.string(),
@@ -155,7 +156,7 @@ export const handleSubscriptionCreated = action({
 });
 
 // Handle subscription updated event from webhook
-export const handleSubscriptionUpdated = action({
+export const handleSubscriptionUpdated: ReturnType<typeof action> = action({
   args: {
     stripeSubscriptionId: v.string(),
     status: v.string(),
@@ -196,7 +197,7 @@ export const handleSubscriptionUpdated = action({
 });
 
 // Handle subscription deleted event from webhook
-export const handleSubscriptionDeleted = action({
+export const handleSubscriptionDeleted: ReturnType<typeof action> = action({
   args: {
     stripeSubscriptionId: v.string(),
     organizationId: v.optional(v.string()),
@@ -216,7 +217,7 @@ export const handleSubscriptionDeleted = action({
 });
 
 // Get current subscription status for an organization
-export const getSubscriptionStatus = action({
+export const getSubscriptionStatus: ReturnType<typeof action> = action({
   args: {
     organizationId: v.id("organizations"),
   },
