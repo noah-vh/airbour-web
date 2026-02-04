@@ -3,7 +3,6 @@
 import { Suspense, useState, useEffect } from "react";
 import { useQuery, api } from "@/lib/mockConvexTyped";
 import type { Signal } from "@/lib/types";
-import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -34,7 +33,7 @@ import { motion } from "framer-motion";
 function LoadingScreen() {
   return (
     <div className="flex items-center justify-center h-96">
-      <div className="flex items-center gap-3 text-[#f5f5f5]">
+      <div className="flex items-center gap-3 text-foreground">
         <RefreshCw className="h-5 w-5 animate-spin text-purple-400" />
         Loading analytics...
       </div>
@@ -59,7 +58,7 @@ function MetricCard({ title, value, change, icon, trend, subtitle, color = 'purp
     blue: { bg: 'bg-blue-500/10', border: 'border-blue-500/20', text: 'text-blue-400', accent: 'text-blue-300' },
     green: { bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-400', accent: 'text-green-300' },
     red: { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', accent: 'text-red-300' },
-    yellow: { bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-400', accent: 'text-yellow-300' }
+    yellow: { bg: 'bg-amber-500/10', border: 'border-yellow-500/20', text: 'text-amber-400', accent: 'text-yellow-300' }
   };
   const colors = colorMap[color];
 
@@ -67,7 +66,7 @@ function MetricCard({ title, value, change, icon, trend, subtitle, color = 'purp
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`glass ${colors.bg} ${colors.border} rounded-lg p-6 transition-all duration-300 hover:scale-105`}
+      className={`${colors.bg} border ${colors.border} rounded-lg p-6 transition-colors`}
     >
       <div className="flex items-center justify-between mb-4">
         <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${colors.bg} ${colors.border}`}>
@@ -77,16 +76,16 @@ function MetricCard({ title, value, change, icon, trend, subtitle, color = 'purp
           <div className="flex items-center gap-1 text-sm">
             {trend === 'up' && <TrendingUp className="h-4 w-4 text-green-400" />}
             {trend === 'down' && <TrendingDown className="h-4 w-4 text-red-400" />}
-            <span className={trend === 'up' ? 'text-green-400' : trend === 'down' ? 'text-red-400' : 'text-[#a3a3a3]'}>
+            <span className={trend === 'up' ? 'text-green-400' : trend === 'down' ? 'text-red-400' : 'text-muted-foreground'}>
               {change > 0 ? '+' : ''}{change.toFixed(1)}%
             </span>
           </div>
         )}
       </div>
       <div className="space-y-1">
-        <p className="text-2xl font-bold text-[#f5f5f5]">{value}</p>
-        <p className="text-sm font-medium text-[#f5f5f5]">{title}</p>
-        {subtitle && <p className="text-xs text-[#a3a3a3]">{subtitle}</p>}
+        <p className="text-2xl font-bold text-foreground">{value}</p>
+        <p className="text-sm font-medium text-foreground">{title}</p>
+        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
       </div>
     </motion.div>
   );
@@ -102,12 +101,12 @@ function VelocityChart({ data }: { data: any }) {
           const height = (day.velocity / maxVelocity) * 100;
           return (
             <div key={index} className="flex-1 flex flex-col items-center gap-1">
-              <div className="text-xs text-[#a3a3a3]">{day.velocity}</div>
+              <div className="text-xs text-muted-foreground">{day.velocity}</div>
               <div
                 className="bg-gradient-to-t from-purple-500/40 to-purple-400/20 rounded-t-sm min-h-[4px] w-full transition-all duration-500"
                 style={{ height: `${Math.max(height, 8)}%` }}
               />
-              <div className="text-xs text-[#a3a3a3] rotate-45 origin-bottom-left">
+              <div className="text-xs text-muted-foreground rotate-45 origin-bottom-left">
                 {new Date(day.date).getDate()}
               </div>
             </div>
@@ -116,14 +115,14 @@ function VelocityChart({ data }: { data: any }) {
       </div>
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div className="space-y-1">
-          <p className="text-[#a3a3a3]">Peak Day</p>
-          <p className="text-[#f5f5f5] font-medium">
+          <p className="text-muted-foreground">Peak Day</p>
+          <p className="text-foreground font-medium">
             {new Date(data.summary.peakDay?.date || Date.now()).toLocaleDateString()}
           </p>
         </div>
         <div className="space-y-1">
-          <p className="text-[#a3a3a3]">Daily Average</p>
-          <p className="text-[#f5f5f5] font-medium">
+          <p className="text-muted-foreground">Daily Average</p>
+          <p className="text-foreground font-medium">
             {(data.summary.averageDailySignals + data.summary.averageDailyMentions).toFixed(1)}
           </p>
         </div>
@@ -148,11 +147,11 @@ function SentimentChart({ data }: { data: any }) {
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 {segment.icon}
-                <span className="text-[#f5f5f5]">{segment.label}</span>
+                <span className="text-foreground">{segment.label}</span>
               </div>
-              <span className="text-[#a3a3a3]">{segment.value.toFixed(1)}%</span>
+              <span className="text-muted-foreground">{segment.value.toFixed(1)}%</span>
             </div>
-            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
               <div
                 className={`h-full ${segment.color} rounded-full transition-all duration-1000`}
                 style={{ width: `${segment.value}%` }}
@@ -163,19 +162,19 @@ function SentimentChart({ data }: { data: any }) {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-2 gap-4 text-sm pt-2 border-t border-white/5">
+      <div className="grid grid-cols-2 gap-4 text-sm pt-2 border-t border-border">
         <div className="space-y-1">
-          <p className="text-[#a3a3a3]">Trend Direction</p>
+          <p className="text-muted-foreground">Trend Direction</p>
           <p className={`font-medium ${
             data.trendDirection === 'positive' ? 'text-green-400' :
-            data.trendDirection === 'negative' ? 'text-red-400' : 'text-[#a3a3a3]'
+            data.trendDirection === 'negative' ? 'text-red-400' : 'text-muted-foreground'
           }`}>
             {data.trendDirection.charAt(0).toUpperCase() + data.trendDirection.slice(1)}
           </p>
         </div>
         <div className="space-y-1">
-          <p className="text-[#a3a3a3]">Confidence</p>
-          <p className="text-[#f5f5f5] font-medium">
+          <p className="text-muted-foreground">Confidence</p>
+          <p className="text-foreground font-medium">
             {(data.avgConfidence * 100).toFixed(1)}%
           </p>
         </div>
@@ -200,31 +199,31 @@ function TagCloud({ tags }: { tags: any[] }) {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.05 }}
-              className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs border transition-all duration-200 hover:scale-105 ${
+              className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs border transition-colors ${
                 tag.trending ?
-                'bg-yellow-500/20 border-yellow-500/30 text-yellow-300' :
-                'bg-white/5 border-white/10 text-[#a3a3a3] hover:bg-white/10'
+                'bg-amber-500/20 border-amber-500/30 text-amber-300' :
+                'bg-muted border-border text-muted-foreground hover:bg-muted/80'
               }`}
               style={{ fontSize: `${size}rem` }}
             >
               {tag.trending && <Zap className="h-3 w-3" />}
               <span>{tag.tag}</span>
-              <span className="text-[#666]">{tag.count}</span>
+              <span className="text-muted-foreground/60">{tag.count}</span>
             </motion.div>
           );
         })}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 text-sm pt-2 border-t border-white/5">
+      <div className="grid grid-cols-2 gap-4 text-sm pt-2 border-t border-border">
         <div className="space-y-1">
-          <p className="text-[#a3a3a3]">Most Popular</p>
-          <p className="text-[#f5f5f5] font-medium">
+          <p className="text-muted-foreground">Most Popular</p>
+          <p className="text-foreground font-medium">
             {tags[0]?.tag || 'None'}
           </p>
         </div>
         <div className="space-y-1">
-          <p className="text-[#a3a3a3]">Trending Tags</p>
-          <p className="text-yellow-300 font-medium">
+          <p className="text-muted-foreground">Trending Tags</p>
+          <p className="text-amber-300 font-medium">
             {tags.filter(t => t.trending).length}
           </p>
         </div>
@@ -242,21 +241,21 @@ function SourceHealthGrid({ sources }: { sources: any[] }) {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: index * 0.1 }}
-          className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-colors"
+          className="flex items-center justify-between p-3 rounded-lg bg-muted border border-border hover:bg-muted/80 transition-colors"
         >
           <div className="flex items-center gap-3">
             <div className={`h-2 w-2 rounded-full ${
               source.health === 'healthy' ? 'bg-green-400' : 'bg-red-400'
             }`} />
             <div className="space-y-1">
-              <p className="text-sm font-medium text-[#f5f5f5]">{source.name}</p>
-              <p className="text-xs text-[#a3a3a3]">{source.type}</p>
+              <p className="text-sm font-medium text-foreground">{source.name}</p>
+              <p className="text-xs text-muted-foreground">{source.type}</p>
             </div>
           </div>
 
           <div className="text-right space-y-1">
-            <p className="text-sm text-[#f5f5f5]">{source.dailyMentions}</p>
-            <p className="text-xs text-[#a3a3a3]">mentions/day</p>
+            <p className="text-sm text-foreground">{source.dailyMentions}</p>
+            <p className="text-xs text-muted-foreground">mentions/day</p>
           </div>
         </motion.div>
       ))}
@@ -272,7 +271,7 @@ function DiagnosticsPanel({ diagnostics }: { diagnostics: any }) {
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-400';
-    if (score >= 60) return 'text-yellow-400';
+    if (score >= 60) return 'text-amber-400';
     return 'text-red-400';
   };
 
@@ -283,33 +282,33 @@ function DiagnosticsPanel({ diagnostics }: { diagnostics: any }) {
         <div className={`text-4xl font-bold ${getScoreColor(healthScore)}`}>
           {healthScore}%
         </div>
-        <p className="text-sm text-[#a3a3a3]">System Health Score</p>
+        <p className="text-sm text-muted-foreground">System Health Score</p>
       </div>
 
       {/* Metrics Grid */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <p className="text-xs text-[#a3a3a3] uppercase tracking-wide">Data Size</p>
-          <p className="text-sm text-[#f5f5f5] font-medium">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">Data Size</p>
+          <p className="text-sm text-foreground font-medium">
             {diagnostics ? Math.round(diagnostics.averageSize / 1024) : 0}KB avg
           </p>
         </div>
         <div className="space-y-1">
-          <p className="text-xs text-[#a3a3a3] uppercase tracking-wide">Documents</p>
-          <p className="text-sm text-[#f5f5f5] font-medium">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">Documents</p>
+          <p className="text-sm text-foreground font-medium">
             {diagnostics?.scannedCount || 0}
           </p>
         </div>
         <div className="space-y-1">
-          <p className="text-xs text-[#a3a3a3] uppercase tracking-wide">Large Files</p>
-          <p className="text-sm text-[#f5f5f5] font-medium">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">Large Files</p>
+          <p className="text-sm text-foreground font-medium">
             {diagnostics?.sizeBuckets?.large || 0}
           </p>
         </div>
         <div className="space-y-1">
-          <p className="text-xs text-[#a3a3a3] uppercase tracking-wide">Cleanup Needed</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">Cleanup Needed</p>
           <p className={`text-sm font-medium ${
-            diagnostics?.recommendations?.shouldClean ? 'text-yellow-400' : 'text-green-400'
+            diagnostics?.recommendations?.shouldClean ? 'text-amber-400' : 'text-green-400'
           }`}>
             {diagnostics?.recommendations?.shouldClean ? 'Yes' : 'No'}
           </p>
@@ -318,12 +317,12 @@ function DiagnosticsPanel({ diagnostics }: { diagnostics: any }) {
 
       {/* Recommendations */}
       {diagnostics?.recommendations?.shouldClean && (
-        <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+        <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
           <div className="flex items-center gap-2 text-yellow-300 text-sm">
             <AlertTriangle className="h-4 w-4" />
             <span>Cleanup recommended</span>
           </div>
-          <p className="text-xs text-[#a3a3a3] mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Est. {Math.round((diagnostics.recommendations.estimatedSavings || 0) / 1024)}KB can be saved
           </p>
         </div>
@@ -335,8 +334,10 @@ function DiagnosticsPanel({ diagnostics }: { diagnostics: any }) {
 
 function AnalyticsContent() {
   // Fetch analytics data - using existing API endpoints
-  const dashboardStats = useQuery(api.metrics.getDashboardStats);
-  const signalMetrics = useQuery(api.metrics.getSignalMetrics);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const metricsApi = api as any;
+  const dashboardStats = useQuery(metricsApi.metrics.getDashboardStats) as { totalSignals?: number; totalMentions?: number } | undefined;
+  const signalMetrics = useQuery(metricsApi.metrics.getSignalMetrics) as { validatedCount?: number; pendingCount?: number; avgConfidence?: number; total?: number } | undefined;
   const allSignals = useQuery<Signal[]>(api.signals.listSignals);
   const signalStats = useQuery(api.signals.getSignalStats);
   const sourceStats = useQuery(api.sources.getSourceStats);
@@ -452,11 +453,11 @@ function AnalyticsContent() {
             <BarChart3 className="h-6 w-6 text-purple-400" />
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl font-semibold text-[#f5f5f5] tracking-tight">Analytics Dashboard</h1>
-            <p className="text-sm text-[#a3a3a3]">Comprehensive system metrics and insights</p>
+            <h1 className="text-2xl font-semibold text-foreground tracking-tight">Analytics Dashboard</h1>
+            <p className="text-sm text-muted-foreground">Comprehensive system metrics and insights</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-xs text-[#a3a3a3]">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Clock className="h-4 w-4" />
           <span>Last updated: {new Date(lastUpdate).toLocaleTimeString()}</span>
         </div>
@@ -466,7 +467,7 @@ function AnalyticsContent() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard
           title="Total Signals"
-          value={dashboardStats.totalSignals}
+          value={dashboardStats?.totalSignals ?? 0}
           change={signalGrowth}
           trend={signalGrowth > 0 ? 'up' : signalGrowth < 0 ? 'down' : 'neutral'}
           icon={<Activity className="h-6 w-6 text-purple-400" />}
@@ -475,7 +476,7 @@ function AnalyticsContent() {
         />
         <MetricCard
           title="Mentions Analyzed"
-          value={dashboardStats.totalMentions}
+          value={dashboardStats?.totalMentions ?? 0}
           change={mentionGrowth}
           trend={mentionGrowth > 0 ? 'up' : mentionGrowth < 0 ? 'down' : 'neutral'}
           icon={<MessageSquare className="h-6 w-6 text-blue-400" />}
@@ -492,7 +493,7 @@ function AnalyticsContent() {
         <MetricCard
           title="System Health"
           value={`${Math.round((diagnostics.recommendations.shouldClean ? 60 : 90) + (diagnostics.scannedCount > 0 ? 10 : 0))}%`}
-          icon={<Gauge className="h-6 w-6 text-yellow-400" />}
+          icon={<Gauge className="h-6 w-6 text-amber-400" />}
           subtitle="Overall performance"
           color="yellow"
         />
@@ -501,13 +502,13 @@ function AnalyticsContent() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Velocity Trends */}
-        <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+        <Card className="bg-card border border-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-[#f5f5f5]">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <TrendingUp className="h-5 w-5 text-purple-400" />
               Velocity Trends
             </CardTitle>
-            <p className="text-sm text-[#a3a3a3]">Signal and mention activity over time</p>
+            <p className="text-sm text-muted-foreground">Signal and mention activity over time</p>
           </CardHeader>
           <CardContent>
             <VelocityChart data={velocityTrends} />
@@ -515,13 +516,13 @@ function AnalyticsContent() {
         </Card>
 
         {/* Sentiment Distribution */}
-        <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+        <Card className="bg-card border border-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-[#f5f5f5]">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <Heart className="h-5 w-5 text-green-400" />
               Sentiment Analysis
             </CardTitle>
-            <p className="text-sm text-[#a3a3a3]">Recent mention sentiment distribution</p>
+            <p className="text-sm text-muted-foreground">Recent mention sentiment distribution</p>
           </CardHeader>
           <CardContent>
             <SentimentChart data={sentimentDistribution} />
@@ -529,13 +530,13 @@ function AnalyticsContent() {
         </Card>
 
         {/* Tag Analysis */}
-        <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+        <Card className="bg-card border border-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-[#f5f5f5]">
-              <Tag className="h-5 w-5 text-yellow-400" />
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <Tag className="h-5 w-5 text-amber-400" />
               Tag Cloud
             </CardTitle>
-            <p className="text-sm text-[#a3a3a3]">Most frequent topics and keywords</p>
+            <p className="text-sm text-muted-foreground">Most frequent topics and keywords</p>
           </CardHeader>
           <CardContent>
             <TagCloud tags={tagAnalysis.tags} />
@@ -543,13 +544,13 @@ function AnalyticsContent() {
         </Card>
 
         {/* Source Health */}
-        <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+        <Card className="bg-card border border-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-[#f5f5f5]">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <Server className="h-5 w-5 text-blue-400" />
               Source Health
             </CardTitle>
-            <p className="text-sm text-[#a3a3a3]">Data source performance and activity</p>
+            <p className="text-sm text-muted-foreground">Data source performance and activity</p>
           </CardHeader>
           <CardContent>
             <SourceHealthGrid sources={sourceMetrics.sources} />
@@ -558,81 +559,81 @@ function AnalyticsContent() {
       </div>
 
       {/* Performance Diagnostics */}
-      <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+      <Card className="bg-card border border-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-[#f5f5f5]">
+          <CardTitle className="flex items-center gap-2 text-foreground">
             <HardDrive className="h-5 w-5 text-red-400" />
             Performance Diagnostics
           </CardTitle>
-          <p className="text-sm text-[#a3a3a3]">System health and optimization recommendations</p>
+          <p className="text-sm text-muted-foreground">System health and optimization recommendations</p>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* System Health */}
             <div>
-              <h4 className="text-sm font-medium text-[#f5f5f5] mb-3">System Health</h4>
+              <h4 className="text-sm font-medium text-foreground mb-3">System Health</h4>
               <DiagnosticsPanel diagnostics={diagnostics} />
             </div>
 
             {/* Document Statistics */}
             <div>
-              <h4 className="text-sm font-medium text-[#f5f5f5] mb-3">Document Stats</h4>
+              <h4 className="text-sm font-medium text-foreground mb-3">Document Stats</h4>
               <div className="space-y-3">
-                <div className="flex justify-between items-center p-2 rounded bg-white/5">
-                  <span className="text-sm text-[#a3a3a3]">Personal Docs</span>
-                  <span className="text-sm text-[#f5f5f5] font-medium">{documentCounts.personalDocuments.total}</span>
+                <div className="flex justify-between items-center p-2 rounded bg-muted">
+                  <span className="text-sm text-muted-foreground">Personal Docs</span>
+                  <span className="text-sm text-foreground font-medium">{documentCounts.personalDocuments.total}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 rounded bg-white/5">
-                  <span className="text-sm text-[#a3a3a3]">Newsletters</span>
-                  <span className="text-sm text-[#f5f5f5] font-medium">{documentCounts.newsletters.total}</span>
+                <div className="flex justify-between items-center p-2 rounded bg-muted">
+                  <span className="text-sm text-muted-foreground">Newsletters</span>
+                  <span className="text-sm text-foreground font-medium">{documentCounts.newsletters.total}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 rounded bg-white/5">
-                  <span className="text-sm text-[#a3a3a3]">Content Drafts</span>
-                  <span className="text-sm text-[#f5f5f5] font-medium">{documentCounts.contentDrafts.total}</span>
+                <div className="flex justify-between items-center p-2 rounded bg-muted">
+                  <span className="text-sm text-muted-foreground">Content Drafts</span>
+                  <span className="text-sm text-foreground font-medium">{documentCounts.contentDrafts.total}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 rounded bg-white/5">
-                  <span className="text-sm text-[#a3a3a3]">Templates</span>
-                  <span className="text-sm text-[#f5f5f5] font-medium">{documentCounts.templates.total}</span>
+                <div className="flex justify-between items-center p-2 rounded bg-muted">
+                  <span className="text-sm text-muted-foreground">Templates</span>
+                  <span className="text-sm text-foreground font-medium">{documentCounts.templates.total}</span>
                 </div>
               </div>
             </div>
 
             {/* Performance Metrics */}
             <div>
-              <h4 className="text-sm font-medium text-[#f5f5f5] mb-3">Performance</h4>
+              <h4 className="text-sm font-medium text-foreground mb-3">Performance</h4>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-2 rounded bg-white/5">
+                <div className="flex items-center justify-between p-2 rounded bg-muted">
                   <div className="flex items-center gap-2">
                     <div className={`h-2 w-2 rounded-full ${
-                      sourceMetrics.summary.healthySources > sourceMetrics.summary.totalSources * 0.8 ? 'bg-green-400' : 'bg-yellow-400'
+                      sourceMetrics.summary.healthySources > sourceMetrics.summary.totalSources * 0.8 ? 'bg-green-400' : 'bg-amber-400'
                     }`} />
-                    <span className="text-sm text-[#a3a3a3]">Sources</span>
+                    <span className="text-sm text-muted-foreground">Sources</span>
                   </div>
-                  <span className="text-sm text-[#f5f5f5] font-medium">
+                  <span className="text-sm text-foreground font-medium">
                     {Math.round((sourceMetrics.summary.healthySources / sourceMetrics.summary.totalSources) * 100)}%
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between p-2 rounded bg-white/5">
+                <div className="flex items-center justify-between p-2 rounded bg-muted">
                   <div className="flex items-center gap-2">
                     <div className={`h-2 w-2 rounded-full ${
-                      sentimentDistribution.percentages.positive > 40 ? 'bg-green-400' : 'bg-yellow-400'
+                      sentimentDistribution.percentages.positive > 40 ? 'bg-green-400' : 'bg-amber-400'
                     }`} />
-                    <span className="text-sm text-[#a3a3a3]">Sentiment</span>
+                    <span className="text-sm text-muted-foreground">Sentiment</span>
                   </div>
-                  <span className="text-sm text-[#f5f5f5] font-medium">
+                  <span className="text-sm text-foreground font-medium">
                     {sentimentDistribution.trendDirection}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between p-2 rounded bg-white/5">
+                <div className="flex items-center justify-between p-2 rounded bg-muted">
                   <div className="flex items-center gap-2">
                     <div className={`h-2 w-2 rounded-full ${
                       !diagnostics.recommendations.shouldClean ? 'bg-green-400' : 'bg-red-400'
                     }`} />
-                    <span className="text-sm text-[#a3a3a3]">Storage</span>
+                    <span className="text-sm text-muted-foreground">Storage</span>
                   </div>
-                  <span className="text-sm text-[#f5f5f5] font-medium">
+                  <span className="text-sm text-foreground font-medium">
                     {diagnostics.recommendations.shouldClean ? 'Needs Cleanup' : 'Optimal'}
                   </span>
                 </div>
@@ -643,13 +644,13 @@ function AnalyticsContent() {
       </Card>
 
       {/* Real-time Activity Feed */}
-      <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+      <Card className="bg-card border border-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-[#f5f5f5]">
+          <CardTitle className="flex items-center gap-2 text-foreground">
             <Eye className="h-5 w-5 text-green-400" />
             Real-time Activity
           </CardTitle>
-          <p className="text-sm text-[#a3a3a3]">Live system activity and updates</p>
+          <p className="text-sm text-muted-foreground">Live system activity and updates</p>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -661,10 +662,10 @@ function AnalyticsContent() {
             >
               <CheckCircle className="h-4 w-4 text-green-400" />
               <div className="flex-1">
-                <p className="text-sm text-[#f5f5f5]">Source sync completed</p>
-                <p className="text-xs text-[#a3a3a3]">{sourceMetrics.summary.totalMentions} mentions processed</p>
+                <p className="text-sm text-foreground">Source sync completed</p>
+                <p className="text-xs text-muted-foreground">{sourceMetrics.summary.totalMentions} mentions processed</p>
               </div>
-              <span className="text-xs text-[#a3a3a3]">Just now</span>
+              <span className="text-xs text-muted-foreground">Just now</span>
             </motion.div>
 
             <motion.div
@@ -675,10 +676,10 @@ function AnalyticsContent() {
             >
               <Activity className="h-4 w-4 text-purple-400" />
               <div className="flex-1">
-                <p className="text-sm text-[#f5f5f5]">New signals detected</p>
-                <p className="text-xs text-[#a3a3a3]">{signalMetrics?.total || dashboardStats.totalSignals} signals now active</p>
+                <p className="text-sm text-foreground">New signals detected</p>
+                <p className="text-xs text-muted-foreground">{signalMetrics?.total || dashboardStats?.totalSignals || 0} signals now active</p>
               </div>
-              <span className="text-xs text-[#a3a3a3]">2m ago</span>
+              <span className="text-xs text-muted-foreground">2m ago</span>
             </motion.div>
 
             {diagnostics.recommendations.shouldClean && (
@@ -686,14 +687,14 @@ function AnalyticsContent() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
-                className="flex items-center gap-3 p-2 rounded bg-yellow-500/10 border border-yellow-500/20"
+                className="flex items-center gap-3 p-2 rounded bg-amber-500/10 border border-amber-500/20"
               >
-                <AlertTriangle className="h-4 w-4 text-yellow-400" />
+                <AlertTriangle className="h-4 w-4 text-amber-400" />
                 <div className="flex-1">
-                  <p className="text-sm text-[#f5f5f5]">Storage optimization available</p>
-                  <p className="text-xs text-[#a3a3a3]">{Math.round(diagnostics.recommendations.estimatedSavings / 1024)}KB can be freed</p>
+                  <p className="text-sm text-foreground">Storage optimization available</p>
+                  <p className="text-xs text-muted-foreground">{Math.round(diagnostics.recommendations.estimatedSavings / 1024)}KB can be freed</p>
                 </div>
-                <span className="text-xs text-[#a3a3a3]">5m ago</span>
+                <span className="text-xs text-muted-foreground">5m ago</span>
               </motion.div>
             )}
           </div>
@@ -704,13 +705,8 @@ function AnalyticsContent() {
 }
 
 export default function AnalyticsPage() {
-  const { isCollapsed } = useSidebar();
-
   return (
-    <div className={cn(
-      "fixed right-0 top-0 bottom-0 overflow-hidden transition-all duration-300",
-      isCollapsed ? "left-16" : "left-64"
-    )}>
+    <div className="min-h-screen">
       <Suspense fallback={<LoadingScreen />}>
         <AnalyticsContent />
       </Suspense>

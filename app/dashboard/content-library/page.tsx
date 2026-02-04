@@ -203,7 +203,7 @@ export default function ContentLibraryPage() {
 
   return (
     <div className={cn(
-      "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-[#0a0a0a]",
+      "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-background",
       isCollapsed ? "left-16" : "left-64"
     )}>
       <motion.div
@@ -214,16 +214,16 @@ export default function ContentLibraryPage() {
       >
         {/* Header */}
         <motion.div variants={itemVariants} className="flex items-center gap-3 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/20 border border-orange-500/30">
-            <Library className="h-6 w-6 text-orange-400" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
+            <Library className="h-6 w-6 text-purple-400" />
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl font-semibold text-[#f5f5f5] tracking-tight">Content Library</h1>
-            <p className="text-sm text-[#a3a3a3]">Manage your content across all formats and channels</p>
+            <h1 className="text-2xl font-semibold text-foreground tracking-tight">Content Library</h1>
+            <p className="text-sm text-muted-foreground">Manage your content across all formats and channels</p>
           </div>
-          <button className="glass bg-orange-500/10 border border-orange-500/20 rounded-lg px-4 py-2 transition-standard hover:bg-orange-500/20 flex items-center gap-2">
-            <Plus className="h-4 w-4 text-orange-400" />
-            <span className="text-sm text-orange-300">Create Content</span>
+          <button className="bg-purple-500/10 border border-purple-500/20 rounded-lg px-4 py-2 transition-colors hover:bg-purple-500/20 flex items-center gap-2">
+            <Plus className="h-4 w-4 text-purple-400" />
+            <span className="text-sm text-purple-300">Create Content</span>
           </button>
         </motion.div>
 
@@ -232,12 +232,12 @@ export default function ContentLibraryPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <motion.div
               whileHover={{ y: -2 }}
-              className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6 transition-standard"
+              className="bg-card border rounded-lg p-6 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-[#a3a3a3]">Total Items</p>
-                  <p className="text-2xl font-bold text-[#f5f5f5]">{contentStats.total}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Total Items</p>
+                  <p className="text-2xl font-bold text-foreground">{contentStats.total}</p>
                 </div>
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
                   <FileText className="h-6 w-6 text-blue-400" />
@@ -247,42 +247,42 @@ export default function ContentLibraryPage() {
 
             <motion.div
               whileHover={{ y: -2 }}
-              className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6 transition-standard"
+              className="bg-card border rounded-lg p-6 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-[#a3a3a3]">Drafts</p>
-                  <p className="text-2xl font-bold text-[#f5f5f5]">{contentStats.drafts}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Drafts</p>
+                  <p className="text-2xl font-bold text-foreground">{contentStats.drafts}</p>
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-500/20 border border-yellow-500/30">
-                  <Edit className="h-6 w-6 text-yellow-400" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-500/20 border border-amber-500/30">
+                  <Edit className="h-6 w-6 text-amber-400" />
                 </div>
               </div>
             </motion.div>
 
             <motion.div
               whileHover={{ y: -2 }}
-              className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6 transition-standard"
+              className="bg-card border rounded-lg p-6 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-[#a3a3a3]">Scheduled</p>
-                  <p className="text-2xl font-bold text-[#f5f5f5]">{contentStats.scheduled}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Scheduled</p>
+                  <p className="text-2xl font-bold text-foreground">{contentStats.scheduled}</p>
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-500/20 border border-orange-500/30">
-                  <Clock className="h-6 w-6 text-orange-400" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
+                  <Clock className="h-6 w-6 text-blue-400" />
                 </div>
               </div>
             </motion.div>
 
             <motion.div
               whileHover={{ y: -2 }}
-              className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6 transition-standard"
+              className="bg-card border rounded-lg p-6 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-[#a3a3a3]">Published</p>
-                  <p className="text-2xl font-bold text-[#f5f5f5]">{contentStats.published}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Published</p>
+                  <p className="text-2xl font-bold text-foreground">{contentStats.published}</p>
                 </div>
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-500/20 border border-green-500/30">
                   <Globe className="h-6 w-6 text-green-400" />
@@ -294,21 +294,21 @@ export default function ContentLibraryPage() {
 
         {/* Filters */}
         <motion.div variants={itemVariants}>
-          <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
+          <div className="bg-card border rounded-lg p-6">
             <div className="flex items-center gap-3 mb-4">
-              <Filter className="h-5 w-5 text-[#a3a3a3]" />
-              <h3 className="text-lg font-semibold text-[#f5f5f5]">Filters & Search</h3>
+              <Filter className="h-5 w-5 text-muted-foreground" />
+              <h3 className="text-lg font-semibold text-foreground">Filters & Search</h3>
             </div>
 
             <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
               <div className="flex-1 relative min-w-0">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#666]" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
                 <input
                   type="text"
                   placeholder="Search content, authors, or tags..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-[#f5f5f5] placeholder:text-[#666] focus:outline-none focus:border-blue-500/30 focus:bg-white/10 transition-all"
+                  className="w-full bg-muted border rounded-lg pl-10 pr-4 py-2.5 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-blue-500/30 focus:bg-muted transition-all"
                 />
               </div>
 
@@ -317,10 +317,10 @@ export default function ContentLibraryPage() {
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-standard ${
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       viewMode === mode
                         ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                        : 'bg-white/5 text-[#a3a3a3] border border-white/10 hover:bg-white/10 hover:text-[#f5f5f5]'
+                        : 'bg-muted text-muted-foreground border hover:bg-muted/80 hover:text-foreground'
                     }`}
                   >
                     {mode.charAt(0).toUpperCase() + mode.slice(1)}
@@ -329,7 +329,7 @@ export default function ContentLibraryPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-sm text-[#a3a3a3] whitespace-nowrap">Tags:</span>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">Tags:</span>
                 <div className="flex items-center gap-1 flex-wrap">
                   {allTags.map(tag => (
                     <button
@@ -341,10 +341,10 @@ export default function ContentLibraryPage() {
                           setSelectedTags([...selectedTags, tag]);
                         }
                       }}
-                      className={`px-2 py-1 rounded-md text-xs font-medium transition-standard ${
+                      className={`px-2 py-1 rounded-md text-xs font-medium transition-colors ${
                         selectedTags.includes(tag)
                           ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                          : 'bg-white/5 text-[#666] border border-white/10 hover:bg-white/10 hover:text-[#a3a3a3]'
+                          : 'bg-muted text-muted-foreground/60 border hover:bg-muted/80 hover:text-muted-foreground'
                       }`}
                     >
                       {tag}
@@ -367,7 +367,7 @@ export default function ContentLibraryPage() {
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
                     <IconComponent className="h-4 w-4 text-purple-400" />
                   </div>
-                  <h2 className="text-xl font-semibold text-[#f5f5f5]">{formatDisplayName(format)}</h2>
+                  <h2 className="text-xl font-semibold text-foreground">{formatDisplayName(format)}</h2>
                   <div className="px-2 py-1 bg-gray-500/20 text-gray-300 border border-gray-500/30 rounded-lg text-xs font-medium">
                     {items.length} {items.length === 1 ? "item" : "items"}
                   </div>
@@ -378,22 +378,22 @@ export default function ContentLibraryPage() {
                     <motion.div
                       key={item.id}
                       whileHover={{ y: -4 }}
-                      className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6 hover:border-purple-500/30 transition-standard"
+                      className="bg-card border rounded-lg p-6 hover:border-purple-500/30 transition-colors"
                     >
                       <div className="flex items-start justify-between mb-4">
-                        <h3 className="font-medium text-[#f5f5f5] text-sm line-clamp-2 flex-1">{item.title}</h3>
+                        <h3 className="font-medium text-foreground text-sm line-clamp-2 flex-1">{item.title}</h3>
                         <div className={`px-2 py-1 rounded-md text-xs font-medium ml-3 flex-shrink-0 ${
                           item.status === 'published'
                             ? 'bg-green-500/20 text-green-300 border border-green-500/30'
                             : item.status === 'scheduled'
-                            ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30'
+                            ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                             : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
                         }`}>
                           {item.status}
                         </div>
                       </div>
 
-                      <p className="text-sm text-[#a3a3a3] line-clamp-3 mb-4">
+                      <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
                         {item.content}
                       </p>
 
@@ -406,12 +406,12 @@ export default function ContentLibraryPage() {
                       </div>
 
                       <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-xs text-[#a3a3a3]">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <User className="h-3 w-3" />
                           <span>{item.author}</span>
                         </div>
 
-                        <div className="flex items-center gap-2 text-xs text-[#a3a3a3]">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Calendar className="h-3 w-3" />
                           <span>
                             {item.status === "published" && item.publishedAt
@@ -424,7 +424,7 @@ export default function ContentLibraryPage() {
                         </div>
 
                         {item.performance && (
-                          <div className="flex items-center gap-4 text-xs text-[#a3a3a3] pt-3 border-t border-white/10">
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground pt-3 border-t">
                             <div className="flex items-center gap-1">
                               <Eye className="h-3 w-3 text-blue-400" />
                               <span>{item.performance.views.toLocaleString()}</span>
@@ -441,17 +441,17 @@ export default function ContentLibraryPage() {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2 mt-6 pt-4 border-t border-white/10">
-                        <button className="glass bg-blue-500/10 border border-blue-500/20 rounded-lg p-2 transition-standard hover:bg-blue-500/20">
+                      <div className="flex items-center gap-2 mt-6 pt-4 border-t">
+                        <button className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-2 transition-colors hover:bg-blue-500/20">
                           <Eye className="h-4 w-4 text-blue-400" />
                         </button>
-                        <button className="glass bg-green-500/10 border border-green-500/20 rounded-lg p-2 transition-standard hover:bg-green-500/20">
+                        <button className="bg-green-500/10 border border-green-500/20 rounded-lg p-2 transition-colors hover:bg-green-500/20">
                           <Edit className="h-4 w-4 text-green-400" />
                         </button>
-                        <button className="glass bg-purple-500/10 border border-purple-500/20 rounded-lg p-2 transition-standard hover:bg-purple-500/20">
+                        <button className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-2 transition-colors hover:bg-purple-500/20">
                           <Bookmark className="h-4 w-4 text-purple-400" />
                         </button>
-                        <button className="glass bg-red-500/10 border border-red-500/20 rounded-lg p-2 transition-standard hover:bg-red-500/20 ml-auto">
+                        <button className="bg-red-500/10 border border-red-500/20 rounded-lg p-2 transition-colors hover:bg-red-500/20 ml-auto">
                           <Archive className="h-4 w-4 text-red-400" />
                         </button>
                       </div>
@@ -466,21 +466,21 @@ export default function ContentLibraryPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-12 text-center"
+              className="bg-card border rounded-lg p-12 text-center"
             >
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-500/20 border border-gray-500/30 mx-auto mb-6">
                 <FileText className="h-8 w-8 text-gray-400" />
               </div>
-              <h3 className="text-xl font-medium text-[#f5f5f5] mb-3">No content found</h3>
-              <p className="text-[#a3a3a3] mb-6 max-w-md mx-auto">
+              <h3 className="text-xl font-medium text-foreground mb-3">No content found</h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 {searchQuery || selectedTags.length > 0
                   ? "Try adjusting your filters or search query to find what you're looking for."
                   : "Start creating content to build your library and see analytics."
                 }
               </p>
-              <button className="glass bg-orange-500/20 border border-orange-500/30 rounded-lg px-6 py-3 transition-standard hover:bg-orange-500/30 flex items-center gap-2 mx-auto">
-                <Plus className="h-5 w-5 text-orange-400" />
-                <span className="text-orange-300 font-medium">Create Your First Content</span>
+              <button className="bg-purple-500/20 border border-purple-500/30 rounded-lg px-6 py-3 transition-colors hover:bg-purple-500/30 flex items-center gap-2 mx-auto">
+                <Plus className="h-5 w-5 text-purple-400" />
+                <span className="text-purple-300 font-medium">Create Your First Content</span>
               </button>
             </motion.div>
           )}

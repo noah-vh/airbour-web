@@ -63,17 +63,17 @@ export default function BusinessIntelligencePage() {
       <div className="mb-8">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight text-[#f5f5f5]">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground">
               Business Intelligence
             </h1>
-            <p className="mt-2 text-lg text-[#a3a3a3]">
+            <p className="mt-2 text-lg text-muted-foreground">
               Strategic insights for the Chicago Taco Shop catering pivot
             </p>
           </div>
           <div className="flex gap-2">
             <Button
               onClick={() => handleExport("Full Report")}
-              className="glass glass-blue hover:scale-105 transition-transform"
+              className="bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/30 transition-colors"
             >
               <Download className="h-4 w-4 mr-2" />
               Export Report
@@ -81,7 +81,7 @@ export default function BusinessIntelligencePage() {
             <Button
               variant="outline"
               onClick={() => handleExport("Executive Summary")}
-              className="glass hover:scale-105 transition-transform"
+              className="bg-muted border border-border hover:bg-muted/80 transition-colors"
             >
               <Mail className="h-4 w-4 mr-2" />
               Email Summary
@@ -96,12 +96,12 @@ export default function BusinessIntelligencePage() {
               key={metric.label}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="glass glass-purple p-4 rounded-lg"
+              className="bg-purple-500/10 border border-purple-500/20 p-4 rounded-lg"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[#a3a3a3]">{metric.label}</p>
-                  <p className="text-2xl font-bold text-[#f5f5f5] mt-1">{metric.value}</p>
+                  <p className="text-sm text-muted-foreground">{metric.label}</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{metric.value}</p>
                   <p className="text-xs text-green-400 mt-1">{metric.change}</p>
                 </div>
                 <metric.icon className="h-8 w-8 text-purple-400 opacity-50" />
@@ -113,7 +113,7 @@ export default function BusinessIntelligencePage() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="competitive" className="space-y-6">
-        <TabsList className="glass w-full justify-start">
+        <TabsList className="bg-muted border border-border w-full justify-start">
           <TabsTrigger value="competitive" className="data-[state=active]:bg-purple-500/20">
             <Briefcase className="h-4 w-4 mr-2" />
             Competitive Analysis
@@ -134,9 +134,9 @@ export default function BusinessIntelligencePage() {
 
         {/* Competitive Analysis Tab */}
         <TabsContent value="competitive" className="space-y-6">
-          <div className="glass glass-blue p-6 rounded-lg">
+          <div className="bg-blue-500/10 border border-blue-500/20 p-6 rounded-lg">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-[#f5f5f5]">Competitor Landscape</h2>
+              <h2 className="text-xl font-semibold text-foreground">Competitor Landscape</h2>
               <div className="flex gap-2">
                 <Input
                   placeholder="Search competitors..."
@@ -144,7 +144,7 @@ export default function BusinessIntelligencePage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-64"
                 />
-                <Button variant="outline" size="sm" className="glass">
+                <Button variant="outline" size="sm" className="bg-muted border border-border">
                   <Filter className="h-4 w-4 mr-2" />
                   Filter
                 </Button>
@@ -156,7 +156,7 @@ export default function BusinessIntelligencePage() {
                 <motion.div
                   key={competitor.id}
                   layout
-                  className="border border-white/10 rounded-lg p-4 hover:border-purple-500/30 transition-colors"
+                  className="border border-border rounded-lg p-4 hover:border-purple-500/30 transition-colors"
                 >
                   <div
                     className="cursor-pointer"
@@ -169,7 +169,7 @@ export default function BusinessIntelligencePage() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
-                          <h3 className="text-lg font-medium text-[#f5f5f5]">{competitor.name}</h3>
+                          <h3 className="text-lg font-medium text-foreground">{competitor.name}</h3>
                           <Badge
                             className={cn(
                               "text-xs",
@@ -183,17 +183,17 @@ export default function BusinessIntelligencePage() {
                             {competitor.threat} threat
                           </Badge>
                         </div>
-                        <p className="text-sm text-[#a3a3a3] mt-1">{competitor.description}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{competitor.description}</p>
                         <div className="flex gap-4 mt-2">
-                          <span className="text-xs text-[#a3a3a3]">
+                          <span className="text-xs text-muted-foreground">
                             <MapPin className="h-3 w-3 inline mr-1" />
                             {competitor.location}
                           </span>
-                          <span className="text-xs text-[#a3a3a3]">
+                          <span className="text-xs text-muted-foreground">
                             <Building2 className="h-3 w-3 inline mr-1" />
                             {competitor.size}
                           </span>
-                          <span className="text-xs text-[#a3a3a3]">
+                          <span className="text-xs text-muted-foreground">
                             <DollarSign className="h-3 w-3 inline mr-1" />
                             {competitor.priceRange}
                           </span>
@@ -201,9 +201,9 @@ export default function BusinessIntelligencePage() {
                       </div>
                       <div className="ml-4">
                         {expandedCompetitor === competitor.id ? (
-                          <ChevronUp className="h-5 w-5 text-[#a3a3a3]" />
+                          <ChevronUp className="h-5 w-5 text-muted-foreground" />
                         ) : (
-                          <ChevronDown className="h-5 w-5 text-[#a3a3a3]" />
+                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
                         )}
                       </div>
                     </div>
@@ -215,11 +215,11 @@ export default function BusinessIntelligencePage() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="mt-4 pt-4 border-t border-white/5"
+                        className="mt-4 pt-4 border-t border-border"
                       >
                         <div className="grid md:grid-cols-2 gap-6">
                           <div>
-                            <h4 className="text-sm font-medium text-[#f5f5f5] mb-2">
+                            <h4 className="text-sm font-medium text-foreground mb-2">
                               Target Customers
                             </h4>
                             <div className="flex flex-wrap gap-2">
@@ -231,12 +231,12 @@ export default function BusinessIntelligencePage() {
                             </div>
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-[#f5f5f5] mb-2">
+                            <h4 className="text-sm font-medium text-foreground mb-2">
                               Key Differentiators
                             </h4>
                             <ul className="space-y-1">
                               {competitor.differentiators.map((diff) => (
-                                <li key={diff} className="text-xs text-[#a3a3a3] flex items-center">
+                                <li key={diff} className="text-xs text-muted-foreground flex items-center">
                                   <CheckCircle className="h-3 w-3 text-green-400 mr-2 shrink-0" />
                                   {diff}
                                 </li>
@@ -247,17 +247,17 @@ export default function BusinessIntelligencePage() {
 
                         {/* Operational Patterns */}
                         <div className="mt-4">
-                          <h4 className="text-sm font-medium text-[#f5f5f5] mb-2">
+                          <h4 className="text-sm font-medium text-foreground mb-2">
                             Operational Advantages We Should Match
                           </h4>
                           <div className="grid md:grid-cols-3 gap-3">
                             {competitor.operationalPatterns.map((pattern) => (
                               <div
                                 key={pattern}
-                                className="glass p-3 rounded-lg flex items-center gap-2"
+                                className="bg-card border border-border p-3 rounded-lg flex items-center gap-2"
                               >
                                 <Zap className="h-4 w-4 text-yellow-400" />
-                                <span className="text-xs text-[#f5f5f5]">{pattern}</span>
+                                <span className="text-xs text-foreground">{pattern}</span>
                               </div>
                             ))}
                           </div>
@@ -286,14 +286,14 @@ export default function BusinessIntelligencePage() {
             </div>
 
             {/* Competitive Positioning Map */}
-            <div className="mt-6 glass glass-purple p-6 rounded-lg">
-              <h3 className="text-lg font-medium text-[#f5f5f5] mb-4">Market Positioning</h3>
-              <div className="relative h-64 border border-white/10 rounded-lg">
+            <div className="mt-6 bg-purple-500/10 border border-purple-500/20 p-6 rounded-lg">
+              <h3 className="text-lg font-medium text-foreground mb-4">Market Positioning</h3>
+              <div className="relative h-64 border border-border rounded-lg">
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[#a3a3a3] text-sm">Price →</span>
+                  <span className="text-muted-foreground text-sm">Price →</span>
                 </div>
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 rotate-[-90deg]">
-                  <span className="text-[#a3a3a3] text-sm">Quality →</span>
+                  <span className="text-muted-foreground text-sm">Quality →</span>
                 </div>
                 {/* Plot competitors on the map */}
                 {filteredCompetitors.map((comp, idx) => (
@@ -338,16 +338,16 @@ export default function BusinessIntelligencePage() {
             </div>
 
             {/* Key Insights */}
-            <div className="mt-6 glass glass-orange p-6 rounded-lg">
-              <h3 className="text-lg font-medium text-[#f5f5f5] mb-4">
+            <div className="mt-6 bg-amber-500/10 border border-amber-500/20 p-6 rounded-lg">
+              <h3 className="text-lg font-medium text-foreground mb-4">
                 Competitive Intelligence Summary
               </h3>
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm text-[#f5f5f5] font-medium">Critical Gap: One-Button Ordering</p>
-                    <p className="text-xs text-[#a3a3a3] mt-1">
+                    <p className="text-sm text-foreground font-medium">Critical Gap: One-Button Ordering</p>
+                    <p className="text-xs text-muted-foreground mt-1">
                       4 out of 5 competitors offer streamlined ordering. This is now table stakes in the catering market.
                     </p>
                   </div>
@@ -355,8 +355,8 @@ export default function BusinessIntelligencePage() {
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm text-[#f5f5f5] font-medium">Unique Advantage: Authentic Mexican Heritage</p>
-                    <p className="text-xs text-[#a3a3a3] mt-1">
+                    <p className="text-sm text-foreground font-medium">Unique Advantage: Authentic Mexican Heritage</p>
+                    <p className="text-xs text-muted-foreground mt-1">
                       Only competitor with genuine family recipes and cultural authenticity story.
                     </p>
                   </div>
@@ -364,8 +364,8 @@ export default function BusinessIntelligencePage() {
                 <div className="flex items-start gap-3">
                   <Info className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm text-[#f5f5f5] font-medium">Opportunity: Corporate Lunch Market</p>
-                    <p className="text-xs text-[#a3a3a3] mt-1">
+                    <p className="text-sm text-foreground font-medium">Opportunity: Corporate Lunch Market</p>
+                    <p className="text-xs text-muted-foreground mt-1">
                       Only 2 competitors actively targeting financial services. Clear opening for premium positioning.
                     </p>
                   </div>
@@ -377,28 +377,28 @@ export default function BusinessIntelligencePage() {
 
         {/* Pricing Intelligence Tab */}
         <TabsContent value="pricing" className="space-y-6">
-          <div className="glass glass-green p-6 rounded-lg">
-            <h2 className="text-xl font-semibold text-[#f5f5f5] mb-4">Pricing Analysis</h2>
+          <div className="bg-green-500/10 border border-green-500/20 p-6 rounded-lg">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Pricing Analysis</h2>
 
             {/* Pricing Comparison Table */}
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#a3a3a3]">Service</th>
-                    <th className="text-center py-3 px-4 text-sm font-medium text-[#a3a3a3]">Chicago Taco (Current)</th>
-                    <th className="text-center py-3 px-4 text-sm font-medium text-[#a3a3a3]">Market Average</th>
-                    <th className="text-center py-3 px-4 text-sm font-medium text-[#a3a3a3]">Premium Leader</th>
-                    <th className="text-center py-3 px-4 text-sm font-medium text-[#a3a3a3]">Recommendation</th>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Service</th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-muted-foreground">Chicago Taco (Current)</th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-muted-foreground">Market Average</th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-muted-foreground">Premium Leader</th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-muted-foreground">Recommendation</th>
                   </tr>
                 </thead>
                 <tbody>
                   {mockBusinessData.pricingComparison.map((item) => (
-                    <tr key={item.service} className="border-b border-white/5">
-                      <td className="py-3 px-4 text-sm text-[#f5f5f5]">{item.service}</td>
-                      <td className="text-center py-3 px-4 text-sm text-[#f5f5f5]">{item.current}</td>
-                      <td className="text-center py-3 px-4 text-sm text-[#a3a3a3]">{item.marketAvg}</td>
-                      <td className="text-center py-3 px-4 text-sm text-[#a3a3a3]">{item.premium}</td>
+                    <tr key={item.service} className="border-b border-border">
+                      <td className="py-3 px-4 text-sm text-foreground">{item.service}</td>
+                      <td className="text-center py-3 px-4 text-sm text-foreground">{item.current}</td>
+                      <td className="text-center py-3 px-4 text-sm text-muted-foreground">{item.marketAvg}</td>
+                      <td className="text-center py-3 px-4 text-sm text-muted-foreground">{item.premium}</td>
                       <td className="text-center py-3 px-4">
                         <Badge className="bg-green-500/20 text-green-400 text-xs">
                           {item.recommendation}
@@ -412,76 +412,76 @@ export default function BusinessIntelligencePage() {
 
             {/* Value Proposition Analysis */}
             <div className="mt-6 grid md:grid-cols-2 gap-6">
-              <div className="glass p-4 rounded-lg">
-                <h3 className="text-lg font-medium text-[#f5f5f5] mb-3">Revenue Impact</h3>
+              <div className="bg-card border border-border p-4 rounded-lg">
+                <h3 className="text-lg font-medium text-foreground mb-3">Revenue Impact</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-[#a3a3a3]">Current Monthly Revenue</span>
-                    <span className="text-sm font-medium text-[#f5f5f5]">$32,000</span>
+                    <span className="text-sm text-muted-foreground">Current Monthly Revenue</span>
+                    <span className="text-sm font-medium text-foreground">$32,000</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-[#a3a3a3]">With Recommended Pricing</span>
+                    <span className="text-sm text-muted-foreground">With Recommended Pricing</span>
                     <span className="text-sm font-medium text-green-400">$41,600</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-[#a3a3a3]">Monthly Increase</span>
+                    <span className="text-sm text-muted-foreground">Monthly Increase</span>
                     <span className="text-sm font-bold text-green-400">+$9,600 (30%)</span>
                   </div>
                 </div>
               </div>
 
-              <div className="glass p-4 rounded-lg">
-                <h3 className="text-lg font-medium text-[#f5f5f5] mb-3">Implementation Risk</h3>
+              <div className="bg-card border border-border p-4 rounded-lg">
+                <h3 className="text-lg font-medium text-foreground mb-3">Implementation Risk</h3>
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                    <span className="text-sm text-[#f5f5f5]">Low customer churn risk</span>
+                    <span className="text-sm text-foreground">Low customer churn risk</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
-                    <span className="text-sm text-[#f5f5f5]">Moderate competitive response</span>
+                    <span className="text-sm text-foreground">Moderate competitive response</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                    <span className="text-sm text-[#f5f5f5]">Strong value justification</span>
+                    <span className="text-sm text-foreground">Strong value justification</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Pricing Strategy Recommendations */}
-            <div className="mt-6 glass glass-blue p-6 rounded-lg">
-              <h3 className="text-lg font-medium text-[#f5f5f5] mb-4">Strategic Recommendations</h3>
+            <div className="mt-6 bg-blue-500/10 border border-blue-500/20 p-6 rounded-lg">
+              <h3 className="text-lg font-medium text-foreground mb-4">Strategic Recommendations</h3>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="text-sm font-medium text-[#f5f5f5] mb-2">Quick Wins (30 days)</h4>
+                  <h4 className="text-sm font-medium text-foreground mb-2">Quick Wins (30 days)</h4>
                   <ul className="space-y-1">
-                    <li className="text-xs text-[#a3a3a3] flex items-center">
+                    <li className="text-xs text-muted-foreground flex items-center">
                       <ArrowRight className="h-3 w-3 text-blue-400 mr-2 shrink-0" />
                       Add $75 setup service fee
                     </li>
-                    <li className="text-xs text-[#a3a3a3] flex items-center">
+                    <li className="text-xs text-muted-foreground flex items-center">
                       <ArrowRight className="h-3 w-3 text-blue-400 mr-2 shrink-0" />
                       Increase delivery fee to $40
                     </li>
-                    <li className="text-xs text-[#a3a3a3] flex items-center">
+                    <li className="text-xs text-muted-foreground flex items-center">
                       <ArrowRight className="h-3 w-3 text-blue-400 mr-2 shrink-0" />
                       Raise per-person pricing by $2-3
                     </li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-[#f5f5f5] mb-2">Long-term (90 days)</h4>
+                  <h4 className="text-sm font-medium text-foreground mb-2">Long-term (90 days)</h4>
                   <ul className="space-y-1">
-                    <li className="text-xs text-[#a3a3a3] flex items-center">
+                    <li className="text-xs text-muted-foreground flex items-center">
                       <ArrowRight className="h-3 w-3 text-blue-400 mr-2 shrink-0" />
                       Launch premium tier at $35/person
                     </li>
-                    <li className="text-xs text-[#a3a3a3] flex items-center">
+                    <li className="text-xs text-muted-foreground flex items-center">
                       <ArrowRight className="h-3 w-3 text-blue-400 mr-2 shrink-0" />
                       Implement value-based pricing model
                     </li>
-                    <li className="text-xs text-[#a3a3a3] flex items-center">
+                    <li className="text-xs text-muted-foreground flex items-center">
                       <ArrowRight className="h-3 w-3 text-blue-400 mr-2 shrink-0" />
                       Corporate contract pricing strategy
                     </li>
@@ -494,12 +494,12 @@ export default function BusinessIntelligencePage() {
 
         {/* Customer Insights Tab */}
         <TabsContent value="customers" className="space-y-6">
-          <div className="glass glass-orange p-6 rounded-lg">
-            <h2 className="text-xl font-semibold text-[#f5f5f5] mb-4">Customer Intelligence</h2>
+          <div className="bg-amber-500/10 border border-amber-500/20 p-6 rounded-lg">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Customer Intelligence</h2>
 
             {/* Customer Journey */}
             <div className="mb-6">
-              <h3 className="text-lg font-medium text-[#f5f5f5] mb-4">Customer Journey Analysis</h3>
+              <h3 className="text-lg font-medium text-foreground mb-4">Customer Journey Analysis</h3>
               <div className="grid md:grid-cols-6 gap-4">
                 {mockBusinessData.customerJourney.map((stage, idx) => (
                   <motion.div
@@ -509,23 +509,23 @@ export default function BusinessIntelligencePage() {
                     transition={{ delay: idx * 0.1 }}
                     className="text-center"
                   >
-                    <div className="glass p-4 rounded-lg mb-2">
-                      <stage.icon className="h-6 w-6 text-orange-400 mx-auto mb-2" />
-                      <h4 className="text-sm font-medium text-[#f5f5f5]">{stage.stage}</h4>
+                    <div className="bg-card border border-border p-4 rounded-lg mb-2">
+                      <stage.icon className="h-6 w-6 text-amber-400 mx-auto mb-2" />
+                      <h4 className="text-sm font-medium text-foreground">{stage.stage}</h4>
                       <div className="mt-2">
-                        <div className="text-xs text-[#a3a3a3] mb-1">Satisfaction</div>
+                        <div className="text-xs text-muted-foreground mb-1">Satisfaction</div>
                         <div className="flex items-center gap-1">
                           {Array.from({ length: 10 }, (_, i) => (
                             <div
                               key={i}
                               className={cn(
                                 "w-1 h-3 rounded",
-                                i < stage.satisfaction ? "bg-orange-400" : "bg-white/10"
+                                i < stage.satisfaction ? "bg-amber-400" : "bg-white/10"
                               )}
                             />
                           ))}
                         </div>
-                        <div className="text-xs text-orange-400 mt-1">{stage.satisfaction}/10</div>
+                        <div className="text-xs text-amber-400 mt-1">{stage.satisfaction}/10</div>
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -542,16 +542,16 @@ export default function BusinessIntelligencePage() {
 
             {/* Key Themes */}
             <div className="mb-6">
-              <h3 className="text-lg font-medium text-[#f5f5f5] mb-4">Key Customer Themes</h3>
+              <h3 className="text-lg font-medium text-foreground mb-4">Key Customer Themes</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 {mockBusinessData.customerInsights.themes.map((theme) => (
                   <motion.div
                     key={theme.theme}
-                    whileHover={{ scale: 1.02 }}
-                    className="glass p-4 rounded-lg"
+                    whileHover={{ opacity: 0.9 }}
+                    className="bg-card border border-border p-4 rounded-lg"
                   >
                     <div className="flex items-start justify-between mb-2">
-                      <h4 className="text-sm font-medium text-[#f5f5f5]">{theme.theme}</h4>
+                      <h4 className="text-sm font-medium text-foreground">{theme.theme}</h4>
                       <Badge
                         className={cn(
                           "text-xs",
@@ -565,7 +565,7 @@ export default function BusinessIntelligencePage() {
                         {theme.frequency}% mention
                       </Badge>
                     </div>
-                    <p className="text-xs text-[#a3a3a3]">{theme.description}</p>
+                    <p className="text-xs text-muted-foreground">{theme.description}</p>
                   </motion.div>
                 ))}
               </div>
@@ -573,7 +573,7 @@ export default function BusinessIntelligencePage() {
 
             {/* Customer Quotes */}
             <div>
-              <h3 className="text-lg font-medium text-[#f5f5f5] mb-4">Customer Voice</h3>
+              <h3 className="text-lg font-medium text-foreground mb-4">Customer Voice</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 {mockBusinessData.customerInsights.quotes.map((quote, idx) => (
                   <motion.div
@@ -581,17 +581,17 @@ export default function BusinessIntelligencePage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="glass p-4 rounded-lg"
+                    className="bg-card border border-border p-4 rounded-lg"
                   >
                     <div className="mb-3">
                       <Badge className="bg-blue-500/20 text-blue-400 text-xs mb-2">
                         {quote.category}
                       </Badge>
-                      <blockquote className="text-sm text-[#f5f5f5] italic">
+                      <blockquote className="text-sm text-foreground italic">
                         "{quote.text}"
                       </blockquote>
                     </div>
-                    <div className="text-xs text-[#a3a3a3]">
+                    <div className="text-xs text-muted-foreground">
                       <div className="font-medium">{quote.source}</div>
                       <div>{quote.role}</div>
                     </div>
@@ -604,9 +604,9 @@ export default function BusinessIntelligencePage() {
 
         {/* Strategic Planning Tab */}
         <TabsContent value="strategy" className="space-y-6">
-          <div className="glass glass-purple p-6 rounded-lg">
+          <div className="bg-purple-500/10 border border-purple-500/20 p-6 rounded-lg">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-[#f5f5f5]">Strategic Roadmap</h2>
+              <h2 className="text-xl font-semibold text-foreground">Strategic Roadmap</h2>
               <div className="flex gap-2">
                 {(["90d", "1y", "3y", "10y"] as const).map((timeframe) => (
                   <Button
@@ -635,15 +635,15 @@ export default function BusinessIntelligencePage() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="glass p-6 rounded-lg"
+                    className="bg-card border border-border p-6 rounded-lg"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="text-lg font-medium text-[#f5f5f5] mb-1">{plan.goal}</h3>
-                        <p className="text-sm text-[#a3a3a3]">{plan.target}</p>
+                        <h3 className="text-lg font-medium text-foreground mb-1">{plan.goal}</h3>
+                        <p className="text-sm text-muted-foreground">{plan.target}</p>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm font-medium text-[#f5f5f5]">{plan.progress}%</div>
+                        <div className="text-sm font-medium text-foreground">{plan.progress}%</div>
                         <Progress value={plan.progress} className="w-24 mt-1" />
                       </div>
                     </div>
@@ -651,7 +651,7 @@ export default function BusinessIntelligencePage() {
                     {/* Milestones */}
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
-                        <h4 className="text-sm font-medium text-[#f5f5f5] mb-3">Key Milestones</h4>
+                        <h4 className="text-sm font-medium text-foreground mb-3">Key Milestones</h4>
                         <div className="space-y-2">
                           {plan.milestones.map((milestone) => (
                             <div key={milestone.title} className="flex items-center gap-3">
@@ -665,7 +665,7 @@ export default function BusinessIntelligencePage() {
                               </div>
                               <span className={cn(
                                 "text-sm",
-                                milestone.completed ? "text-green-400" : "text-[#a3a3a3]"
+                                milestone.completed ? "text-green-400" : "text-muted-foreground"
                               )}>
                                 {milestone.title}
                               </span>
@@ -677,12 +677,12 @@ export default function BusinessIntelligencePage() {
                       {/* Metrics */}
                       {plan.metrics && (
                         <div>
-                          <h4 className="text-sm font-medium text-[#f5f5f5] mb-3">Target Metrics</h4>
+                          <h4 className="text-sm font-medium text-foreground mb-3">Target Metrics</h4>
                           <div className="space-y-2">
                             {Object.entries(plan.metrics).map(([key, value]) => (
                               <div key={key} className="flex justify-between">
-                                <span className="text-sm text-[#a3a3a3] capitalize">{key}:</span>
-                                <span className="text-sm text-[#f5f5f5] font-medium">{value}</span>
+                                <span className="text-sm text-muted-foreground capitalize">{key}:</span>
+                                <span className="text-sm text-foreground font-medium">{value}</span>
                               </div>
                             ))}
                           </div>
@@ -695,11 +695,11 @@ export default function BusinessIntelligencePage() {
 
             {/* 90-Day Action Plan */}
             {selectedTimeframe === "90d" && (
-              <div className="mt-6 glass glass-green p-6 rounded-lg">
-                <h3 className="text-lg font-medium text-[#f5f5f5] mb-4">90-Day Action Plan</h3>
+              <div className="mt-6 bg-green-500/10 border border-green-500/20 p-6 rounded-lg">
+                <h3 className="text-lg font-medium text-foreground mb-4">90-Day Action Plan</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <h4 className="text-sm font-medium text-[#f5f5f5] mb-3">Weeks 1-6 (Foundation)</h4>
+                    <h4 className="text-sm font-medium text-foreground mb-3">Weeks 1-6 (Foundation)</h4>
                     <div className="space-y-2">
                       {mockBusinessData.ninetyDayActions
                         .filter(action => parseInt(action.week.replace('W', '')) <= 6)
@@ -718,15 +718,15 @@ export default function BusinessIntelligencePage() {
                               {action.week}
                             </Badge>
                             <div className="flex-1">
-                              <div className="text-sm text-[#f5f5f5]">{action.action}</div>
-                              <div className="text-xs text-[#a3a3a3]">{action.owner}</div>
+                              <div className="text-sm text-foreground">{action.action}</div>
+                              <div className="text-xs text-muted-foreground">{action.owner}</div>
                             </div>
                           </div>
                         ))}
                     </div>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-[#f5f5f5] mb-3">Weeks 7-12 (Growth)</h4>
+                    <h4 className="text-sm font-medium text-foreground mb-3">Weeks 7-12 (Growth)</h4>
                     <div className="space-y-2">
                       {mockBusinessData.ninetyDayActions
                         .filter(action => parseInt(action.week.replace('W', '')) > 6)
@@ -745,8 +745,8 @@ export default function BusinessIntelligencePage() {
                               {action.week}
                             </Badge>
                             <div className="flex-1">
-                              <div className="text-sm text-[#f5f5f5]">{action.action}</div>
-                              <div className="text-xs text-[#a3a3a3]">{action.owner}</div>
+                              <div className="text-sm text-foreground">{action.action}</div>
+                              <div className="text-xs text-muted-foreground">{action.owner}</div>
                             </div>
                           </div>
                         ))}
@@ -758,20 +758,20 @@ export default function BusinessIntelligencePage() {
           </div>
 
           {/* Key Success Metrics */}
-          <div className="glass glass-blue p-6 rounded-lg">
-            <h3 className="text-lg font-medium text-[#f5f5f5] mb-4">Success Metrics Dashboard</h3>
+          <div className="bg-blue-500/10 border border-blue-500/20 p-6 rounded-lg">
+            <h3 className="text-lg font-medium text-foreground mb-4">Success Metrics Dashboard</h3>
             <div className="grid md:grid-cols-3 gap-6">
               <div className="text-center">
                 <div className="text-3xl font-bold text-blue-400 mb-1">$10M</div>
-                <div className="text-sm text-[#a3a3a3]">10-Year Revenue Target</div>
+                <div className="text-sm text-muted-foreground">10-Year Revenue Target</div>
                 <div className="mt-2">
                   <Progress value={2} className="h-2" />
-                  <div className="text-xs text-[#a3a3a3] mt-1">2% complete</div>
+                  <div className="text-xs text-muted-foreground mt-1">2% complete</div>
                 </div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-green-400 mb-1">30</div>
-                <div className="text-sm text-[#a3a3a3]">Days to First Corporate Contract</div>
+                <div className="text-sm text-muted-foreground">Days to First Corporate Contract</div>
                 <div className="mt-2">
                   <Progress value={67} className="h-2" />
                   <div className="text-xs text-green-400 mt-1">On track</div>
@@ -779,7 +779,7 @@ export default function BusinessIntelligencePage() {
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-purple-400 mb-1">5</div>
-                <div className="text-sm text-[#a3a3a3]">Cities by Year 3</div>
+                <div className="text-sm text-muted-foreground">Cities by Year 3</div>
                 <div className="mt-2">
                   <Progress value={20} className="h-2" />
                   <div className="text-xs text-purple-400 mt-1">Early stage</div>

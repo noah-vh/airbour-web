@@ -223,7 +223,7 @@ ${highClickPerformers.flatMap((n) => n.sections.map((s: any) => s.type)).join(",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "X-Title": "SysInno Innovation Platform",
+        "X-Title": "Airbour Innovation Platform",
       },
       body: JSON.stringify({
         model: "anthropic/claude-3.5-sonnet",
@@ -345,7 +345,7 @@ ${args.newsletterTopic ? `Newsletter Topic: ${args.newsletterTopic}` : ""}
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "X-Title": "SysInno Innovation Platform",
+        "X-Title": "Airbour Innovation Platform",
       },
       body: JSON.stringify({
         model: "anthropic/claude-3.5-sonnet",

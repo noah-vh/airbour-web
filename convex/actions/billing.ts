@@ -12,7 +12,7 @@ function getStripeClient() {
     throw new Error("STRIPE_SECRET_KEY not configured in Convex environment");
   }
   return new Stripe(secretKey, {
-    apiVersion: "2024-11-20.acacia",
+    apiVersion: "2026-01-28.clover" as Stripe.LatestApiVersion,
   });
 }
 

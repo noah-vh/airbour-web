@@ -1,32 +1,30 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery, api } from "@/lib/mockConvex";
-import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
 import {
-  Radio,
   Database,
   Bell,
   TrendingUp,
-  Activity,
   Users,
-  Calendar,
   BarChart3,
   Zap,
-  Target,
   Clock,
-  ArrowUp,
-  ArrowDown,
+  ArrowUpRight,
   Mail,
+  Sparkles,
   FileText,
-  Sparkles
+  Activity,
+  ChevronRight,
+  ChevronLeft,
+  Target,
+  AlertCircle
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function DashboardPage() {
-  const { isCollapsed } = useSidebar();
+  const [activeSignalIndex, setActiveSignalIndex] = useState(0);
   const [stats, setStats] = useState({
     activeSignals: 247,
     dataSources: 12,
@@ -34,23 +32,53 @@ export default function DashboardPage() {
     trendingTopics: 23
   });
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
+      transition: { staggerChildren: 0.04 }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
+    hidden: { opacity: 0, y: 6 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
   };
 
-  // Mock real-time data updates
+  // Featured signals data
+  const featuredSignals = [
+    {
+      rank: 1,
+      title: "AI-Powered Healthcare Automation",
+      description: "Significant increase in enterprise adoption discussions. Major players announcing new initiatives.",
+      growth: "+127%",
+      mentions: 842,
+      sources: 12,
+      tags: ["Digital Health", "Enterprise AI", "Automation"],
+      trend: [25, 30, 28, 35, 42, 38, 55, 62, 58, 75, 85, 92]
+    },
+    {
+      rank: 2,
+      title: "Sustainable Supply Chain Tech",
+      description: "Growing focus on carbon tracking and ESG compliance tools across manufacturing sectors.",
+      growth: "+89%",
+      mentions: 634,
+      sources: 9,
+      tags: ["ESG", "Supply Chain", "Sustainability"],
+      trend: [30, 35, 40, 38, 45, 52, 58, 55, 65, 70, 78, 85]
+    },
+    {
+      rank: 3,
+      title: "Edge Computing in Retail",
+      description: "Real-time inventory and customer analytics driving adoption in physical retail spaces.",
+      growth: "+64%",
+      mentions: 421,
+      sources: 7,
+      tags: ["Retail Tech", "Edge Computing", "Analytics"],
+      trend: [20, 25, 30, 35, 32, 40, 45, 50, 55, 58, 62, 68]
+    }
+  ];
+
   useEffect(() => {
     const interval = setInterval(() => {
       setStats(prev => ({
@@ -60,338 +88,316 @@ export default function DashboardPage() {
         trendingTopics: prev.trendingTopics + (Math.random() > 0.8 ? 1 : 0)
       }));
     }, 5000);
-
     return () => clearInterval(interval);
   }, []);
 
+  const currentSignal = featuredSignals[activeSignalIndex];
+
   return (
-    <div className={cn(
-      "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-[#0a0a0a]",
-      isCollapsed ? "left-16" : "left-64"
-    )}>
+    <div className="min-h-screen">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="p-6 space-y-6"
+        className="p-8 max-w-[1400px]"
       >
-        {/* Header */}
-        <motion.div variants={itemVariants} className="flex items-center gap-3 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
-            <Radio className="h-6 w-6 text-purple-400" />
+        {/* Header - Stats + Actions combined */}
+        <motion.div variants={itemVariants} className="flex items-center justify-between mb-8">
+          {/* Compact Stats */}
+          <div className="flex items-center gap-8">
+            <Link href="/dashboard/signals" className="group">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-light text-foreground">{stats.activeSignals}</span>
+                <span className="text-sm text-muted-foreground">signals</span>
+                <span className="text-xs text-emerald-600 font-medium">+12</span>
+              </div>
+            </Link>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <Link href="/dashboard/sources" className="group">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-light text-foreground">{stats.dataSources}</span>
+                <span className="text-sm text-muted-foreground">sources</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 ml-1" />
+              </div>
+            </Link>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <Link href="/dashboard/mentions" className="group">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-light text-foreground">{stats.newMentions.toLocaleString()}</span>
+                <span className="text-sm text-muted-foreground">mentions</span>
+                <span className="text-xs text-emerald-600 font-medium">+8%</span>
+              </div>
+            </Link>
           </div>
-          <div className="flex-1">
-            <h1 className="text-2xl font-semibold text-[#f5f5f5] tracking-tight">Dashboard</h1>
-            <p className="text-sm text-[#a3a3a3]">Innovation monitoring overview</p>
-          </div>
+
+          {/* Quick Actions */}
           <div className="flex items-center gap-2">
+            <Link href="/dashboard/content-library">
+              <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-black/[0.06] hover:border-black/[0.12] transition-colors text-sm">
+                <FileText className="h-4 w-4 text-amber-500" />
+                <span>Library</span>
+              </button>
+            </Link>
             <Link href="/dashboard/newsletters">
-              <button className="glass bg-blue-500/10 border border-blue-500/20 rounded-lg px-4 py-2 transition-standard hover:bg-blue-500/20 flex items-center gap-2">
-                <Mail className="h-4 w-4 text-blue-400" />
-                <span className="text-sm text-blue-300">Newsletters</span>
+              <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-black/[0.06] hover:border-black/[0.12] transition-colors text-sm">
+                <Mail className="h-4 w-4 text-purple-500" />
+                <span>Newsletter</span>
+              </button>
+            </Link>
+            <Link href="/dashboard/analytics">
+              <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-black/[0.06] hover:border-black/[0.12] transition-colors text-sm">
+                <BarChart3 className="h-4 w-4 text-emerald-500" />
+                <span>Analytics</span>
+              </button>
+            </Link>
+            <Link href="/dashboard/team">
+              <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-black/[0.06] hover:border-black/[0.12] transition-colors text-sm">
+                <Users className="h-4 w-4 text-violet-500" />
+                <span>Team</span>
               </button>
             </Link>
             <Link href="/dashboard/content-ideation">
-              <button className="glass bg-purple-500/10 border border-purple-500/20 rounded-lg px-4 py-2 transition-standard hover:bg-purple-500/20 flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-purple-400" />
-                <span className="text-sm text-purple-300">Create Content</span>
+              <button className="bg-[#1C1C1C] text-white rounded-full px-5 py-2 text-sm font-medium hover:bg-[#2C2C2C] transition-colors flex items-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                Create
               </button>
             </Link>
           </div>
         </motion.div>
 
-        {/* Stats Grid */}
-        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Link href="/dashboard/signals">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-5 transition-standard hover:bg-white/5 cursor-pointer"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
-                  <Zap className="h-4 w-4 text-blue-400" />
-                </div>
-                <div className="flex items-center gap-1">
-                  <motion.span
-                    key={stats.activeSignals}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-2xl font-bold text-[#f5f5f5]"
-                  >
-                    {stats.activeSignals}
-                  </motion.span>
-                  <ArrowUp className="h-3 w-3 text-green-400" />
-                </div>
-              </div>
-              <h3 className="text-sm font-medium text-[#a3a3a3] mb-1">Active Signals</h3>
-              <p className="text-xs text-[#666]">Innovation signals tracked</p>
-            </motion.div>
-          </Link>
-
-          <Link href="/dashboard/sources">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-5 transition-standard hover:bg-white/5 cursor-pointer"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20 border border-green-500/30">
-                  <Database className="h-4 w-4 text-green-400" />
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-2xl font-bold text-[#f5f5f5]">{stats.dataSources}</span>
-                  <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></div>
-                </div>
-              </div>
-              <h3 className="text-sm font-medium text-[#a3a3a3] mb-1">Data Sources</h3>
-              <p className="text-xs text-[#666]">Connected data feeds</p>
-            </motion.div>
-          </Link>
-
-          <Link href="/dashboard/mentions">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-5 transition-standard hover:bg-white/5 cursor-pointer"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/20 border border-orange-500/30">
-                  <Bell className="h-4 w-4 text-orange-400" />
-                </div>
-                <div className="flex items-center gap-1">
-                  <motion.span
-                    key={stats.newMentions}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-2xl font-bold text-[#f5f5f5]"
-                  >
-                    {stats.newMentions.toLocaleString()}
-                  </motion.span>
-                  <ArrowUp className="h-3 w-3 text-green-400" />
-                </div>
-              </div>
-              <h3 className="text-sm font-medium text-[#a3a3a3] mb-1">New Mentions</h3>
-              <p className="text-xs text-[#666]">Requires attention</p>
-            </motion.div>
-          </Link>
-
-          <Link href="/dashboard/analytics">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-5 transition-standard hover:bg-white/5 cursor-pointer"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
-                  <TrendingUp className="h-4 w-4 text-purple-400" />
-                </div>
-                <div className="flex items-center gap-1">
-                  <motion.span
-                    key={stats.trendingTopics}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-2xl font-bold text-[#f5f5f5]"
-                  >
-                    {stats.trendingTopics}
-                  </motion.span>
-                  <ArrowUp className="h-3 w-3 text-green-400" />
-                </div>
-              </div>
-              <h3 className="text-sm font-medium text-[#a3a3a3] mb-1">Trending Topics</h3>
-              <p className="text-xs text-[#666]">Growth patterns detected</p>
-            </motion.div>
-          </Link>
-        </motion.div>
-
-        {/* System Status */}
-        <motion.div variants={itemVariants} className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500/20">
-              <div className="h-2 w-2 rounded-full bg-green-400"></div>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-[#f5f5f5]">System Active</h2>
-              <p className="text-sm text-[#a3a3a3]">All services operational</p>
+        {/* Trending Signals Section */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-foreground">Trending Signals</h2>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setActiveSignalIndex(i => i > 0 ? i - 1 : featuredSignals.length - 1)}
+                className="h-8 w-8 rounded-full border border-black/[0.08] flex items-center justify-center hover:bg-white transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setActiveSignalIndex(i => i < featuredSignals.length - 1 ? i + 1 : 0)}
+                className="h-8 w-8 rounded-full border border-black/[0.08] flex items-center justify-center hover:bg-white transition-colors"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+              <Link href="/dashboard/signals" className="text-sm text-muted-foreground hover:text-foreground transition-colors ml-2">
+                View all
+              </Link>
             </div>
           </div>
 
-          <div className="space-y-3 mb-6">
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-              <div className="h-2 w-2 rounded-full bg-green-400"></div>
-              <span className="text-sm text-[#f5f5f5]">Frontend Application Running</span>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-              <div className="h-2 w-2 rounded-full bg-green-400"></div>
-              <span className="text-sm text-[#f5f5f5]">Mock Data System Active</span>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-              <div className="h-2 w-2 rounded-full bg-green-400"></div>
-              <span className="text-sm text-[#f5f5f5]">All Dashboard Pages Available</span>
-            </div>
-          </div>
-
-          <div className="border border-white/5 rounded-lg p-4 bg-blue-500/5">
-            <p className="text-sm font-medium text-blue-300 mb-2">Available Features</p>
-            <ul className="text-sm text-[#a3a3a3] space-y-1.5">
-              <li className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 shrink-0"></div>
-                <span>Navigate through all dashboard sections using the sidebar</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 shrink-0"></div>
-                <span>View team profiles, signals, sources, and analytics with mock data</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 shrink-0"></div>
-                <span>All components styled and fully functional for demo purposes</span>
-              </li>
-            </ul>
-          </div>
-        </motion.div>
-
-        {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Activity */}
-          <motion.div variants={itemVariants} className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
-                <Activity className="h-4 w-4 text-blue-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-[#f5f5f5]">Recent Activity</h3>
-            </div>
-
-            <div className="space-y-4">
-              {[
-                { action: "New signal detected", item: "AI-powered automation in healthcare", time: "2 minutes ago", type: "signal" },
-                { action: "Mention analyzed", item: "Digital transformation leadership", time: "5 minutes ago", type: "mention" },
-                { action: "Newsletter sent", item: "Weekly Innovation Digest", time: "1 hour ago", type: "newsletter" },
-                { action: "Content created", item: "Future of Work Analysis", time: "3 hours ago", type: "content" },
-                { action: "Team member added", item: "Sarah Chen joined Analytics team", time: "1 day ago", type: "team" }
-              ].map((activity, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-standard">
-                  <div className={cn(
-                    "w-2 h-2 rounded-full",
-                    activity.type === "signal" ? "bg-blue-400" :
-                    activity.type === "mention" ? "bg-green-400" :
-                    activity.type === "newsletter" ? "bg-purple-400" :
-                    activity.type === "content" ? "bg-yellow-400" : "bg-pink-400"
-                  )}></div>
-                  <div className="flex-1">
-                    <p className="text-sm text-[#f5f5f5] font-medium">{activity.action}</p>
-                    <p className="text-xs text-[#a3a3a3]">{activity.item}</p>
+          <div className="grid grid-cols-3 gap-4">
+            {/* Featured Signal - Large */}
+            <div className="col-span-2 bg-[#1C1C1C] rounded-2xl p-6 text-white">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-xs px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-medium">
+                      #{currentSignal.rank} Trending
+                    </span>
                   </div>
-                  <div className="text-xs text-[#666]">{activity.time}</div>
+                  <h3 className="text-xl font-medium mb-2">{currentSignal.title}</h3>
+                  <p className="text-white/60 text-sm mb-5">{currentSignal.description}</p>
+                  <div className="flex items-center gap-6">
+                    <div>
+                      <p className="text-2xl font-light">{currentSignal.growth}</p>
+                      <p className="text-xs text-white/50">Growth</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-light">{currentSignal.mentions}</p>
+                      <p className="text-xs text-white/50">Mentions</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-light">{currentSignal.sources}</p>
+                      <p className="text-xs text-white/50">Sources</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="ml-6">
+                  <div className="flex items-end gap-1 h-20 w-28">
+                    {currentSignal.trend.map((h, i) => (
+                      <div key={i} className="flex-1 rounded-sm bg-white/20" style={{ height: `${h}%` }} />
+                    ))}
+                  </div>
+                  <p className="text-xs text-white/40 mt-2 text-right">12 weeks</p>
+                </div>
+              </div>
+              <div className="mt-5 pt-4 border-t border-white/10 flex items-center gap-2">
+                {currentSignal.tags.map((tag, i) => (
+                  <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-white/10 text-white/70">{tag}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* Signal List - Right side */}
+            <div className="space-y-3">
+              {featuredSignals.map((signal, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveSignalIndex(i)}
+                  className={cn(
+                    "w-full text-left p-4 rounded-xl transition-all",
+                    i === activeSignalIndex
+                      ? "bg-white border-2 border-foreground/20 shadow-sm"
+                      : "bg-white/60 border border-black/[0.04] hover:bg-white"
+                  )}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="text-xs font-medium text-muted-foreground">#{signal.rank}</span>
+                    <span className="text-xs font-medium text-emerald-600">{signal.growth}</span>
+                  </div>
+                  <p className="text-sm font-medium text-foreground mb-1">{signal.title}</p>
+                  <p className="text-xs text-muted-foreground">{signal.mentions} mentions</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Three Column Layout */}
+        <div className="grid grid-cols-3 gap-6">
+          {/* Signals & Mentions */}
+          <motion.div variants={itemVariants}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-semibold text-foreground">Latest Mentions</h2>
+              <Link href="/dashboard/mentions" className="text-sm text-muted-foreground hover:text-foreground">View all</Link>
+            </div>
+            <div className="bg-white rounded-2xl border border-black/[0.04] overflow-hidden">
+              {[
+                { source: "TechCrunch", signal: "Healthcare AI", time: "2m", sentiment: "positive" },
+                { source: "Reuters", signal: "Supply Chain", time: "15m", sentiment: "neutral" },
+                { source: "Forbes", signal: "Edge Computing", time: "1h", sentiment: "positive" },
+                { source: "WSJ", signal: "AI Regulation", time: "2h", sentiment: "negative" },
+              ].map((mention, i, arr) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "px-4 py-3 hover:bg-black/[0.01] transition-colors cursor-pointer",
+                    i !== arr.length - 1 && "border-b border-black/[0.04]"
+                  )}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium text-foreground">{mention.source}</span>
+                    <span className="text-xs text-muted-foreground">{mention.time}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{mention.signal}</span>
+                    <span className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      mention.sentiment === "positive" ? "bg-emerald-500" :
+                      mention.sentiment === "negative" ? "bg-red-400" : "bg-gray-300"
+                    )} />
+                  </div>
                 </div>
               ))}
             </div>
-
-            <Link href="/dashboard/analytics">
-              <button className="w-full mt-4 glass bg-blue-500/10 border border-blue-500/20 rounded-lg px-4 py-3 transition-standard hover:bg-blue-500/20 text-sm text-blue-300">
-                View Full Activity Log
-              </button>
-            </Link>
           </motion.div>
 
-          {/* Quick Insights */}
-          <motion.div variants={itemVariants} className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-500/20 border border-yellow-500/30">
-                <Target className="h-4 w-4 text-yellow-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-[#f5f5f5]">Quick Insights</h3>
+          {/* Content & Newsletters */}
+          <motion.div variants={itemVariants}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-semibold text-foreground">Content</h2>
+              <Link href="/dashboard/content-library" className="text-sm text-muted-foreground hover:text-foreground">View all</Link>
             </div>
-
-            <div className="space-y-4">
-              <div className="p-4 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-4 w-4 text-blue-400" />
-                  <span className="text-sm font-medium text-blue-300">Trending Signal</span>
+            <div className="space-y-3">
+              <div className="bg-white rounded-2xl border border-black/[0.04] p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-9 w-9 rounded-lg bg-purple-50 flex items-center justify-center">
+                    <Mail className="h-4 w-4 text-purple-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Weekly Digest</p>
+                    <p className="text-xs text-muted-foreground">Sent 1h ago • 2.4k opens</p>
+                  </div>
                 </div>
-                <p className="text-sm text-[#f5f5f5] mb-2">AI Ethics in Enterprise</p>
-                <p className="text-xs text-[#a3a3a3]">+127% mention growth this week</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600">68% open rate</span>
+                </div>
               </div>
 
-              <div className="p-4 rounded-lg bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
-                <div className="flex items-center gap-2 mb-2">
-                  <Zap className="h-4 w-4 text-green-400" />
-                  <span className="text-sm font-medium text-green-300">High Impact Opportunity</span>
+              <div className="bg-white rounded-2xl border border-black/[0.04] p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-9 w-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <FileText className="h-4 w-4 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">AI Trends Report</p>
+                    <p className="text-xs text-muted-foreground">Draft • Last edited 3h ago</p>
+                  </div>
                 </div>
-                <p className="text-sm text-[#f5f5f5] mb-2">Quantum Computing Applications</p>
-                <p className="text-xs text-[#a3a3a3]">Low competition, high interest</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">In progress</span>
+                </div>
               </div>
 
-              <div className="p-4 rounded-lg bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20">
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="h-4 w-4 text-orange-400" />
-                  <span className="text-sm font-medium text-orange-300">Time Sensitive</span>
+              <Link href="/dashboard/content-ideation" className="block">
+                <div className="border-2 border-dashed border-black/[0.08] rounded-2xl p-4 hover:border-black/[0.15] transition-colors text-center">
+                  <Sparkles className="h-5 w-5 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm font-medium text-muted-foreground">Generate new content</p>
                 </div>
-                <p className="text-sm text-[#f5f5f5] mb-2">Regulatory Changes in AI</p>
-                <p className="text-xs text-[#a3a3a3]">Action required within 48 hours</p>
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* Alerts & Actions */}
+          <motion.div variants={itemVariants}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-semibold text-foreground">Needs Attention</h2>
+            </div>
+            <div className="space-y-3">
+              <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100">
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+                    <Clock className="h-4 w-4 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-amber-900">AI Regulatory Changes</p>
+                    <p className="text-xs text-amber-700 mt-1">New EU guidelines announced. Review recommended within 48h.</p>
+                    <button className="text-xs font-medium text-amber-700 mt-2 hover:text-amber-900">Review now →</button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-4 border border-black/[0.04]">
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                    <Target className="h-4 w-4 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Quantum Computing</p>
+                    <p className="text-xs text-muted-foreground mt-1">Low competition opportunity. Consider creating content.</p>
+                    <button className="text-xs font-medium text-blue-600 mt-2 hover:text-blue-700">Explore →</button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-4 border border-black/[0.04]">
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
+                    <Users className="h-4 w-4 text-violet-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Team Update</p>
+                    <p className="text-xs text-muted-foreground mt-1">Sarah Chen joined the Analytics team.</p>
+                    <button className="text-xs font-medium text-violet-600 mt-2 hover:text-violet-700">View team →</button>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <Link href="/dashboard/analytics">
-              <button className="w-full mt-4 glass bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-4 py-3 transition-standard hover:bg-yellow-500/20 text-sm text-yellow-300">
-                View Detailed Analytics
-              </button>
-            </Link>
           </motion.div>
         </div>
 
-        {/* Quick Actions */}
-        <motion.div variants={itemVariants} className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
-              <Sparkles className="h-4 w-4 text-purple-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-[#f5f5f5]">Quick Actions</h3>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link href="/dashboard/content-ideation">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="glass bg-purple-500/10 border border-purple-500/20 rounded-lg p-6 transition-standard hover:bg-purple-500/20 flex flex-col items-center text-center"
-              >
-                <Sparkles className="h-8 w-8 text-purple-400 mb-3" />
-                <span className="text-sm font-medium text-purple-300 mb-1">Generate Ideas</span>
-                <span className="text-xs text-[#a3a3a3]">AI-powered content</span>
-              </motion.button>
-            </Link>
-
-            <Link href="/dashboard/newsletters">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="glass bg-blue-500/10 border border-blue-500/20 rounded-lg p-6 transition-standard hover:bg-blue-500/20 flex flex-col items-center text-center"
-              >
-                <Mail className="h-8 w-8 text-blue-400 mb-3" />
-                <span className="text-sm font-medium text-blue-300 mb-1">Send Newsletter</span>
-                <span className="text-xs text-[#a3a3a3]">Engage audience</span>
-              </motion.button>
-            </Link>
-
-            <Link href="/dashboard/team">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="glass bg-green-500/10 border border-green-500/20 rounded-lg p-6 transition-standard hover:bg-green-500/20 flex flex-col items-center text-center"
-              >
-                <Users className="h-8 w-8 text-green-400 mb-3" />
-                <span className="text-sm font-medium text-green-300 mb-1">Team Collab</span>
-                <span className="text-xs text-[#a3a3a3]">Work together</span>
-              </motion.button>
-            </Link>
-
-            <Link href="/dashboard/analytics">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="glass bg-orange-500/10 border border-orange-500/20 rounded-lg p-6 transition-standard hover:bg-orange-500/20 flex flex-col items-center text-center"
-              >
-                <BarChart3 className="h-8 w-8 text-orange-400 mb-3" />
-                <span className="text-sm font-medium text-orange-300 mb-1">View Analytics</span>
-                <span className="text-xs text-[#a3a3a3]">Deep insights</span>
-              </motion.button>
-            </Link>
+        {/* Footer Status */}
+        <motion.div variants={itemVariants} className="mt-8 pt-6 border-t border-black/[0.06]">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              All systems operational
+            </span>
+            <span>•</span>
+            <span>Last sync 2m ago</span>
           </div>
         </motion.div>
       </motion.div>

@@ -41,6 +41,7 @@ import type * as lib_rate_limiter from "../lib/rate_limiter.js";
 import type * as lightweight from "../lightweight.js";
 import type * as mentions from "../mentions.js";
 import type * as metrics from "../metrics.js";
+import type * as newsletterTemplates from "../newsletterTemplates.js";
 import type * as newsletters from "../newsletters.js";
 import type * as organizations from "../organizations.js";
 import type * as personalDocuments from "../personalDocuments.js";
@@ -94,6 +95,7 @@ declare const fullApi: ApiFromModules<{
   lightweight: typeof lightweight;
   mentions: typeof mentions;
   metrics: typeof metrics;
+  newsletterTemplates: typeof newsletterTemplates;
   newsletters: typeof newsletters;
   organizations: typeof organizations;
   personalDocuments: typeof personalDocuments;

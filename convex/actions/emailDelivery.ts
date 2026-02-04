@@ -98,7 +98,7 @@ export const sendNewsletter = action({
   },
   handler: async (ctx, args) => {
     const resend = getResendClient();
-    const baseUrl = process.env.APP_BASE_URL || "https://sysinno.vercel.app";
+    const baseUrl = process.env.APP_BASE_URL || "https://airbour.vercel.app";
 
     // Fetch newsletter
     const newsletter = await ctx.runQuery(api.newsletters.get, {
@@ -115,7 +115,7 @@ export const sendNewsletter = action({
     // If test email, send only to that address
     if (args.testEmail) {
       const { data, error } = await resend.emails.send({
-        from: process.env.EMAIL_FROM || "SysInno <newsletter@sysinno.com>",
+        from: process.env.EMAIL_FROM || "Airbour <newsletter@airbour.com>",
         to: args.testEmail,
         subject: newsletter.subject || newsletter.name,
         html: baseHtml,
@@ -142,7 +142,7 @@ export const sendNewsletter = action({
         html = wrapLinksForTracking(html, args.newsletterId, subscriber._id, baseUrl);
 
         const { data, error } = await resend.emails.send({
-          from: process.env.EMAIL_FROM || "SysInno <newsletter@sysinno.com>",
+          from: process.env.EMAIL_FROM || "Airbour <newsletter@airbour.com>",
           to: subscriber.email,
           subject: newsletter.subject || newsletter.name,
           html,

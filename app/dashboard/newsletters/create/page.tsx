@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useSidebar } from "@/components/dashboard/sidebar-context";
@@ -10,14 +10,11 @@ import {
   Mail,
   Plus,
   Search,
-  Filter,
   Grip,
-  X,
   Save,
   Send,
   Eye,
   Calendar,
-  Users,
   Radio,
   TrendingUp,
   MoveUp,
@@ -26,11 +23,27 @@ import {
   Trash2,
   Sparkles,
   FileText,
-  ArrowLeft
+  ArrowLeft,
+  Check,
+  Loader2,
+  BarChart3,
+  Lightbulb,
+  Link as LinkIcon,
+  Zap,
+  AlignCenter,
+  MessageSquare,
+  ChevronDown,
+  ChevronUp,
+  LayoutTemplate,
+  FolderOpen,
+  X,
+  Copy,
 } from "lucide-react";
-import { motion, Reorder, AnimatePresence } from "framer-motion";
+import { Reorder } from "framer-motion";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { TeamMemberSelector, TeamMemberContext, buildVoiceContext } from "@/components/content/TeamMemberSelector";
 
 interface NewsletterSection {
   id: string;
@@ -43,15 +56,6 @@ interface NewsletterSection {
   aiGenerated?: boolean;
   generatedAt?: number;
 }
-
-import {
-  BarChart3,
-  Lightbulb,
-  Link,
-  Zap,
-  AlignCenter,
-  MessageSquare
-} from "lucide-react";
 
 const SECTION_TYPES = [
   {
@@ -107,7 +111,7 @@ const SECTION_TYPES = [
     type: "resources",
     label: "Resources",
     description: "Curated links and tools",
-    icon: Link,
+    icon: LinkIcon,
     defaultContent: "Recommended resources..."
   },
   {
@@ -128,26 +132,48 @@ const SECTION_TYPES = [
 
 export default function CreateNewsletterPage() {
   const { isCollapsed } = useSidebar();
+  const router = useRouter();
+
+  // Newsletter state
+  const [newsletterId, setNewsletterId] = useState<Id<"newsletters"> | null>(null);
+  const [newsletterTitle, setNewsletterTitle] = useState("");
+  const [newsletterSubject, setNewsletterSubject] = useState("");
+  const [sections, setSections] = useState<NewsletterSection[]>([]);
+
+  // UI state
   const [selectedSignalIds, setSelectedSignalIds] = useState<Id<"signals">[]>([]);
   const [selectedMentionIds, setSelectedMentionIds] = useState<Id<"raw_mentions">[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterLifecycle, setFilterLifecycle] = useState<string>("");
-  const [newsletterTitle, setNewsletterTitle] = useState("");
-  const [newsletterSubject, setNewsletterSubject] = useState("");
-  const [sections, setSections] = useState<NewsletterSection[]>([]);
-  const [editingSection, setEditingSection] = useState<string | null>(null);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [generatingSections, setGeneratingSections] = useState<Set<string>>(new Set());
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  // Actions
+  // Auto-save state
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Mutations
+  const createNewsletter = useMutation(api.newsletters.create);
+  const updateNewsletter = useMutation(api.newsletters.update);
   const generateSectionAction = useAction(api.actions.newsletterGeneration.generateNewsletterSection);
 
-  // Calculate statistics
-  const totalWords = sections.reduce((sum, section) => {
-    return sum + section.content.split(/\s+/).filter(w => w.length > 0).length;
-  }, 0);
-  const aiGeneratedCount = sections.filter(s => s.aiGenerated).length;
+  // Template mutations and queries
+  const templates = useQuery(api.newsletterTemplates.list, { limit: 50 });
+  const createTemplate = useMutation(api.newsletterTemplates.create);
+
+  // Template UI state
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [templateDescription, setTemplateDescription] = useState("");
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+
+  // Voice/perspective selection
+  const [selectedVoice, setSelectedVoice] = useState<TeamMemberContext | null>(null);
 
   // Queries
   const signals = useQuery(api.signals.listSignals, {
@@ -158,7 +184,90 @@ export default function CreateNewsletterPage() {
   // Note: Mentions API not yet implemented
   const mentions: any[] = [];
 
-  const handleSignalSelect = (signalId: string) => {
+  // Calculate statistics
+  const totalWords = sections.reduce((sum, section) => {
+    return sum + section.content.split(/\s+/).filter(w => w.length > 0).length;
+  }, 0);
+  const aiGeneratedCount = sections.filter(s => s.aiGenerated).length;
+
+  // Auto-save function
+  const saveNewsletter = useCallback(async () => {
+    if (!newsletterTitle || !newsletterSubject) return;
+
+    setIsSaving(true);
+    try {
+      if (newsletterId) {
+        // Update existing newsletter
+        await updateNewsletter({
+          id: newsletterId,
+          title: newsletterTitle,
+          subject: newsletterSubject,
+          sections: sections.map(s => ({
+            id: s.id,
+            type: s.type,
+            title: s.title,
+            content: s.content,
+            order: s.order,
+            signalIds: s.signalIds,
+            mentionIds: s.mentionIds,
+            aiGenerated: s.aiGenerated || false,
+            generatedAt: s.generatedAt,
+          })),
+        });
+      } else {
+        // Create new newsletter
+        const id = await createNewsletter({
+          title: newsletterTitle,
+          subject: newsletterSubject,
+          sections: sections.map(s => ({
+            id: s.id,
+            type: s.type,
+            title: s.title,
+            content: s.content,
+            order: s.order,
+            signalIds: s.signalIds,
+            mentionIds: s.mentionIds,
+            aiGenerated: s.aiGenerated || false,
+            generatedAt: s.generatedAt,
+          })),
+          createdBy: "current-user",
+        });
+        setNewsletterId(id);
+      }
+      setLastSaved(new Date());
+      setHasUnsavedChanges(false);
+    } catch (error: any) {
+      toast.error(`Failed to save: ${error.message}`);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [newsletterId, newsletterTitle, newsletterSubject, sections, createNewsletter, updateNewsletter]);
+
+  // Debounced auto-save
+  useEffect(() => {
+    if (hasUnsavedChanges && newsletterTitle && newsletterSubject) {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      saveTimeoutRef.current = setTimeout(() => {
+        saveNewsletter();
+      }, 3000);
+    }
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [hasUnsavedChanges, newsletterTitle, newsletterSubject, saveNewsletter]);
+
+  // Mark as unsaved on changes
+  useEffect(() => {
+    if (newsletterTitle || newsletterSubject || sections.length > 0) {
+      setHasUnsavedChanges(true);
+    }
+  }, [newsletterTitle, newsletterSubject, sections]);
+
+  const handleSignalSelect = (signalId: Id<"signals">) => {
     setSelectedSignalIds(prev =>
       prev.includes(signalId)
         ? prev.filter(id => id !== signalId)
@@ -166,7 +275,7 @@ export default function CreateNewsletterPage() {
     );
   };
 
-  const handleMentionSelect = (mentionId: string) => {
+  const handleMentionSelect = (mentionId: Id<"raw_mentions">) => {
     setSelectedMentionIds(prev =>
       prev.includes(mentionId)
         ? prev.filter(id => id !== mentionId)
@@ -189,7 +298,6 @@ export default function CreateNewsletterPage() {
     const sectionType = SECTION_TYPES.find(s => s.type === type);
     if (!sectionType) return;
 
-    // Auto-assign signals/mentions based on section type
     let assignedSignalIds: Id<"signals">[] = [];
     let assignedMentionIds: Id<"raw_mentions">[] = [];
 
@@ -212,7 +320,8 @@ export default function CreateNewsletterPage() {
     };
 
     setSections(prev => [...prev, newSection]);
-    toast.success(`${sectionType.label} added to newsletter`);
+    setExpandedSection(newSection.id);
+    toast.success(`${sectionType.label} added`);
   };
 
   const updateSection = (sectionId: string, updates: Partial<NewsletterSection>) => {
@@ -223,6 +332,9 @@ export default function CreateNewsletterPage() {
 
   const deleteSection = (sectionId: string) => {
     setSections(prev => prev.filter(section => section.id !== sectionId));
+    if (expandedSection === sectionId) {
+      setExpandedSection(null);
+    }
     toast.success("Section removed");
   };
 
@@ -241,7 +353,6 @@ export default function CreateNewsletterPage() {
     });
   };
 
-  // Generate content for a single section
   const generateNewsletterSection = async (sectionId: string) => {
     const section = sections.find(s => s.id === sectionId);
     if (!section) return;
@@ -253,6 +364,7 @@ export default function CreateNewsletterPage() {
         sectionType: section.type,
         signalIds: section.signalIds || [],
         mentionIds: section.mentionIds || [],
+        voiceContext: buildVoiceContext(selectedVoice),
       });
 
       setSections(prev => prev.map(s =>
@@ -261,7 +373,7 @@ export default function CreateNewsletterPage() {
           : s
       ));
 
-      toast.success(`${section.title} generated successfully`);
+      toast.success(`${section.title} generated`);
     } catch (error: any) {
       toast.error(`Failed to generate: ${error.message}`);
     } finally {
@@ -273,7 +385,6 @@ export default function CreateNewsletterPage() {
     }
   };
 
-  // Generate all sections at once
   const generateNewsletterContent = async () => {
     if (sections.length === 0) {
       toast.error("Add at least one section to generate content");
@@ -285,7 +396,6 @@ export default function CreateNewsletterPage() {
     let errorCount = 0;
 
     try {
-      // Generate all sections in parallel
       await Promise.all(
         sections.map(async (section) => {
           try {
@@ -293,6 +403,7 @@ export default function CreateNewsletterPage() {
               sectionType: section.type,
               signalIds: section.signalIds || [],
               mentionIds: section.mentionIds || [],
+              voiceContext: buildVoiceContext(selectedVoice),
             });
 
             setSections(prev => prev.map(s =>
@@ -309,7 +420,7 @@ export default function CreateNewsletterPage() {
       );
 
       if (successCount > 0) {
-        toast.success(`Generated ${successCount} sections successfully`);
+        toast.success(`Generated ${successCount} sections`);
       }
       if (errorCount > 0) {
         toast.error(`Failed to generate ${errorCount} sections`);
@@ -319,15 +430,16 @@ export default function CreateNewsletterPage() {
     }
   };
 
-  const saveNewsletter = () => {
+  const handleSave = async () => {
     if (!newsletterTitle || !newsletterSubject) {
       toast.error("Please enter newsletter title and subject");
       return;
     }
-    toast.success("Newsletter saved as draft");
+    await saveNewsletter();
+    toast.success("Newsletter saved");
   };
 
-  const sendNewsletter = () => {
+  const handleSend = () => {
     if (!newsletterTitle || !newsletterSubject || sections.length === 0) {
       toast.error("Complete all fields and add sections before sending");
       return;
@@ -335,424 +447,671 @@ export default function CreateNewsletterPage() {
     toast.success("Newsletter sent successfully");
   };
 
+  // Template handlers
+  const loadTemplate = (template: any) => {
+    if (template.sections && template.sections.length > 0) {
+      // Convert template sections to newsletter sections with new IDs
+      const loadedSections: NewsletterSection[] = template.sections.map((s: any, index: number) => ({
+        id: `section-${Date.now()}-${index}`,
+        type: s.type,
+        title: s.title,
+        content: s.content,
+        order: index,
+        signalIds: [],
+        mentionIds: [],
+        aiGenerated: false,
+      }));
+      setSections(loadedSections);
+      toast.success(`Loaded template: ${template.name}`);
+    }
+    setShowTemplateModal(false);
+  };
+
+  const handleSaveAsTemplate = async () => {
+    if (!templateName.trim()) {
+      toast.error("Please enter a template name");
+      return;
+    }
+    if (sections.length === 0) {
+      toast.error("Add at least one section to save as template");
+      return;
+    }
+
+    setIsSavingTemplate(true);
+    try {
+      await createTemplate({
+        name: templateName.trim(),
+        description: templateDescription.trim() || undefined,
+        sections: sections.map((s) => ({
+          id: s.id,
+          type: s.type,
+          title: s.title,
+          content: s.content,
+          order: s.order,
+        })),
+        category: "custom",
+      });
+      toast.success("Template saved successfully");
+      setShowSaveTemplateModal(false);
+      setTemplateName("");
+      setTemplateDescription("");
+    } catch (error: any) {
+      toast.error(`Failed to save template: ${error.message}`);
+    } finally {
+      setIsSavingTemplate(false);
+    }
+  };
+
   return (
     <div className={cn(
-      "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-[#0a0a0a]",
+      "fixed right-0 top-0 bottom-0 transition-colors duration-300 bg-background flex flex-col",
       isCollapsed ? "left-16" : "left-64"
     )}>
-      <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-background">
+        <div className="flex items-center gap-3">
           <Link href="/dashboard/newsletters">
-            <button className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-[#a3a3a3] hover:bg-white/10 hover:text-[#f5f5f5] transition-standard">
+            <button className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors">
               <ArrowLeft className="h-4 w-4" />
             </button>
           </Link>
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
-            <Mail className="h-6 w-6 text-purple-400" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
+            <Mail className="h-4 w-4 text-purple-400" />
           </div>
-          <div className="flex-1">
-            <h1 className="text-2xl font-semibold text-[#f5f5f5] tracking-tight">Create Newsletter</h1>
-            <p className="text-sm text-[#a3a3a3]">Build your newsletter with signals, mentions, and custom content</p>
-          </div>
-          <div className="flex items-center gap-2">
-            {sections.length > 0 && (
-              <div className="flex items-center gap-3 mr-4 text-sm">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                  <span className="text-[#a3a3a3]">{sections.length} sections</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Sparkles className="h-3 w-3 text-purple-400" />
-                  <span className="text-[#a3a3a3]">{aiGeneratedCount} AI-generated</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <FileText className="h-3 w-3 text-orange-400" />
-                  <span className="text-[#a3a3a3]">{totalWords} words</span>
-                </div>
-              </div>
-            )}
-            <button
-              onClick={() => setShowPreview(!showPreview)}
-              disabled={sections.length === 0}
-              className="glass bg-white/5 border border-white/10 rounded-lg px-4 py-2 transition-standard hover:bg-white/10 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Eye className="h-4 w-4 text-[#a3a3a3]" />
-              <span className="text-sm text-[#f5f5f5]">{showPreview ? 'Edit' : 'Preview'}</span>
-            </button>
-            <button
-              onClick={generateNewsletterContent}
-              disabled={isGeneratingAll || sections.length === 0}
-              className="glass bg-purple-500/10 border border-purple-500/20 rounded-lg px-4 py-2 transition-standard hover:bg-purple-500/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isGeneratingAll ? (
-                <>
-                  <div className="h-4 w-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-sm text-purple-300">Generating...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 text-purple-400" />
-                  <span className="text-sm text-purple-300">AI Generate All</span>
-                </>
-              )}
-            </button>
-            <button
-              onClick={saveNewsletter}
-              className="glass bg-blue-500/10 border border-blue-500/20 rounded-lg px-4 py-2 transition-standard hover:bg-blue-500/20 flex items-center gap-2"
-            >
-              <Save className="h-4 w-4 text-blue-400" />
-              <span className="text-sm text-blue-300">Save Draft</span>
-            </button>
-            <button
-              onClick={sendNewsletter}
-              className="glass bg-green-500/10 border border-green-500/20 rounded-lg px-4 py-2 transition-standard hover:bg-green-500/20 flex items-center gap-2"
-            >
-              <Send className="h-4 w-4 text-green-400" />
-              <span className="text-sm text-green-300">Send</span>
-            </button>
-          </div>
+          <input
+            value={newsletterTitle}
+            onChange={(e) => setNewsletterTitle(e.target.value)}
+            placeholder="Newsletter Title"
+            className="bg-transparent text-lg font-semibold text-foreground placeholder:text-muted-foreground/60 outline-none border-none w-64"
+          />
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Left Panel - Signal/Mention Selection */}
-          <div className="xl:col-span-1 space-y-6">
-            {/* Newsletter Info */}
-            <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-[#f5f5f5] mb-4">Newsletter Settings</h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium text-[#f5f5f5] block mb-1">Title</label>
-                  <input
-                    value={newsletterTitle}
-                    onChange={(e) => setNewsletterTitle(e.target.value)}
-                    className="w-full h-9 rounded-lg border border-white/5 bg-white/5 backdrop-blur-sm px-3 text-sm text-[#f5f5f5] placeholder-[#a3a3a3] transition-standard focus:border-blue-500/50 focus:bg-blue-500/10"
-                    placeholder="Newsletter title"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-[#f5f5f5] block mb-1">Subject</label>
-                  <input
-                    value={newsletterSubject}
-                    onChange={(e) => setNewsletterSubject(e.target.value)}
-                    className="w-full h-9 rounded-lg border border-white/5 bg-white/5 backdrop-blur-sm px-3 text-sm text-[#f5f5f5] placeholder-[#a3a3a3] transition-standard focus:border-blue-500/50 focus:bg-blue-500/10"
-                    placeholder="Email subject line"
-                  />
-                </div>
-                <div className="pt-2 text-xs text-[#666]">
-                  Selected: {selectedSignalIds.length} signals, {selectedMentionIds.length} mentions
-                </div>
-              </div>
+        <div className="flex items-center gap-3">
+          {/* Save status indicator */}
+          <div className="flex items-center gap-2 text-sm">
+            {isSaving ? (
+              <span className="flex items-center gap-1.5 text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Saving...
+              </span>
+            ) : lastSaved ? (
+              <span className="flex items-center gap-1.5 text-green-400">
+                <Check className="h-3 w-3" />
+                Saved
+              </span>
+            ) : hasUnsavedChanges ? (
+              <span className="text-muted-foreground/60">Unsaved changes</span>
+            ) : null}
+          </div>
+
+          {/* Voice Selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground/60">Voice:</span>
+            <TeamMemberSelector
+              value={selectedVoice}
+              onChange={setSelectedVoice}
+              compact
+            />
+          </div>
+
+          {/* Templates Button */}
+          <button
+            onClick={() => setShowTemplateModal(true)}
+            className="px-3 py-1.5 rounded-lg text-sm bg-muted border text-muted-foreground hover:bg-muted/80 transition-colors flex items-center gap-2"
+          >
+            <LayoutTemplate className="h-4 w-4" />
+            Templates
+          </button>
+
+          <button
+            onClick={() => setShowPreview(!showPreview)}
+            disabled={sections.length === 0}
+            className={cn(
+              "px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center gap-2",
+              showPreview
+                ? "bg-blue-500/20 border border-blue-500/30 text-blue-300"
+                : "bg-muted border text-muted-foreground hover:bg-muted/80",
+              sections.length === 0 && "opacity-50 cursor-not-allowed"
+            )}
+          >
+            <Eye className="h-4 w-4" />
+            {showPreview ? "Edit" : "Preview"}
+          </button>
+
+          {/* Save as Template Button */}
+          <button
+            onClick={() => setShowSaveTemplateModal(true)}
+            disabled={sections.length === 0}
+            className="px-3 py-1.5 rounded-lg text-sm bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500/30 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FolderOpen className="h-4 w-4" />
+            Save Template
+          </button>
+
+          <button
+            onClick={handleSave}
+            disabled={!newsletterTitle || !newsletterSubject}
+            className="px-3 py-1.5 rounded-lg text-sm bg-muted border text-muted-foreground hover:bg-muted/80 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Save className="h-4 w-4" />
+            Save
+          </button>
+
+          <button
+            onClick={handleSend}
+            disabled={!newsletterTitle || !newsletterSubject || sections.length === 0}
+            className="px-3 py-1.5 rounded-lg text-sm bg-green-500/20 border border-green-500/30 text-green-300 hover:bg-green-500/30 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Send className="h-4 w-4" />
+            Send
+          </button>
+        </div>
+      </div>
+
+      {/* Main 3-Panel Layout */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Panel - Metadata + Sources (300px) */}
+        <div className="w-[300px] border-r overflow-y-auto p-4 space-y-4">
+          {/* Newsletter Metadata */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">Newsletter Details</h3>
+            <div>
+              <label className="text-xs text-muted-foreground block mb-1">Subject Line</label>
+              <input
+                value={newsletterSubject}
+                onChange={(e) => setNewsletterSubject(e.target.value)}
+                placeholder="Email subject line"
+                className="w-full h-9 rounded-lg border bg-muted px-3 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-blue-500/50"
+              />
             </div>
-
-            {/* Search and Filter */}
-            <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-4">
-              <div className="flex items-center gap-3 mb-4">
-                <Search className="h-5 w-5 text-[#a3a3a3]" />
-                <h3 className="text-lg font-semibold text-[#f5f5f5]">Content Sources</h3>
-              </div>
-              <div className="space-y-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#a3a3a3]" />
-                  <input
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full h-9 pl-10 pr-4 rounded-lg border border-white/5 bg-white/5 backdrop-blur-sm text-sm text-[#f5f5f5] placeholder-[#a3a3a3] transition-standard focus:border-blue-500/50 focus:bg-blue-500/10"
-                    placeholder="Search content..."
-                  />
-                </div>
-                <select
-                  value={filterLifecycle}
-                  onChange={(e) => setFilterLifecycle(e.target.value)}
-                  className="w-full h-9 rounded-lg border border-white/5 bg-white/5 backdrop-blur-sm px-3 text-sm text-[#f5f5f5] transition-standard focus:border-blue-500/50 focus:bg-blue-500/10"
-                >
-                  <option value="">All Lifecycles</option>
-                  <option value="weak">Weak Signal</option>
-                  <option value="emerging">Emerging</option>
-                  <option value="growing">Growing</option>
-                  <option value="mainstream">Mainstream</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Signals */}
-            <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-4">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
-                  <Radio className="h-3 w-3 text-blue-400" />
-                </div>
-                <h3 className="text-sm font-semibold text-[#f5f5f5]">Innovation Signals</h3>
-                <div className="text-xs text-[#666]">({signals?.length || 0})</div>
-              </div>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {signals && signals.length > 0 ? signals.slice(0, 10).map((signal: any) => {
-                  const isSelected = selectedSignalIds.includes(signal._id);
-                  const lifecycleConfig = getLifecycleConfig(signal.lifecycle);
-
-                  return (
-                    <div
-                      key={signal._id}
-                      onClick={() => handleSignalSelect(signal._id)}
-                      className={cn(
-                        "p-3 rounded-lg border transition-standard cursor-pointer text-xs",
-                        isSelected
-                          ? "bg-blue-500/20 border-blue-500/30"
-                          : "bg-white/5 border-white/5 hover:bg-white/10"
-                      )}
-                    >
-                      <div className="flex items-start gap-2">
-                        <div className={cn(
-                          "w-2 h-2 rounded-full mt-1.5 transition-colors",
-                          isSelected ? "bg-blue-400" : "bg-[#666]"
-                        )}></div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-[#f5f5f5] mb-1">{signal.name}</p>
-                          <div className={cn("px-1.5 py-0.5 rounded text-xs border inline-block", lifecycleConfig.color)}>
-                            {lifecycleConfig.label}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }) : (
-                  <div className="text-center py-4">
-                    <div className="text-xs text-[#666]">No signals available</div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Mentions */}
-            <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-4">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-green-500/20 border border-green-500/30">
-                  <TrendingUp className="h-3 w-3 text-green-400" />
-                </div>
-                <h3 className="text-sm font-semibold text-[#f5f5f5]">Trending Mentions</h3>
-                <div className="text-xs text-[#666]">({mentions?.length || 0})</div>
-              </div>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {mentions && mentions.length > 0 ? mentions.slice(0, 10).map((mention: any) => {
-                  const isSelected = selectedMentionIds.includes(mention._id);
-
-                  return (
-                    <div
-                      key={mention._id}
-                      onClick={() => handleMentionSelect(mention._id)}
-                      className={cn(
-                        "p-3 rounded-lg border transition-standard cursor-pointer text-xs",
-                        isSelected
-                          ? "bg-green-500/20 border-green-500/30"
-                          : "bg-white/5 border-white/5 hover:bg-white/10"
-                      )}
-                    >
-                      <div className="flex items-start gap-2">
-                        <div className={cn(
-                          "w-2 h-2 rounded-full mt-1.5 transition-colors",
-                          isSelected ? "bg-green-400" : "bg-[#666]"
-                        )}></div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-[#f5f5f5] mb-1 line-clamp-2">{mention.title}</p>
-                          <div className="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 text-xs border border-blue-500/20 inline-block">
-                            {mention.platform}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }) : (
-                  <div className="text-center py-4">
-                    <div className="text-xs text-[#666]">No mentions available</div>
-                  </div>
-                )}
-              </div>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground/60">
+              <span>{sections.length} sections</span>
+              <span>{totalWords} words</span>
+              <span>{aiGeneratedCount} AI</span>
             </div>
           </div>
 
-          {/* Right Panel - Newsletter Builder */}
-          <div className="xl:col-span-2 space-y-6">
-            {/* Section Templates */}
-            <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-[#f5f5f5] mb-4">Add Sections</h3>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-                {SECTION_TYPES.map((sectionType) => {
-                  const Icon = sectionType.icon;
-                  return (
-                    <button
-                      key={sectionType.type}
-                      onClick={() => addSection(sectionType.type)}
-                      className="glass bg-white/5 border border-white/10 rounded-lg p-3 transition-standard hover:bg-white/10 flex flex-col items-center text-center"
-                    >
-                      <Icon className="h-5 w-5 mb-2 text-[#a3a3a3]" />
-                      <span className="text-xs text-[#f5f5f5] font-medium">{sectionType.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
+          <div className="border-t pt-4">
+            {/* Search */}
+            <div className="relative mb-3">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search content..."
+                className="w-full h-8 pl-9 pr-3 rounded-lg border bg-muted text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-blue-500/50"
+              />
             </div>
 
-            {/* Newsletter Structure / Preview */}
-            <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-[#f5f5f5]">
-                  {showPreview ? 'Newsletter Preview' : 'Newsletter Structure'}
-                </h3>
-                <div className="text-sm text-[#666]">{sections.length} sections</div>
+            {/* Lifecycle Filter */}
+            <select
+              value={filterLifecycle}
+              onChange={(e) => setFilterLifecycle(e.target.value)}
+              className="w-full h-8 rounded-lg border bg-muted px-3 text-sm text-foreground outline-none focus:border-blue-500/50 mb-3"
+            >
+              <option value="">All Lifecycles</option>
+              <option value="weak">Weak Signal</option>
+              <option value="emerging">Emerging</option>
+              <option value="growing">Growing</option>
+              <option value="mainstream">Mainstream</option>
+            </select>
+          </div>
+
+          {/* Signals */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex h-5 w-5 items-center justify-center rounded bg-blue-500/20 border border-blue-500/30">
+                <Radio className="h-3 w-3 text-blue-400" />
               </div>
-
-              {showPreview && sections.length > 0 ? (
-                <div className="max-w-2xl mx-auto">
-                  {/* Email Preview */}
-                  <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                    {/* Email Header */}
-                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
-                      <h1 className="text-2xl font-bold mb-2">{newsletterTitle || 'Your Newsletter Title'}</h1>
-                      <p className="text-blue-100">{newsletterSubject || 'Newsletter subject line'}</p>
-                    </div>
-
-                    {/* Email Body */}
-                    <div className="p-8 space-y-6">
-                      {sections.map((section) => (
-                        <div key={section.id} className="border-b border-gray-200 pb-6 last:border-0">
-                          <h2 className="text-xl font-semibold text-gray-900 mb-3">{section.title}</h2>
-                          <div className="text-gray-700 whitespace-pre-wrap prose prose-sm max-w-none">
-                            {section.content}
-                          </div>
-                        </div>
-                      ))}
+              <h4 className="text-xs font-semibold text-foreground">Signals ({signals?.length || 0})</h4>
+            </div>
+            <div className="space-y-1.5 max-h-48 overflow-y-auto">
+              {signals && signals.length > 0 ? signals.slice(0, 15).map((signal: any) => {
+                const isSelected = selectedSignalIds.includes(signal._id);
+                const lifecycleConfig = getLifecycleConfig(signal.lifecycle);
+                return (
+                  <div
+                    key={signal._id}
+                    onClick={() => handleSignalSelect(signal._id)}
+                    className={cn(
+                      "p-2 rounded-lg border cursor-pointer transition-colors text-xs",
+                      isSelected
+                        ? "bg-blue-500/20 border-blue-500/30"
+                        : "bg-muted border hover:bg-muted/80"
+                    )}
+                  >
+                    <p className="font-medium text-foreground line-clamp-1">{signal.name}</p>
+                    <div className={cn("px-1.5 py-0.5 rounded text-[10px] border inline-block mt-1", lifecycleConfig.color)}>
+                      {lifecycleConfig.label}
                     </div>
                   </div>
-                </div>
-              ) : sections.length > 0 ? (
-                <Reorder.Group values={sections} onReorder={setSections} className="space-y-3">
-                  {sections.map((section, index) => {
-                    const sectionType = SECTION_TYPES.find(s => s.type === section.type);
-                    const Icon = sectionType?.icon || FileText;
-
-                    return (
-                      <Reorder.Item
-                        key={section.id}
-                        value={section}
-                        className="glass bg-white/5 border border-white/10 rounded-lg p-4 cursor-grab active:cursor-grabbing"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="flex flex-col items-center gap-1">
-                            <Grip className="h-4 w-4 text-[#666]" />
-                            <span className="text-xs text-[#666]">{index + 1}</span>
-                          </div>
-
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
-                            <Icon className="h-4 w-4 text-blue-400" />
-                          </div>
-
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <h4 className="text-sm font-semibold text-[#f5f5f5]">{section.title}</h4>
-                              {section.aiGenerated && (
-                                <div className="px-2 py-0.5 rounded-full bg-purple-500/20 text-xs text-purple-300 border border-purple-500/30 flex items-center gap-1">
-                                  <Sparkles className="h-2.5 w-2.5" />
-                                  AI
-                                </div>
-                              )}
-                              {section.signalIds && section.signalIds.length > 0 && (
-                                <div className="px-2 py-0.5 rounded-full bg-blue-500/20 text-xs text-blue-300 border border-blue-500/30">
-                                  {section.signalIds.length} signals
-                                </div>
-                              )}
-                              {section.mentionIds && section.mentionIds.length > 0 && (
-                                <div className="px-2 py-0.5 rounded-full bg-green-500/20 text-xs text-green-300 border border-green-500/30">
-                                  {section.mentionIds.length} mentions
-                                </div>
-                              )}
-                            </div>
-                            {editingSection === section.id ? (
-                              <div className="space-y-2">
-                                <input
-                                  value={section.title}
-                                  onChange={(e) => updateSection(section.id, { title: e.target.value })}
-                                  className="w-full h-8 rounded-lg border border-white/5 bg-white/5 backdrop-blur-sm px-3 text-sm text-[#f5f5f5] placeholder-[#a3a3a3] transition-standard focus:border-blue-500/50 focus:bg-blue-500/10"
-                                />
-                                <textarea
-                                  value={section.content}
-                                  onChange={(e) => updateSection(section.id, { content: e.target.value })}
-                                  className="w-full h-20 rounded-lg border border-white/5 bg-white/5 backdrop-blur-sm p-3 text-sm text-[#f5f5f5] placeholder-[#a3a3a3] transition-standard focus:border-blue-500/50 focus:bg-blue-500/10 resize-none"
-                                />
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => setEditingSection(null)}
-                                    className="px-3 py-1 rounded bg-blue-500/20 text-blue-300 text-xs hover:bg-blue-500/30 transition-standard"
-                                  >
-                                    Save
-                                  </button>
-                                  <button
-                                    onClick={() => setEditingSection(null)}
-                                    className="px-3 py-1 rounded bg-white/10 text-[#a3a3a3] text-xs hover:bg-white/20 transition-standard"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <p className="text-sm text-[#a3a3a3] line-clamp-2">{section.content}</p>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => generateNewsletterSection(section.id)}
-                              disabled={generatingSections.has(section.id)}
-                              className="flex h-6 w-6 items-center justify-center rounded text-[#a3a3a3] hover:bg-white/10 hover:text-purple-400 transition-standard disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Generate content with AI"
-                            >
-                              {generatingSections.has(section.id) ? (
-                                <div className="h-3 w-3 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
-                              ) : (
-                                <Sparkles className="h-3 w-3" />
-                              )}
-                            </button>
-                            <button
-                              onClick={() => moveSection(section.id, "up")}
-                              disabled={index === 0}
-                              className="flex h-6 w-6 items-center justify-center rounded text-[#a3a3a3] hover:bg-white/10 hover:text-[#f5f5f5] transition-standard disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <MoveUp className="h-3 w-3" />
-                            </button>
-                            <button
-                              onClick={() => moveSection(section.id, "down")}
-                              disabled={index === sections.length - 1}
-                              className="flex h-6 w-6 items-center justify-center rounded text-[#a3a3a3] hover:bg-white/10 hover:text-[#f5f5f5] transition-standard disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <MoveDown className="h-3 w-3" />
-                            </button>
-                            <button
-                              onClick={() => setEditingSection(editingSection === section.id ? null : section.id)}
-                              className="flex h-6 w-6 items-center justify-center rounded text-[#a3a3a3] hover:bg-white/10 hover:text-blue-400 transition-standard"
-                            >
-                              <Edit className="h-3 w-3" />
-                            </button>
-                            <button
-                              onClick={() => deleteSection(section.id)}
-                              className="flex h-6 w-6 items-center justify-center rounded text-[#a3a3a3] hover:bg-white/10 hover:text-red-400 transition-standard"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </button>
-                          </div>
-                        </div>
-                      </Reorder.Item>
-                    );
-                  })}
-                </Reorder.Group>
-              ) : (
-                <div className="text-center py-12">
-                  <Mail className="h-12 w-12 text-[#666] mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-[#f5f5f5] mb-2">No Sections Added</h3>
-                  <p className="text-sm text-[#a3a3a3] mb-4">Add sections above to build your newsletter structure</p>
-                </div>
+                );
+              }) : (
+                <p className="text-xs text-muted-foreground/60 text-center py-3">No signals available</p>
               )}
             </div>
+          </div>
+
+          {/* Mentions */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex h-5 w-5 items-center justify-center rounded bg-green-500/20 border border-green-500/30">
+                <TrendingUp className="h-3 w-3 text-green-400" />
+              </div>
+              <h4 className="text-xs font-semibold text-foreground">Mentions ({mentions?.length || 0})</h4>
+            </div>
+            <div className="space-y-1.5 max-h-48 overflow-y-auto">
+              {mentions && mentions.length > 0 ? mentions.slice(0, 15).map((mention: any) => {
+                const isSelected = selectedMentionIds.includes(mention._id);
+                return (
+                  <div
+                    key={mention._id}
+                    onClick={() => handleMentionSelect(mention._id)}
+                    className={cn(
+                      "p-2 rounded-lg border cursor-pointer transition-colors text-xs",
+                      isSelected
+                        ? "bg-green-500/20 border-green-500/30"
+                        : "bg-muted border hover:bg-muted/80"
+                    )}
+                  >
+                    <p className="font-medium text-foreground line-clamp-2">{mention.title}</p>
+                  </div>
+                );
+              }) : (
+                <p className="text-xs text-muted-foreground/60 text-center py-3">No mentions available</p>
+              )}
+            </div>
+          </div>
+
+          {/* Selected counts */}
+          {(selectedSignalIds.length > 0 || selectedMentionIds.length > 0) && (
+            <div className="pt-2 border-t">
+              <p className="text-xs text-muted-foreground">
+                Selected: {selectedSignalIds.length} signals, {selectedMentionIds.length} mentions
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Center Panel - Builder/Preview (flex-1) */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {showPreview && sections.length > 0 ? (
+            /* Preview Mode */
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
+                  <h1 className="text-2xl font-bold mb-2">{newsletterTitle || 'Your Newsletter Title'}</h1>
+                  <p className="text-blue-100">{newsletterSubject || 'Newsletter subject line'}</p>
+                </div>
+                <div className="p-8 space-y-6">
+                  {sections.map((section) => (
+                    <div key={section.id} className="border-b border-gray-200 pb-6 last:border-0">
+                      <h2 className="text-xl font-semibold text-gray-900 mb-3">{section.title}</h2>
+                      <div className="text-gray-700 whitespace-pre-wrap prose prose-sm max-w-none">
+                        {section.content}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : sections.length > 0 ? (
+            /* Builder Mode */
+            <div className="max-w-3xl mx-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-foreground">Newsletter Sections</h3>
+                <button
+                  onClick={generateNewsletterContent}
+                  disabled={isGeneratingAll || sections.length === 0}
+                  className="px-3 py-1.5 rounded-lg text-xs bg-purple-500/20 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isGeneratingAll ? (
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-3 w-3" />
+                      AI Generate All
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <Reorder.Group values={sections} onReorder={setSections} className="space-y-3">
+                {sections.map((section, index) => {
+                  const sectionType = SECTION_TYPES.find(s => s.type === section.type);
+                  const Icon = sectionType?.icon || FileText;
+                  const isExpanded = expandedSection === section.id;
+
+                  return (
+                    <Reorder.Item
+                      key={section.id}
+                      value={section}
+                      className="bg-muted border rounded-lg overflow-hidden"
+                    >
+                      {/* Section Header - Always visible */}
+                      <div
+                        className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted"
+                        onClick={() => setExpandedSection(isExpanded ? null : section.id)}
+                      >
+                        <Grip className="h-4 w-4 text-muted-foreground/60 cursor-grab active:cursor-grabbing" />
+
+                        <div className="flex h-7 w-7 items-center justify-center rounded bg-blue-500/20 border border-blue-500/30">
+                          <Icon className="h-3.5 w-3.5 text-blue-400" />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-sm font-medium text-foreground">{section.title}</h4>
+                            {section.aiGenerated && (
+                              <span className="px-1.5 py-0.5 rounded bg-purple-500/20 text-[10px] text-purple-300 border border-purple-500/30 flex items-center gap-1">
+                                <Sparkles className="h-2.5 w-2.5" />
+                                AI
+                              </span>
+                            )}
+                          </div>
+                          {!isExpanded && (
+                            <p className="text-xs text-muted-foreground/60 line-clamp-1 mt-0.5">{section.content}</p>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              generateNewsletterSection(section.id);
+                            }}
+                            disabled={generatingSections.has(section.id)}
+                            className="p-1.5 rounded text-muted-foreground hover:bg-muted/80 hover:text-purple-400 transition-colors disabled:opacity-50"
+                            title="Generate with AI"
+                          >
+                            {generatingSections.has(section.id) ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Sparkles className="h-3.5 w-3.5" />
+                            )}
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              moveSection(section.id, "up");
+                            }}
+                            disabled={index === 0}
+                            className="p-1.5 rounded text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors disabled:opacity-30"
+                          >
+                            <MoveUp className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              moveSection(section.id, "down");
+                            }}
+                            disabled={index === sections.length - 1}
+                            className="p-1.5 rounded text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors disabled:opacity-30"
+                          >
+                            <MoveDown className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteSection(section.id);
+                            }}
+                            className="p-1.5 rounded text-muted-foreground hover:bg-muted/80 hover:text-red-400 transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                          {isExpanded ? (
+                            <ChevronUp className="h-4 w-4 text-muted-foreground/60" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 text-muted-foreground/60" />
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Expanded Content - Inline editing */}
+                      {isExpanded && (
+                        <div className="px-3 pb-3 space-y-3 border-t border">
+                          <div className="pt-3">
+                            <label className="text-xs text-muted-foreground block mb-1">Section Title</label>
+                            <input
+                              value={section.title}
+                              onChange={(e) => updateSection(section.id, { title: e.target.value })}
+                              className="w-full h-8 rounded-lg border bg-muted px-3 text-sm text-foreground outline-none focus:border-blue-500/50"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground block mb-1">Content</label>
+                            <textarea
+                              value={section.content}
+                              onChange={(e) => updateSection(section.id, { content: e.target.value })}
+                              rows={6}
+                              className="w-full rounded-lg border bg-muted p-3 text-sm text-foreground outline-none focus:border-blue-500/50 resize-none"
+                            />
+                          </div>
+                          {(section.signalIds?.length || section.mentionIds?.length) && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground/60">
+                              {section.signalIds && section.signalIds.length > 0 && (
+                                <span className="px-2 py-1 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                                  {section.signalIds.length} signals linked
+                                </span>
+                              )}
+                              {section.mentionIds && section.mentionIds.length > 0 && (
+                                <span className="px-2 py-1 rounded bg-green-500/10 text-green-300 border border-green-500/20">
+                                  {section.mentionIds.length} mentions linked
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </Reorder.Item>
+                  );
+                })}
+              </Reorder.Group>
+            </div>
+          ) : (
+            /* Empty State */
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <Mail className="h-16 w-16 text-muted-foreground/30 mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">Start Building Your Newsletter</h3>
+              <p className="text-sm text-muted-foreground/60 mb-4 max-w-md">
+                Add sections from the library on the right to compose your newsletter.
+                Select signals and mentions on the left to include as content sources.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Right Panel - Section Library (280px) */}
+        <div className="w-[280px] border-l overflow-y-auto p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-3">Section Library</h3>
+          <div className="space-y-2">
+            {SECTION_TYPES.map((sectionType) => {
+              const Icon = sectionType.icon;
+              return (
+                <button
+                  key={sectionType.type}
+                  onClick={() => addSection(sectionType.type)}
+                  className="w-full p-3 rounded-lg bg-muted border hover:bg-muted/80 transition-colors text-left group"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
+                      <Icon className="h-4 w-4 text-blue-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-sm font-medium text-foreground">{sectionType.label}</h4>
+                        <Plus className="h-3 w-3 text-muted-foreground/60 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <p className="text-xs text-muted-foreground/60 line-clamp-1">{sectionType.description}</p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
+
+      {/* Load Template Modal */}
+      {showTemplateModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-background border rounded-xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
+                  <LayoutTemplate className="h-4 w-4 text-blue-400" />
+                </div>
+                <h2 className="text-lg font-semibold text-foreground">Load Template</h2>
+              </div>
+              <button
+                onClick={() => setShowTemplateModal(false)}
+                className="p-2 rounded-lg text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4">
+              {templates && templates.length > 0 ? (
+                <div className="grid gap-3">
+                  {templates.map((template: { _id: string; name: string; description?: string; isDefault?: boolean; sections?: unknown[]; category?: string }) => (
+                    <div
+                      key={template._id}
+                      onClick={() => loadTemplate(template)}
+                      className="p-4 rounded-lg bg-muted border hover:bg-muted/80 hover:border-blue-500/30 transition-colors cursor-pointer group"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-medium text-foreground">{template.name}</h3>
+                            {template.isDefault && (
+                              <span className="px-2 py-0.5 rounded text-[10px] bg-green-500/20 text-green-300 border border-green-500/30">
+                                Default
+                              </span>
+                            )}
+                          </div>
+                          {template.description && (
+                            <p className="text-sm text-muted-foreground mb-2">{template.description}</p>
+                          )}
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground/60">
+                            <span>{template.sections?.length || 0} sections</span>
+                            {template.category && (
+                              <span className="px-2 py-0.5 rounded bg-muted">{template.category}</span>
+                            )}
+                          </div>
+                        </div>
+                        <button className="p-2 rounded-lg text-muted-foreground/60 group-hover:text-blue-400 group-hover:bg-blue-500/10 transition-colors">
+                          <Copy className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <LayoutTemplate className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No Templates Yet</h3>
+                  <p className="text-sm text-muted-foreground/60">
+                    Create a newsletter and save it as a template to reuse later.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3 p-4 border-t">
+              <button
+                onClick={() => setShowTemplateModal(false)}
+                className="px-4 py-2 rounded-lg text-sm bg-muted border text-muted-foreground hover:bg-muted/80 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Save as Template Modal */}
+      {showSaveTemplateModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-background border rounded-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-4 border-b">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 border border-amber-500/30">
+                  <FolderOpen className="h-4 w-4 text-amber-400" />
+                </div>
+                <h2 className="text-lg font-semibold text-foreground">Save as Template</h2>
+              </div>
+              <button
+                onClick={() => setShowSaveTemplateModal(false)}
+                className="p-2 rounded-lg text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="text-sm text-foreground block mb-1.5">Template Name *</label>
+                <input
+                  value={templateName}
+                  onChange={(e) => setTemplateName(e.target.value)}
+                  placeholder="e.g., Weekly Newsletter"
+                  className="w-full h-10 rounded-lg border bg-muted px-3 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-blue-500/50"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-foreground block mb-1.5">Description (optional)</label>
+                <textarea
+                  value={templateDescription}
+                  onChange={(e) => setTemplateDescription(e.target.value)}
+                  placeholder="Describe when to use this template..."
+                  rows={3}
+                  className="w-full rounded-lg border bg-muted px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-blue-500/50 resize-none"
+                />
+              </div>
+              <div className="p-3 rounded-lg bg-muted border">
+                <p className="text-xs text-muted-foreground/60 mb-2">This template will include:</p>
+                <div className="flex flex-wrap gap-2">
+                  {sections.map((s) => (
+                    <span key={s.id} className="px-2 py-1 rounded text-xs bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                      {s.title}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 p-4 border-t">
+              <button
+                onClick={() => setShowSaveTemplateModal(false)}
+                className="px-4 py-2 rounded-lg text-sm bg-muted border text-muted-foreground hover:bg-muted/80 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveAsTemplate}
+                disabled={!templateName.trim() || isSavingTemplate}
+                className="px-4 py-2 rounded-lg text-sm bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:bg-amber-500/30 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSavingTemplate ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    Save Template
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Loader2, MessageSquare, Trash2, Plus, Bot, User2, Sparkles, Brain } from "lucide-react";
 import { motion } from "framer-motion";
-import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
 
 interface Message {
@@ -22,7 +21,6 @@ interface Conversation {
 }
 
 export default function ChatPage() {
-  const { isCollapsed } = useSidebar();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
@@ -94,7 +92,7 @@ export default function ChatPage() {
         body: JSON.stringify({
           message: userMessage.content,
           conversationId: conversation.id,
-          context: "SysInno Innovation Monitoring System",
+          context: "Airbour Innovation Monitoring System",
         }),
       });
 
@@ -128,7 +126,7 @@ export default function ChatPage() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "I'm here to help you analyze innovation signals and trends in the SysInno system. I can help you understand market patterns, technology developments, and emerging opportunities. What would you like to know?",
+        content: "I'm here to help you analyze innovation signals and trends in the Airbour system. I can help you understand market patterns, technology developments, and emerging opportunities. What would you like to know?",
         timestamp: new Date(),
       };
 
@@ -174,29 +172,26 @@ export default function ChatPage() {
   };
 
   return (
-    <div className={cn(
-      "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-[#0a0a0a]",
-      isCollapsed ? "left-16" : "left-64"
-    )}>
+    <div className="min-h-screen">
       <div className="flex h-full">
         {/* Sidebar */}
-        <div className="w-80 glass bg-[#0a0a0a]/80 border-r border-white/5 flex flex-col">
-          <div className="p-6 border-b border-white/5">
+        <div className="w-80 bg-card border-r border-border flex flex-col">
+          <div className="p-6 border-b border-border">
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
-                <MessageSquare className="h-6 w-6 text-purple-400" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-muted border border-blue/30">
+                <MessageSquare className="h-6 w-6 text-blue" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-[#f5f5f5]">AI Assistant</h2>
-                <p className="text-sm text-[#a3a3a3]">Innovation Intelligence Chat</p>
+                <h2 className="text-lg font-semibold text-foreground">AI Assistant</h2>
+                <p className="text-sm text-muted-foreground">Innovation Intelligence Chat</p>
               </div>
             </div>
             <button
               onClick={handleNewConversation}
-              className="w-full glass bg-purple-500/10 border border-purple-500/20 rounded-lg px-4 py-3 transition-standard hover:bg-purple-500/20 flex items-center gap-3"
+              className="w-full bg-blue-muted border border-blue/20 rounded-lg px-4 py-3 transition-colors hover:bg-blue/20 flex items-center gap-3"
             >
-              <Plus className="h-5 w-5 text-purple-400" />
-              <span className="text-purple-300 font-medium">New Conversation</span>
+              <Plus className="h-5 w-5 text-blue" />
+              <span className="text-blue font-medium">New Conversation</span>
             </button>
           </div>
 
@@ -204,8 +199,8 @@ export default function ChatPage() {
             <div className="p-4 space-y-3">
               {conversations.length === 0 ? (
                 <div className="p-6 text-center">
-                  <Bot className="h-12 w-12 text-[#666] mx-auto mb-3" />
-                  <p className="text-[#a3a3a3] text-sm">
+                  <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground text-sm">
                     No conversations yet. Start a new chat to begin exploring insights.
                   </p>
                 </div>
@@ -216,19 +211,19 @@ export default function ChatPage() {
                     <motion.div
                       key={conversation.id}
                       whileHover={{ y: -2 }}
-                      className={`group relative p-4 rounded-lg cursor-pointer transition-standard ${
+                      className={`group relative p-4 rounded-lg cursor-pointer transition-colors ${
                         currentConversationId === conversation.id
-                          ? "glass bg-purple-500/20 border border-purple-500/30"
-                          : "glass bg-white/5 border border-white/5 hover:bg-white/10 hover:border-purple-500/20"
+                          ? "bg-blue-muted border border-blue/30"
+                          : "bg-muted border border-border hover:bg-muted/80 hover:border-blue/20"
                       }`}
                       onClick={() => setCurrentConversationId(conversation.id)}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-sm text-[#f5f5f5] truncate mb-2">
+                          <h3 className="font-medium text-sm text-foreground truncate mb-2">
                             {conversation.title}
                           </h3>
-                          <div className="flex items-center gap-3 text-xs text-[#a3a3a3]">
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <MessageSquare className="h-3 w-3" />
                               {conversation.messages.length}
@@ -258,16 +253,16 @@ export default function ChatPage() {
           {currentConversation ? (
             <>
               {/* Chat Header */}
-              <div className="p-6 border-b border-white/5">
+              <div className="p-6 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
-                    <Brain className="h-4 w-4 text-blue-400" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-muted border border-blue/30">
+                    <Brain className="h-4 w-4 text-blue" />
                   </div>
                   <div className="flex-1">
-                    <h1 className="font-semibold text-lg text-[#f5f5f5]">{currentConversation.title}</h1>
-                    <p className="text-sm text-[#a3a3a3]">AI-powered innovation insights</p>
+                    <h1 className="font-semibold text-lg text-foreground">{currentConversation.title}</h1>
+                    <p className="text-sm text-muted-foreground">AI-powered innovation insights</p>
                   </div>
-                  <div className="px-3 py-1 bg-green-500/10 text-green-300 border border-green-500/20 rounded-lg text-sm font-medium">
+                  <div className="px-3 py-1 bg-green-muted text-green-400 border border-green-400/20 rounded-lg text-sm font-medium">
                     {currentConversation.messages.length} messages
                   </div>
                 </div>
@@ -283,27 +278,27 @@ export default function ChatPage() {
                       className="flex items-center justify-center h-64"
                     >
                       <div className="text-center">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-500/20 border border-purple-500/30 mx-auto mb-6">
-                          <Sparkles className="h-8 w-8 text-purple-400" />
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-muted border border-purple/30 mx-auto mb-6">
+                          <Sparkles className="h-8 w-8 text-purple" />
                         </div>
-                        <h3 className="font-medium text-xl text-[#f5f5f5] mb-3">Ready to explore insights</h3>
-                        <p className="text-[#a3a3a3] mb-6 max-w-md">
+                        <h3 className="font-medium text-xl text-foreground mb-3">Ready to explore insights</h3>
+                        <p className="text-muted-foreground mb-6 max-w-md">
                           Ask me about innovation signals, market trends, STEEP analysis, or any insights from your data.
                         </p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
                           <button
                             onClick={() => setInputValue("What are the emerging technology trends?")}
-                            className="glass bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-left transition-standard hover:bg-blue-500/20"
+                            className="bg-blue-muted border border-blue/20 rounded-lg p-3 text-left transition-colors hover:bg-blue/20"
                           >
-                            <p className="text-sm text-blue-300 font-medium">Technology Trends</p>
-                            <p className="text-xs text-[#a3a3a3] mt-1">Explore emerging tech signals</p>
+                            <p className="text-sm text-blue font-medium">Technology Trends</p>
+                            <p className="text-xs text-muted-foreground mt-1">Explore emerging tech signals</p>
                           </button>
                           <button
                             onClick={() => setInputValue("Analyze market opportunities in our data")}
-                            className="glass bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-left transition-standard hover:bg-green-500/20"
+                            className="bg-green-muted border border-green-400/20 rounded-lg p-3 text-left transition-colors hover:bg-green-400/20"
                           >
-                            <p className="text-sm text-green-300 font-medium">Market Analysis</p>
-                            <p className="text-xs text-[#a3a3a3] mt-1">Discover market opportunities</p>
+                            <p className="text-sm text-green-400 font-medium">Market Analysis</p>
+                            <p className="text-xs text-muted-foreground mt-1">Discover market opportunities</p>
                           </button>
                         </div>
                       </div>
@@ -318,27 +313,27 @@ export default function ChatPage() {
                         className={`flex gap-4 ${message.role === "user" ? "justify-end" : "justify-start"}`}
                       >
                         {message.role === "assistant" && (
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30 flex-shrink-0 mt-1">
-                            <Bot className="h-4 w-4 text-purple-400" />
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-muted border border-purple/30 flex-shrink-0 mt-1">
+                            <Bot className="h-4 w-4 text-purple" />
                           </div>
                         )}
                         <div
                           className={`max-w-[70%] ${
                             message.role === "user"
-                              ? "glass bg-blue-500/20 border border-blue-500/30 rounded-lg p-4"
-                              : "glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-4"
+                              ? "bg-blue-muted border border-blue/30 rounded-lg p-4"
+                              : "bg-card border border-border rounded-lg p-4"
                           }`}
                         >
-                          <p className="text-sm leading-relaxed text-[#f5f5f5] whitespace-pre-wrap">
+                          <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
                             {message.content}
                           </p>
-                          <p className="text-xs text-[#a3a3a3] mt-3">
+                          <p className="text-xs text-muted-foreground mt-3">
                             {formatTime(message.timestamp)}
                           </p>
                         </div>
                         {message.role === "user" && (
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30 flex-shrink-0 mt-1">
-                            <User2 className="h-4 w-4 text-blue-400" />
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-muted border border-blue/30 flex-shrink-0 mt-1">
+                            <User2 className="h-4 w-4 text-blue" />
                           </div>
                         )}
                       </motion.div>
@@ -351,13 +346,13 @@ export default function ChatPage() {
                       animate={{ opacity: 1, y: 0 }}
                       className="flex gap-4 justify-start"
                     >
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30 flex-shrink-0 mt-1">
-                        <Bot className="h-4 w-4 text-purple-400" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-muted border border-purple/30 flex-shrink-0 mt-1">
+                        <Bot className="h-4 w-4 text-purple" />
                       </div>
-                      <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-4">
+                      <div className="bg-card border border-border rounded-lg p-4">
                         <div className="flex items-center gap-3">
-                          <Loader2 className="h-4 w-4 animate-spin text-purple-400" />
-                          <span className="text-sm text-[#a3a3a3]">
+                          <Loader2 className="h-4 w-4 animate-spin text-blue" />
+                          <span className="text-sm text-muted-foreground">
                             Analyzing your request and gathering insights...
                           </span>
                         </div>
@@ -370,7 +365,7 @@ export default function ChatPage() {
               </div>
 
               {/* Input Area */}
-              <div className="p-6 border-t border-white/5">
+              <div className="p-6 border-t border-border">
                 <div className="max-w-4xl mx-auto">
                   <div className="flex items-end gap-3">
                     <div className="flex-1">
@@ -387,23 +382,23 @@ export default function ChatPage() {
                           }}
                           placeholder="Ask about innovation signals, trends, or insights..."
                           disabled={isLoading}
-                          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-[#f5f5f5] placeholder:text-[#666] focus:outline-none focus:border-purple-500/30 focus:bg-white/10 transition-all"
+                          className="w-full bg-muted border border-border rounded-lg px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/30 focus:bg-muted/80 transition-all"
                         />
                       </div>
                     </div>
                     <button
                       onClick={handleSendMessage}
                       disabled={!inputValue.trim() || isLoading}
-                      className="glass bg-purple-500/20 border border-purple-500/30 rounded-lg p-3 transition-standard hover:bg-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-blue-muted border border-blue/30 rounded-lg p-3 transition-colors hover:bg-blue/30 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? (
-                        <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
+                        <Loader2 className="h-5 w-5 animate-spin text-blue" />
                       ) : (
-                        <Send className="h-5 w-5 text-purple-400" />
+                        <Send className="h-5 w-5 text-blue" />
                       )}
                     </button>
                   </div>
-                  <p className="text-xs text-[#666] mt-3 text-center">
+                  <p className="text-xs text-muted-foreground mt-3 text-center">
                     Press Enter to send your message • AI-powered innovation intelligence
                   </p>
                 </div>
@@ -415,47 +410,47 @@ export default function ChatPage() {
               animate={{ opacity: 1, scale: 1 }}
               className="flex-1 flex items-center justify-center p-6"
             >
-              <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-8 max-w-lg w-full text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 mx-auto mb-6">
-                  <Brain className="h-8 w-8 text-purple-400" />
+              <div className="bg-card border border-border rounded-lg p-8 max-w-lg w-full text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-muted to-purple-muted border border-blue/30 mx-auto mb-6">
+                  <Brain className="h-8 w-8 text-blue" />
                 </div>
-                <h2 className="text-2xl font-semibold text-[#f5f5f5] mb-3">SysInno AI Assistant</h2>
-                <p className="text-[#a3a3a3] mb-8">
+                <h2 className="text-2xl font-semibold text-foreground mb-3">Airbour AI Assistant</h2>
+                <p className="text-muted-foreground mb-8">
                   Get intelligent insights and analysis from your innovation data using advanced AI
                 </p>
 
                 <button
                   onClick={handleNewConversation}
-                  className="w-full glass bg-purple-500/20 border border-purple-500/30 rounded-lg px-6 py-4 transition-standard hover:bg-purple-500/30 flex items-center justify-center gap-3 mb-8"
+                  className="w-full bg-blue-muted border border-blue/30 rounded-lg px-6 py-4 transition-colors hover:bg-blue/30 flex items-center justify-center gap-3 mb-8"
                 >
-                  <Plus className="h-5 w-5 text-purple-400" />
-                  <span className="text-purple-300 font-medium">Start New Conversation</span>
+                  <Plus className="h-5 w-5 text-blue" />
+                  <span className="text-blue font-medium">Start New Conversation</span>
                 </button>
 
                 <div className="text-left">
-                  <h4 className="font-medium text-[#f5f5f5] mb-4 flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-purple-400" />
+                  <h4 className="font-medium text-foreground mb-4 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-purple" />
                     Ask me about:
                   </h4>
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-sm text-[#a3a3a3]">
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <div className="w-2 h-2 rounded-full bg-blue-400"></div>
                       Innovation signals and emerging trends
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-[#a3a3a3]">
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <div className="w-2 h-2 rounded-full bg-green-400"></div>
                       Market analysis and competitive insights
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-[#a3a3a3]">
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
                       Technology developments and disruptions
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-[#a3a3a3]">
-                      <div className="w-2 h-2 rounded-full bg-purple-400"></div>
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <div className="w-2 h-2 rounded-full bg-purple"></div>
                       STEEP framework analysis
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-[#a3a3a3]">
-                      <div className="w-2 h-2 rounded-full bg-orange-400"></div>
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <div className="w-2 h-2 rounded-full bg-amber-500"></div>
                       Strategic opportunities and recommendations
                     </div>
                   </div>

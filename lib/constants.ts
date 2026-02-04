@@ -121,15 +121,26 @@ export const REFRESH_INTERVALS = {
 } as const;
 
 // Color palette for charts and visualizations
+// These work in both light and dark modes
 export const CHART_COLORS = {
-  PRIMARY: "#3B82F6",
+  PRIMARY: "hsl(var(--primary))",
   SUCCESS: "#10B981",
   WARNING: "#F59E0B",
-  DANGER: "#EF4444",
+  DANGER: "hsl(var(--destructive))",
   INFO: "#6366F1",
-  NEUTRAL: "#6B7280",
-  GRADIENT_START: "#3B82F6",
-  GRADIENT_END: "#1D4ED8"
+  NEUTRAL: "hsl(var(--muted-foreground))",
+  GRADIENT_START: "hsl(var(--primary))",
+  GRADIENT_END: "hsl(var(--muted))"
+} as const;
+
+// Static chart colors for libraries that need hex values
+export const CHART_COLORS_STATIC = {
+  PRIMARY: "#171717",
+  SUCCESS: "#10B981",
+  WARNING: "#F59E0B",
+  DANGER: "#DC2626",
+  INFO: "#6366F1",
+  NEUTRAL: "#6B7280"
 } as const;
 
 // Error messages

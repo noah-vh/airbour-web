@@ -19,8 +19,8 @@ export const testOpenRouter = action({
         headers: {
           "Authorization": `Bearer ${apiKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "https://sysinno.app",
-          "X-Title": "SysInno Test"
+          "HTTP-Referer": "https://airbour.app",
+          "X-Title": "Airbour Test"
         },
         body: JSON.stringify({
           model: "anthropic/claude-3.5-haiku",

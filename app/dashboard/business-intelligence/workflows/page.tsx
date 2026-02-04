@@ -251,18 +251,18 @@ export default function WorkflowsPage() {
       <div className="mb-8">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight text-[#f5f5f5] flex items-center gap-3">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground flex items-center gap-3">
               <Workflow className="h-10 w-10 text-purple-400" />
               Business Intelligence Workflows
             </h1>
-            <p className="mt-2 text-lg text-[#a3a3a3]">
+            <p className="mt-2 text-lg text-muted-foreground">
               Automated intelligence pipeline connecting signals to strategic insights
             </p>
           </div>
           <div className="flex gap-2">
             <Button
               onClick={() => setSharepointPanelOpen(true)}
-              className="glass glass-blue hover:scale-105 transition-transform"
+              className="bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/30 transition-colors"
             >
               <Building2 className="h-4 w-4 mr-2" />
               SharePoint Settings
@@ -270,7 +270,7 @@ export default function WorkflowsPage() {
             <Link href="/dashboard/business-intelligence">
               <Button
                 variant="outline"
-                className="glass hover:scale-105 transition-transform"
+                className="bg-muted border border-border hover:bg-muted/80 transition-colors"
               >
                 <BarChart3 className="h-4 w-4 mr-2" />
                 BI Dashboard
@@ -284,12 +284,12 @@ export default function WorkflowsPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass glass-green p-4 rounded-lg"
+            className="bg-green-500/10 border border-green-500/20 p-4 rounded-lg"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#a3a3a3]">Active Workflows</p>
-                <p className="text-2xl font-bold text-[#f5f5f5] mt-1">12</p>
+                <p className="text-sm text-muted-foreground">Active Workflows</p>
+                <p className="text-2xl font-bold text-foreground mt-1">12</p>
                 <p className="text-xs text-green-400 mt-1">+3 this week</p>
               </div>
               <Activity className="h-8 w-8 text-green-400 opacity-50" />
@@ -299,12 +299,12 @@ export default function WorkflowsPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass glass-blue p-4 rounded-lg"
+            className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-lg"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#a3a3a3]">Data Processed</p>
-                <p className="text-2xl font-bold text-[#f5f5f5] mt-1">3.4M</p>
+                <p className="text-sm text-muted-foreground">Data Processed</p>
+                <p className="text-2xl font-bold text-foreground mt-1">3.4M</p>
                 <p className="text-xs text-blue-400 mt-1">Today</p>
               </div>
               <Database className="h-8 w-8 text-blue-400 opacity-50" />
@@ -314,12 +314,12 @@ export default function WorkflowsPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass glass-purple p-4 rounded-lg"
+            className="bg-purple-500/10 border border-purple-500/20 p-4 rounded-lg"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#a3a3a3]">Team Users</p>
-                <p className="text-2xl font-bold text-[#f5f5f5] mt-1">30</p>
+                <p className="text-sm text-muted-foreground">Team Users</p>
+                <p className="text-2xl font-bold text-foreground mt-1">30</p>
                 <p className="text-xs text-purple-400 mt-1">Across 4 teams</p>
               </div>
               <Users className="h-8 w-8 text-purple-400 opacity-50" />
@@ -329,15 +329,15 @@ export default function WorkflowsPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass glass-orange p-4 rounded-lg"
+            className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-lg"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-[#a3a3a3]">Reports Generated</p>
-                <p className="text-2xl font-bold text-[#f5f5f5] mt-1">68</p>
-                <p className="text-xs text-orange-400 mt-1">This month</p>
+                <p className="text-sm text-muted-foreground">Reports Generated</p>
+                <p className="text-2xl font-bold text-foreground mt-1">68</p>
+                <p className="text-xs text-amber-400 mt-1">This month</p>
               </div>
-              <FileText className="h-8 w-8 text-orange-400 opacity-50" />
+              <FileText className="h-8 w-8 text-amber-400 opacity-50" />
             </div>
           </motion.div>
         </div>
@@ -345,7 +345,7 @@ export default function WorkflowsPage() {
 
       {/* Main Tabs */}
       <Tabs defaultValue="flow" className="space-y-6">
-        <TabsList className="glass w-full justify-start">
+        <TabsList className="bg-muted border border-border w-full justify-start">
           <TabsTrigger value="flow" className="data-[state=active]:bg-purple-500/20">
             <GitBranch className="h-4 w-4 mr-2" />
             Data Flow
@@ -366,12 +366,12 @@ export default function WorkflowsPage() {
 
         {/* Data Flow Tab */}
         <TabsContent value="flow" className="space-y-6">
-          <div className="glass glass-blue p-6 rounded-lg">
+          <div className="bg-blue-500/10 border border-blue-500/20 p-6 rounded-lg">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-[#f5f5f5]">Intelligence Data Flow</h2>
+              <h2 className="text-xl font-semibold text-foreground">Intelligence Data Flow</h2>
               <div className="flex items-center gap-2">
                 <Badge className="bg-green-500/20 text-green-400">System Healthy</Badge>
-                <Button size="sm" variant="outline" className="glass">
+                <Button size="sm" variant="outline" className="bg-muted border border-border">
                   <Eye className="h-4 w-4 mr-2" />
                   Monitor
                 </Button>
@@ -384,14 +384,14 @@ export default function WorkflowsPage() {
                 {workflowData.dataFlow.map((node, idx) => (
                   <motion.div
                     key={node.id}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ opacity: 0.9 }}
                     className={cn(
                       "relative cursor-pointer",
                       selectedFlow === node.source && "ring-2 ring-purple-500 rounded-lg"
                     )}
                     onClick={() => setSelectedFlow(selectedFlow === node.source ? null : node.source)}
                   >
-                    <div className="glass p-6 rounded-lg w-64">
+                    <div className="bg-card border border-border p-6 rounded-lg w-64">
                       <div className="flex items-center gap-3 mb-2">
                         <div className={cn(
                           "w-10 h-10 rounded-lg flex items-center justify-center",
@@ -403,11 +403,11 @@ export default function WorkflowsPage() {
                           )} />
                         </div>
                         <div>
-                          <h3 className="text-sm font-medium text-[#f5f5f5]">{node.source}</h3>
-                          <p className="text-xs text-[#a3a3a3]">{node.dataPoints}</p>
+                          <h3 className="text-sm font-medium text-foreground">{node.source}</h3>
+                          <p className="text-xs text-muted-foreground">{node.dataPoints}</p>
                         </div>
                       </div>
-                      <p className="text-xs text-[#a3a3a3] mb-3">{node.description}</p>
+                      <p className="text-xs text-muted-foreground mb-3">{node.description}</p>
                       <Badge
                         className={cn(
                           "text-xs",
@@ -438,38 +438,38 @@ export default function WorkflowsPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mt-6 glass glass-purple p-6 rounded-lg"
+                  className="mt-6 bg-purple-500/10 border border-purple-500/20 p-6 rounded-lg"
                 >
                   {(() => {
                     const node = workflowData.dataFlow.find(n => n.source === selectedFlow);
                     return (
                       <div>
-                        <h3 className="text-lg font-medium text-[#f5f5f5] mb-4">{selectedFlow} Details</h3>
+                        <h3 className="text-lg font-medium text-foreground mb-4">{selectedFlow} Details</h3>
                         <div className="grid md:grid-cols-2 gap-6">
                           <div>
-                            <h4 className="text-sm font-medium text-[#f5f5f5] mb-2">Data Connections</h4>
+                            <h4 className="text-sm font-medium text-foreground mb-2">Data Connections</h4>
                             <div className="space-y-2">
                               {node?.connections.map((connection) => (
                                 <div key={connection} className="flex items-center gap-2">
                                   <LinkIcon className="h-4 w-4 text-purple-400" />
-                                  <span className="text-sm text-[#a3a3a3]">{connection}</span>
+                                  <span className="text-sm text-muted-foreground">{connection}</span>
                                 </div>
                               ))}
                             </div>
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-[#f5f5f5] mb-2">Performance Metrics</h4>
+                            <h4 className="text-sm font-medium text-foreground mb-2">Performance Metrics</h4>
                             <div className="space-y-2">
                               <div className="flex justify-between">
-                                <span className="text-sm text-[#a3a3a3]">Uptime</span>
+                                <span className="text-sm text-muted-foreground">Uptime</span>
                                 <span className="text-sm text-green-400">99.7%</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-sm text-[#a3a3a3]">Processing Speed</span>
+                                <span className="text-sm text-muted-foreground">Processing Speed</span>
                                 <span className="text-sm text-green-400">Real-time</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-sm text-[#a3a3a3]">Error Rate</span>
+                                <span className="text-sm text-muted-foreground">Error Rate</span>
                                 <span className="text-sm text-green-400">0.03%</span>
                               </div>
                             </div>
@@ -484,33 +484,33 @@ export default function WorkflowsPage() {
           </div>
 
           {/* Integration Status */}
-          <div className="glass glass-green p-6 rounded-lg">
-            <h3 className="text-lg font-medium text-[#f5f5f5] mb-4">Platform Integrations</h3>
+          <div className="bg-green-500/10 border border-green-500/20 p-6 rounded-lg">
+            <h3 className="text-lg font-medium text-foreground mb-4">Platform Integrations</h3>
             <div className="grid md:grid-cols-3 gap-4">
-              <Link href="/dashboard/signals" className="glass p-4 rounded-lg hover:scale-105 transition-transform">
+              <Link href="/dashboard/signals" className="bg-card border border-border p-4 rounded-lg hover:scale-105 transition-transform">
                 <Radio className="h-6 w-6 text-blue-400 mb-2" />
-                <h4 className="text-sm font-medium text-[#f5f5f5]">Innovation Signals</h4>
-                <p className="text-xs text-[#a3a3a3] mt-1">Real-time technology monitoring</p>
+                <h4 className="text-sm font-medium text-foreground">Innovation Signals</h4>
+                <p className="text-xs text-muted-foreground mt-1">Real-time technology monitoring</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-400"></div>
                   <span className="text-xs text-green-400">Connected</span>
                 </div>
               </Link>
 
-              <Link href="/dashboard/mentions" className="glass p-4 rounded-lg hover:scale-105 transition-transform">
+              <Link href="/dashboard/mentions" className="bg-card border border-border p-4 rounded-lg hover:scale-105 transition-transform">
                 <MessageSquare className="h-6 w-6 text-purple-400 mb-2" />
-                <h4 className="text-sm font-medium text-[#f5f5f5]">Mentions</h4>
-                <p className="text-xs text-[#a3a3a3] mt-1">Social media monitoring</p>
+                <h4 className="text-sm font-medium text-foreground">Mentions</h4>
+                <p className="text-xs text-muted-foreground mt-1">Social media monitoring</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-400"></div>
                   <span className="text-xs text-green-400">Connected</span>
                 </div>
               </Link>
 
-              <Link href="/dashboard/analytics" className="glass p-4 rounded-lg hover:scale-105 transition-transform">
-                <BarChart3 className="h-6 w-6 text-orange-400 mb-2" />
-                <h4 className="text-sm font-medium text-[#f5f5f5]">Analytics</h4>
-                <p className="text-xs text-[#a3a3a3] mt-1">Performance metrics</p>
+              <Link href="/dashboard/analytics" className="bg-card border border-border p-4 rounded-lg hover:scale-105 transition-transform">
+                <BarChart3 className="h-6 w-6 text-amber-400 mb-2" />
+                <h4 className="text-sm font-medium text-foreground">Analytics</h4>
+                <p className="text-xs text-muted-foreground mt-1">Performance metrics</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-400"></div>
                   <span className="text-xs text-green-400">Connected</span>
@@ -522,18 +522,18 @@ export default function WorkflowsPage() {
 
         {/* Automations Tab */}
         <TabsContent value="automations" className="space-y-6">
-          <div className="glass glass-orange p-6 rounded-lg">
+          <div className="bg-amber-500/10 border border-amber-500/20 p-6 rounded-lg">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-[#f5f5f5]">Automated Workflows</h2>
+              <h2 className="text-xl font-semibold text-foreground">Automated Workflows</h2>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-[#a3a3a3]">Master Control</span>
+                  <span className="text-sm text-muted-foreground">Master Control</span>
                   <Switch
                     checked={automationsEnabled}
                     onCheckedChange={setAutomationsEnabled}
                   />
                 </div>
-                <Button size="sm" className="glass glass-green">
+                <Button size="sm" className="bg-green-500/20 border border-green-500/30 text-green-400 hover:bg-green-500/30">
                   <Zap className="h-4 w-4 mr-2" />
                   Add Automation
                 </Button>
@@ -545,12 +545,12 @@ export default function WorkflowsPage() {
                 <motion.div
                   key={automation.id}
                   layout
-                  className="glass p-6 rounded-lg border border-white/5"
+                  className="bg-card border border-border p-6 rounded-lg border border-border"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-medium text-[#f5f5f5]">{automation.name}</h3>
+                        <h3 className="text-lg font-medium text-foreground">{automation.name}</h3>
                         <Badge className={cn(
                           "text-xs",
                           automation.status === "active" ? "bg-green-500/20 text-green-400" : "bg-gray-500/20 text-gray-400"
@@ -563,22 +563,22 @@ export default function WorkflowsPage() {
                       </div>
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
-                          <p className="text-sm text-[#a3a3a3] mb-2">
+                          <p className="text-sm text-muted-foreground mb-2">
                             <strong>Trigger:</strong> {automation.trigger}
                           </p>
-                          <p className="text-sm text-[#a3a3a3]">
+                          <p className="text-sm text-muted-foreground">
                             <strong>Frequency:</strong> {automation.frequency}
                           </p>
-                          <p className="text-sm text-[#a3a3a3]">
+                          <p className="text-sm text-muted-foreground">
                             <strong>Last triggered:</strong> {automation.lastTriggered}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-[#f5f5f5] mb-2">Actions:</p>
+                          <p className="text-sm font-medium text-foreground mb-2">Actions:</p>
                           <ul className="space-y-1">
                             {automation.actions.map((action, idx) => (
-                              <li key={idx} className="text-sm text-[#a3a3a3] flex items-center gap-2">
-                                <ArrowRight className="h-3 w-3 text-orange-400" />
+                              <li key={idx} className="text-sm text-muted-foreground flex items-center gap-2">
+                                <ArrowRight className="h-3 w-3 text-amber-400" />
                                 {action}
                               </li>
                             ))}
@@ -595,7 +595,7 @@ export default function WorkflowsPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-xs glass"
+                        className="text-xs bg-muted border border-border"
                         onClick={() => handleTestAutomation(automation.name)}
                       >
                         Test
@@ -610,20 +610,20 @@ export default function WorkflowsPage() {
 
         {/* Team Collaboration Tab */}
         <TabsContent value="teams" className="space-y-6">
-          <div className="glass glass-purple p-6 rounded-lg">
-            <h2 className="text-xl font-semibold text-[#f5f5f5] mb-6">Team Access & Modules</h2>
+          <div className="bg-purple-500/10 border border-purple-500/20 p-6 rounded-lg">
+            <h2 className="text-xl font-semibold text-foreground mb-6">Team Access & Modules</h2>
 
             <div className="grid md:grid-cols-2 gap-6">
               {workflowData.teamModules.map((team) => (
                 <motion.div
                   key={team.team}
-                  whileHover={{ scale: 1.02 }}
-                  className="glass p-6 rounded-lg"
+                  whileHover={{ opacity: 0.9 }}
+                  className="bg-card border border-border p-6 rounded-lg"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-lg font-medium text-[#f5f5f5]">{team.team}</h3>
-                      <div className="flex items-center gap-4 mt-2 text-sm text-[#a3a3a3]">
+                      <h3 className="text-lg font-medium text-foreground">{team.team}</h3>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Users className="h-4 w-4" />
                           {team.users} users
@@ -644,7 +644,7 @@ export default function WorkflowsPage() {
 
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-medium text-[#f5f5f5] mb-2">Access Modules:</p>
+                      <p className="text-sm font-medium text-foreground mb-2">Access Modules:</p>
                       <div className="flex flex-wrap gap-2">
                         {team.modules.map((module) => (
                           <Badge key={module} variant="outline" className="text-xs">
@@ -655,7 +655,7 @@ export default function WorkflowsPage() {
                     </div>
 
                     <div className="flex items-center justify-between pt-2">
-                      <span className="text-sm text-[#a3a3a3]">Reports: {team.reportFrequency}</span>
+                      <span className="text-sm text-muted-foreground">Reports: {team.reportFrequency}</span>
                       <Button size="sm" variant="outline" className="text-xs">
                         Configure
                       </Button>
@@ -669,10 +669,10 @@ export default function WorkflowsPage() {
 
         {/* Scheduled Reports Tab */}
         <TabsContent value="reports" className="space-y-6">
-          <div className="glass glass-green p-6 rounded-lg">
+          <div className="bg-green-500/10 border border-green-500/20 p-6 rounded-lg">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-[#f5f5f5]">Automated Report Delivery</h2>
-              <Button className="glass glass-blue">
+              <h2 className="text-xl font-semibold text-foreground">Automated Report Delivery</h2>
+              <Button className="bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30">
                 <Calendar className="h-4 w-4 mr-2" />
                 New Schedule
               </Button>
@@ -682,13 +682,13 @@ export default function WorkflowsPage() {
               {workflowData.scheduledReports.map((report) => (
                 <motion.div
                   key={report.id}
-                  whileHover={{ scale: 1.01 }}
-                  className="glass p-6 rounded-lg border border-white/5"
+                  whileHover={{ opacity: 0.9 }}
+                  className="bg-card border border-border p-6 rounded-lg border border-border"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-medium text-[#f5f5f5]">{report.name}</h3>
+                        <h3 className="text-lg font-medium text-foreground">{report.name}</h3>
                         <Badge className="bg-green-500/20 text-green-400 text-xs">
                           {report.status}
                         </Badge>
@@ -696,19 +696,19 @@ export default function WorkflowsPage() {
 
                       <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                          <p className="text-sm text-[#a3a3a3]">
+                          <p className="text-sm text-muted-foreground">
                             <strong>Frequency:</strong> {report.frequency}
                           </p>
-                          <p className="text-sm text-[#a3a3a3]">
+                          <p className="text-sm text-muted-foreground">
                             <strong>Format:</strong> {report.format}
                           </p>
-                          <p className="text-sm text-[#a3a3a3]">
+                          <p className="text-sm text-muted-foreground">
                             <strong>Last sent:</strong> {report.lastSent}
                           </p>
                         </div>
 
                         <div>
-                          <p className="text-sm font-medium text-[#f5f5f5] mb-2">Recipients:</p>
+                          <p className="text-sm font-medium text-foreground mb-2">Recipients:</p>
                           <div className="flex flex-wrap gap-2">
                             {report.recipients.map((recipient) => (
                               <Badge key={recipient} variant="outline" className="text-xs">
@@ -721,11 +721,11 @@ export default function WorkflowsPage() {
                     </div>
 
                     <div className="flex gap-2 ml-4">
-                      <Button size="sm" variant="outline" className="text-xs glass">
+                      <Button size="sm" variant="outline" className="text-xs bg-muted border border-border">
                         <Mail className="h-4 w-4 mr-1" />
                         Send Now
                       </Button>
-                      <Button size="sm" variant="outline" className="text-xs glass">
+                      <Button size="sm" variant="outline" className="text-xs bg-muted border border-border">
                         <Settings className="h-4 w-4 mr-1" />
                         Edit
                       </Button>
@@ -752,11 +752,11 @@ export default function WorkflowsPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="glass glass-blue p-8 rounded-lg w-full max-w-2xl"
+              className="bg-blue-500/10 border border-blue-500/20 p-8 rounded-lg w-full max-w-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-[#f5f5f5] flex items-center gap-3">
+                <h3 className="text-xl font-semibold text-foreground flex items-center gap-3">
                   <Building2 className="h-6 w-6 text-blue-400" />
                   SharePoint Integration
                 </h3>
@@ -764,7 +764,7 @@ export default function WorkflowsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => setSharepointPanelOpen(false)}
-                  className="glass"
+                  className="bg-muted border border-border"
                 >
                   Close
                 </Button>
@@ -778,26 +778,26 @@ export default function WorkflowsPage() {
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <h4 className="text-sm font-medium text-[#f5f5f5] mb-3">Sync Status</h4>
+                    <h4 className="text-sm font-medium text-foreground mb-3">Sync Status</h4>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-sm text-[#a3a3a3]">Last Sync:</span>
-                        <span className="text-sm text-[#f5f5f5]">{workflowData.integrationSettings.sharepoint.lastSync}</span>
+                        <span className="text-sm text-muted-foreground">Last Sync:</span>
+                        <span className="text-sm text-foreground">{workflowData.integrationSettings.sharepoint.lastSync}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm text-[#a3a3a3]">Documents:</span>
-                        <span className="text-sm text-[#f5f5f5]">{workflowData.integrationSettings.sharepoint.documentsProcessed}</span>
+                        <span className="text-sm text-muted-foreground">Documents:</span>
+                        <span className="text-sm text-foreground">{workflowData.integrationSettings.sharepoint.documentsProcessed}</span>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-[#f5f5f5] mb-3">Monitored Folders</h4>
+                    <h4 className="text-sm font-medium text-foreground mb-3">Monitored Folders</h4>
                     <div className="space-y-1">
                       {workflowData.integrationSettings.sharepoint.folders.map((folder) => (
                         <div key={folder} className="flex items-center gap-2">
                           <CheckCircle className="h-3 w-3 text-green-400" />
-                          <span className="text-sm text-[#a3a3a3]">{folder}</span>
+                          <span className="text-sm text-muted-foreground">{folder}</span>
                         </div>
                       ))}
                     </div>
@@ -805,11 +805,11 @@ export default function WorkflowsPage() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button className="glass glass-green flex-1">
+                  <Button className="bg-green-500/20 border border-green-500/30 text-green-400 hover:bg-green-500/30 flex-1">
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Sync Now
                   </Button>
-                  <Button variant="outline" className="glass">
+                  <Button variant="outline" className="bg-muted border border-border">
                     Configure Folders
                   </Button>
                 </div>

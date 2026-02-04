@@ -91,7 +91,8 @@ export default function BillingPage() {
   const createPortalSession = useAction(api.actions.billing.createPortalSession);
 
   // Get current organization (mock for now)
-  const currentPlan: PlanKey = "free"; // TODO: Get from organization query
+  // Using useState to prevent TypeScript from narrowing the literal type
+  const [currentPlan] = useState<PlanKey>("free"); // TODO: Get from organization query
 
   const handleUpgrade = async (planKey: PlanKey) => {
     const plan = PLANS[planKey];
@@ -146,7 +147,7 @@ export default function BillingPage() {
     }
     if (planKey === "pro") {
       return (
-        <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+        <Badge className="bg-primary/20 text-primary border-primary/30">
           <Crown className="h-3 w-3 mr-1" />
           Most Popular
         </Badge>
@@ -157,7 +158,6 @@ export default function BillingPage() {
 
   const getButtonText = (planKey: PlanKey) => {
     if (planKey === currentPlan) return "Current Plan";
-    if (planKey === "free") return "Downgrade";
 
     const planOrder: PlanKey[] = ["free", "starter", "pro"];
     const currentIndex = planOrder.indexOf(currentPlan);
@@ -182,7 +182,7 @@ export default function BillingPage() {
   return (
     <div
       className={cn(
-        "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-[#0a0a0a]",
+        "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-background",
         isCollapsed ? "left-16" : "left-64"
       )}
     >
@@ -199,10 +199,10 @@ export default function BillingPage() {
               <CreditCard className="h-6 w-6 text-green-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold text-[#f5f5f5] tracking-tight">
+              <h1 className="text-2xl font-semibold text-foreground tracking-tight">
                 Billing & Plans
               </h1>
-              <p className="text-sm text-[#a3a3a3]">
+              <p className="text-sm text-muted-foreground">
                 Manage your subscription and billing settings
               </p>
             </div>
@@ -212,7 +212,7 @@ export default function BillingPage() {
             <Button
               onClick={handleManageBilling}
               disabled={loadingPortal}
-              className="bg-white/5 border border-white/10 text-[#f5f5f5] hover:bg-white/10"
+              className="bg-muted border border-border text-foreground hover:bg-muted/80"
             >
               {loadingPortal ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -227,13 +227,13 @@ export default function BillingPage() {
 
         {/* Current Plan Summary */}
         <motion.div variants={itemVariants}>
-          <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+          <Card className="glass bg-card border-border">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[#a3a3a3] mb-1">Current Plan</p>
+                  <p className="text-sm text-muted-foreground mb-1">Current Plan</p>
                   <div className="flex items-center gap-3">
-                    <h2 className="text-2xl font-bold text-[#f5f5f5]">
+                    <h2 className="text-2xl font-bold text-foreground">
                       {PLANS[currentPlan].name}
                     </h2>
                     <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
@@ -242,25 +242,25 @@ export default function BillingPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-bold text-[#f5f5f5]">
+                  <p className="text-3xl font-bold text-foreground">
                     ${PLANS[currentPlan].price}
-                    <span className="text-sm font-normal text-[#a3a3a3]">/mo</span>
+                    <span className="text-sm font-normal text-muted-foreground">/mo</span>
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+                <div className="p-4 rounded-lg bg-muted border border-border">
                   <Users className="h-5 w-5 text-blue-400 mb-2" />
-                  <p className="text-sm text-[#a3a3a3]">Subscribers</p>
-                  <p className="text-lg font-semibold text-[#f5f5f5]">
+                  <p className="text-sm text-muted-foreground">Subscribers</p>
+                  <p className="text-lg font-semibold text-foreground">
                     {PLANS[currentPlan].limits.subscribers.toLocaleString()}
                   </p>
                 </div>
-                <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                  <Mail className="h-5 w-5 text-purple-400 mb-2" />
-                  <p className="text-sm text-[#a3a3a3]">Newsletters/mo</p>
-                  <p className="text-lg font-semibold text-[#f5f5f5]">
+                <div className="p-4 rounded-lg bg-muted border border-border">
+                  <Mail className="h-5 w-5 text-primary mb-2" />
+                  <p className="text-sm text-muted-foreground">Newsletters/mo</p>
+                  <p className="text-lg font-semibold text-foreground">
                     {PLANS[currentPlan].limits.newslettersPerMonth === -1
                       ? "Unlimited"
                       : PLANS[currentPlan].limits.newslettersPerMonth}
@@ -273,7 +273,7 @@ export default function BillingPage() {
 
         {/* Pricing Cards */}
         <motion.div variants={itemVariants}>
-          <h2 className="text-lg font-semibold text-[#f5f5f5] mb-4">Available Plans</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">Available Plans</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {(Object.keys(PLANS) as PlanKey[]).map((planKey) => {
               const plan = PLANS[planKey];
@@ -289,28 +289,28 @@ export default function BillingPage() {
                     isCurrentPlan
                       ? "bg-green-500/5 border-green-500/30"
                       : planKey === "pro"
-                        ? "bg-purple-500/5 border-purple-500/30"
-                        : "bg-white/5 border-white/10 hover:border-white/20"
+                        ? "bg-primary/5 border-primary/30"
+                        : "bg-muted border-border hover:border-muted-foreground"
                   )}
                 >
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         {planKey === "pro" ? (
-                          <Crown className="h-5 w-5 text-purple-400" />
+                          <Crown className="h-5 w-5 text-primary" />
                         ) : planKey === "starter" ? (
                           <Zap className="h-5 w-5 text-blue-400" />
                         ) : (
                           <Users className="h-5 w-5 text-gray-400" />
                         )}
-                        <h3 className="text-lg font-semibold text-[#f5f5f5]">{plan.name}</h3>
+                        <h3 className="text-lg font-semibold text-foreground">{plan.name}</h3>
                       </div>
                       {getPlanBadge(planKey)}
                     </div>
 
                     <div className="mb-6">
-                      <span className="text-4xl font-bold text-[#f5f5f5]">${plan.price}</span>
-                      <span className="text-[#a3a3a3]">/month</span>
+                      <span className="text-4xl font-bold text-foreground">${plan.price}</span>
+                      <span className="text-muted-foreground">/month</span>
                     </div>
 
                     <ul className="space-y-3 mb-6">
@@ -320,13 +320,13 @@ export default function BillingPage() {
                             className={cn(
                               "h-4 w-4",
                               planKey === "pro"
-                                ? "text-purple-400"
+                                ? "text-primary"
                                 : planKey === "starter"
                                   ? "text-blue-400"
                                   : "text-green-400"
                             )}
                           />
-                          <span className="text-sm text-[#a3a3a3]">{feature}</span>
+                          <span className="text-sm text-muted-foreground">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -339,10 +339,10 @@ export default function BillingPage() {
                         isCurrentPlan
                           ? "bg-green-500/20 border border-green-500/30 text-green-300 cursor-default"
                           : planKey === "pro"
-                            ? "bg-purple-500/20 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30"
+                            ? "bg-primary/20 border border-primary/30 text-primary hover:bg-primary/30"
                             : planKey === "starter"
                               ? "bg-blue-500/20 border border-blue-500/30 text-blue-300 hover:bg-blue-500/30"
-                              : "bg-white/5 border border-white/10 text-[#a3a3a3] hover:bg-white/10"
+                              : "bg-muted border border-border text-muted-foreground hover:bg-muted/80"
                       )}
                     >
                       {isLoading ? (
@@ -368,37 +368,37 @@ export default function BillingPage() {
 
         {/* FAQ / Info Section */}
         <motion.div variants={itemVariants}>
-          <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+          <Card className="glass bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-[#f5f5f5]">Billing FAQ</CardTitle>
-              <CardDescription className="text-[#a3a3a3]">
+              <CardTitle className="text-foreground">Billing FAQ</CardTitle>
+              <CardDescription className="text-muted-foreground">
                 Common questions about billing and subscriptions
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-medium text-[#f5f5f5] mb-1">
+                <h4 className="font-medium text-foreground mb-1">
                   Can I change plans at any time?
                 </h4>
-                <p className="text-sm text-[#a3a3a3]">
+                <p className="text-sm text-muted-foreground">
                   Yes, you can upgrade or downgrade your plan at any time. Changes take effect
                   immediately, and we will prorate any charges.
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-[#f5f5f5] mb-1">
+                <h4 className="font-medium text-foreground mb-1">
                   What happens if I exceed my subscriber limit?
                 </h4>
-                <p className="text-sm text-[#a3a3a3]">
+                <p className="text-sm text-muted-foreground">
                   We will notify you when you reach 80% of your limit. If you exceed it, you will
                   need to upgrade to continue adding subscribers.
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-[#f5f5f5] mb-1">
+                <h4 className="font-medium text-foreground mb-1">
                   How do I cancel my subscription?
                 </h4>
-                <p className="text-sm text-[#a3a3a3]">
+                <p className="text-sm text-muted-foreground">
                   You can cancel anytime through the Manage Billing portal. Your subscription will
                   remain active until the end of your billing period.
                 </p>

@@ -9,12 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, CheckCircle, Settings, Pause, Play, Shield, Save, RefreshCw, Hash, Type } from "lucide-react";
 import { toast } from "sonner";
-import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
 
 export default function AdminDashboard() {
   const [adminUserId] = useState("admin-user-1"); // In real app, get from auth
-  const { isCollapsed } = useSidebar();
   const [editingValues, setEditingValues] = useState<Record<string, string | number>>({}); // Track editing values
   const [savingControls, setSavingControls] = useState<Set<string>>(new Set()); // Track saving states
 
@@ -119,27 +117,24 @@ export default function AdminDashboard() {
   const getControlIcon = (control: AdminControl) => {
     if (control.type === "boolean") {
       return control.value ? (
-        <CheckCircle className="h-4 w-4 text-green-500" />
+        <CheckCircle className="h-4 w-4 text-green-400" />
       ) : (
-        <Pause className="h-4 w-4 text-orange-500" />
+        <Pause className="h-4 w-4 text-amber-500" />
       );
     } else if (control.type === "number") {
-      return <Hash className="h-4 w-4 text-blue-400" />;
+      return <Hash className="h-4 w-4 text-blue" />;
     } else {
-      return <Type className="h-4 w-4 text-purple-400" />;
+      return <Type className="h-4 w-4 text-purple" />;
     }
   };
 
   if (adminControls === undefined) {
     return (
-      <div className={cn(
-        "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-[#0a0a0a]",
-        isCollapsed ? "left-16" : "left-64"
-      )}>
+      <div className="min-h-screen">
         <div className="p-6">
           <div className="flex items-center space-x-3">
-            <Settings className="h-6 w-6 animate-spin text-blue-400" />
-            <span className="text-[#f5f5f5]">Loading admin dashboard...</span>
+            <Settings className="h-6 w-6 animate-spin text-blue" />
+            <span className="text-foreground">Loading admin dashboard...</span>
           </div>
         </div>
       </div>
@@ -155,54 +150,51 @@ export default function AdminDashboard() {
   ) || [];
 
   return (
-    <div className={cn(
-      "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-[#0a0a0a]",
-      isCollapsed ? "left-16" : "left-64"
-    )}>
+    <div className="min-h-screen">
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/20 border border-red-500/30">
-              <Shield className="h-6 w-6 text-red-400" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-muted border border-red/30">
+              <Shield className="h-6 w-6 text-red" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold text-[#f5f5f5] tracking-tight">Admin Dashboard</h1>
-              <p className="text-sm text-[#a3a3a3]">
+              <h1 className="text-2xl font-semibold text-foreground tracking-tight">Admin Dashboard</h1>
+              <p className="text-sm text-muted-foreground">
                 Control system-wide settings and monitor LLM operations
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
             {isLLMEnabled ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-muted border border-green-400/20">
                 <Play className="h-3 w-3 text-green-400" />
-                <span className="text-sm font-medium text-green-300">LLM Active</span>
+                <span className="text-sm font-medium text-green-400">LLM Active</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20">
-                <AlertTriangle className="h-3 w-3 text-red-400" />
-                <span className="text-sm font-medium text-red-300">LLM Paused</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-muted border border-red/20">
+                <AlertTriangle className="h-3 w-3 text-red" />
+                <span className="text-sm font-medium text-red">LLM Paused</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Master Controls */}
-        <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
+        <div className="bg-card border border-border rounded-lg p-6">
           <div className="flex items-center gap-3 mb-2">
-            <Settings className="h-5 w-5 text-[#a3a3a3]" />
-            <h3 className="text-lg font-semibold text-[#f5f5f5]">Primary Controls</h3>
+            <Settings className="h-5 w-5 text-muted-foreground" />
+            <h3 className="text-lg font-semibold text-foreground">Primary Controls</h3>
           </div>
-          <p className="text-sm text-[#a3a3a3] mb-6">
+          <p className="text-sm text-muted-foreground mb-6">
             Core system controls that affect LLM processing and AI operations
           </p>
           <div className="space-y-4">
             {primaryControls.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-[#a3a3a3] mb-4">No controls configured</p>
+                <p className="text-muted-foreground mb-4">No controls configured</p>
                 <button
                   onClick={() => initializeControls({ adminUserId })}
-                  className="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 hover:bg-blue-500/20 transition-standard"
+                  className="px-4 py-2 rounded-lg bg-blue-muted border border-blue/20 text-blue hover:bg-blue/20 transition-colors"
                 >
                   Initialize Default Controls
                 </button>
@@ -211,13 +203,13 @@ export default function AdminDashboard() {
               primaryControls.map((control) => (
                 <div
                   key={control._id}
-                  className="flex items-center justify-between p-4 border border-white/5 rounded-lg bg-white/5 transition-standard hover:bg-white/10"
+                  className="flex items-center justify-between p-4 border border-border rounded-lg bg-muted transition-colors hover:bg-muted/80"
                 >
                   <div className="flex items-center space-x-3">
                     {getControlIcon(control)}
                     <div>
-                      <h3 className="font-medium text-[#f5f5f5]">{formatControlKey(control.key)}</h3>
-                      <p className="text-sm text-[#a3a3a3]">
+                      <h3 className="font-medium text-foreground">{formatControlKey(control.key)}</h3>
+                      <p className="text-sm text-muted-foreground">
                         {control.description}
                       </p>
                     </div>
@@ -226,7 +218,7 @@ export default function AdminDashboard() {
                     <div className={cn(
                       "px-2 py-1 rounded text-xs font-medium",
                       Boolean(control.value)
-                        ? "bg-green-500/10 text-green-300 border border-green-500/20"
+                        ? "bg-green-muted text-green-400 border border-green-400/20"
                         : "bg-gray-500/10 text-gray-400 border border-gray-500/20"
                     )}>
                       {Boolean(control.value) ? "Enabled" : "Disabled"}
@@ -244,22 +236,22 @@ export default function AdminDashboard() {
 
         {/* Additional Controls */}
         {otherControls.length > 0 && (
-          <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-[#f5f5f5] mb-2">Additional Controls</h3>
-            <p className="text-sm text-[#a3a3a3] mb-6">
+          <div className="bg-card border border-border rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-foreground mb-2">Additional Controls</h3>
+            <p className="text-sm text-muted-foreground mb-6">
               Other system settings and configuration options
             </p>
             <div className="space-y-4">
               {otherControls.map((control) => (
                 <div
                   key={control._id}
-                  className="flex items-center justify-between p-4 border border-white/5 rounded-lg bg-white/5 transition-standard hover:bg-white/10"
+                  className="flex items-center justify-between p-4 border border-border rounded-lg bg-muted transition-colors hover:bg-muted/80"
                 >
                   <div className="flex items-center space-x-3">
                     {getControlIcon(control)}
                     <div>
-                      <h3 className="font-medium text-[#f5f5f5]">{formatControlKey(control.key)}</h3>
-                      <p className="text-sm text-[#a3a3a3]">
+                      <h3 className="font-medium text-foreground">{formatControlKey(control.key)}</h3>
+                      <p className="text-sm text-muted-foreground">
                         {control.description}
                       </p>
                       {control.type !== "boolean" && (
@@ -275,7 +267,7 @@ export default function AdminDashboard() {
                         <div className={cn(
                           "px-2 py-1 rounded text-xs font-medium",
                           Boolean(control.value)
-                            ? "bg-green-500/10 text-green-300 border border-green-500/20"
+                            ? "bg-green-muted text-green-400 border border-green-400/20"
                             : "bg-gray-500/10 text-gray-400 border border-gray-500/20"
                         )}>
                           {Boolean(control.value) ? "Enabled" : "Disabled"}
@@ -318,38 +310,38 @@ export default function AdminDashboard() {
         )}
 
         {/* Control Categories Overview */}
-        <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-[#f5f5f5] mb-2">Control Categories</h3>
-          <p className="text-sm text-[#a3a3a3] mb-6">
+        <div className="bg-card border border-border rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-2">Control Categories</h3>
+          <p className="text-sm text-muted-foreground mb-6">
             Overview of control types and their current status
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 border border-white/5 rounded-lg bg-white/5">
+            <div className="p-4 border border-border rounded-lg bg-muted">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-[#f5f5f5]">Boolean Controls</h4>
+                <h4 className="font-medium text-foreground">Boolean Controls</h4>
                 <CheckCircle className="h-4 w-4 text-green-400" />
               </div>
-              <p className="text-sm text-[#a3a3a3] mb-2">Toggle switches for on/off settings</p>
+              <p className="text-sm text-muted-foreground mb-2">Toggle switches for on/off settings</p>
               <div className="text-xs text-blue-300">
                 {adminControls?.filter(c => c.type === "boolean").length || 0} controls
               </div>
             </div>
-            <div className="p-4 border border-white/5 rounded-lg bg-white/5">
+            <div className="p-4 border border-border rounded-lg bg-muted">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-[#f5f5f5]">Numeric Controls</h4>
-                <Hash className="h-4 w-4 text-blue-400" />
+                <h4 className="font-medium text-foreground">Numeric Controls</h4>
+                <Hash className="h-4 w-4 text-blue" />
               </div>
-              <p className="text-sm text-[#a3a3a3] mb-2">Input fields for numerical values</p>
+              <p className="text-sm text-muted-foreground mb-2">Input fields for numerical values</p>
               <div className="text-xs text-blue-300">
                 {adminControls?.filter(c => c.type === "number").length || 0} controls
               </div>
             </div>
-            <div className="p-4 border border-white/5 rounded-lg bg-white/5">
+            <div className="p-4 border border-border rounded-lg bg-muted">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-[#f5f5f5]">Text Controls</h4>
-                <Type className="h-4 w-4 text-purple-400" />
+                <h4 className="font-medium text-foreground">Text Controls</h4>
+                <Type className="h-4 w-4 text-purple" />
               </div>
-              <p className="text-sm text-[#a3a3a3] mb-2">Input fields for text values</p>
+              <p className="text-sm text-muted-foreground mb-2">Input fields for text values</p>
               <div className="text-xs text-blue-300">
                 {adminControls?.filter(c => c.type === "string").length || 0} controls
               </div>
@@ -358,43 +350,43 @@ export default function AdminDashboard() {
         </div>
 
         {/* System Status */}
-        <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-[#f5f5f5] mb-2">System Status</h3>
-          <p className="text-sm text-[#a3a3a3] mb-6">
+        <div className="bg-card border border-border rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-2">System Status</h3>
+          <p className="text-sm text-muted-foreground mb-6">
             Current status of LLM operations and related services
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center space-x-3 p-4 border border-white/5 rounded-lg bg-white/5">
+            <div className="flex items-center space-x-3 p-4 border border-border rounded-lg bg-muted">
               {isLLMEnabled ? (
                 <>
                   <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span className="text-sm text-[#f5f5f5]">LLM Processing Active</span>
+                  <span className="text-sm text-foreground">LLM Processing Active</span>
                 </>
               ) : (
                 <>
-                  <AlertTriangle className="h-4 w-4 text-orange-400" />
-                  <span className="text-sm text-[#f5f5f5]">LLM Processing Paused</span>
+                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                  <span className="text-sm text-foreground">LLM Processing Paused</span>
                 </>
               )}
             </div>
-            <div className="flex items-center space-x-3 p-4 border border-white/5 rounded-lg bg-white/5">
+            <div className="flex items-center space-x-3 p-4 border border-border rounded-lg bg-muted">
               <CheckCircle className="h-4 w-4 text-green-400" />
-              <span className="text-sm text-[#f5f5f5]">Data Collection Active</span>
+              <span className="text-sm text-foreground">Data Collection Active</span>
             </div>
-            <div className="flex items-center space-x-3 p-4 border border-white/5 rounded-lg bg-white/5">
+            <div className="flex items-center space-x-3 p-4 border border-border rounded-lg bg-muted">
               <CheckCircle className="h-4 w-4 text-green-400" />
-              <span className="text-sm text-[#f5f5f5]">API Services Running</span>
+              <span className="text-sm text-foreground">API Services Running</span>
             </div>
           </div>
         </div>
 
         {/* Batch Operations */}
-        <div className="glass bg-[#0a0a0a]/80 border border-white/5 rounded-lg p-6">
+        <div className="bg-card border border-border rounded-lg p-6">
           <div className="flex items-center gap-3 mb-2">
-            <Settings className="h-5 w-5 text-blue-400" />
-            <h3 className="text-lg font-semibold text-[#f5f5f5]">Batch Operations</h3>
+            <Settings className="h-5 w-5 text-blue" />
+            <h3 className="text-lg font-semibold text-foreground">Batch Operations</h3>
           </div>
-          <p className="text-sm text-[#a3a3a3] mb-6">
+          <p className="text-sm text-muted-foreground mb-6">
             Perform operations on multiple controls at once
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -409,7 +401,7 @@ export default function AdminDashboard() {
                   toast.error('Failed to enable AI features: ' + error.message);
                 });
               }}
-              className="flex items-center justify-center gap-2 p-4 rounded-lg bg-green-500/10 border border-green-500/20 text-green-300 hover:bg-green-500/20 transition-standard"
+              className="flex items-center justify-center gap-2 p-4 rounded-lg bg-green-muted border border-green-400/20 text-green-400 hover:bg-green-400/20 transition-colors"
             >
               <Play className="h-4 w-4" />
               <span className="font-medium">Enable All AI Features</span>
@@ -425,7 +417,7 @@ export default function AdminDashboard() {
                   toast.error('Failed to disable AI features: ' + error.message);
                 });
               }}
-              className="flex items-center justify-center gap-2 p-4 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-300 hover:bg-orange-500/20 transition-standard"
+              className="flex items-center justify-center gap-2 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20 transition-colors"
             >
               <Pause className="h-4 w-4" />
               <span className="font-medium">Disable All AI Features</span>
@@ -434,18 +426,18 @@ export default function AdminDashboard() {
         </div>
 
         {/* Emergency Actions */}
-        <div className="glass bg-[#0a0a0a]/80 border border-red-500/20 rounded-lg p-6">
+        <div className="bg-card border border-red/20 rounded-lg p-6">
           <div className="flex items-center gap-3 mb-2">
-            <AlertTriangle className="h-5 w-5 text-red-400" />
-            <h3 className="text-lg font-semibold text-red-300">Emergency Actions</h3>
+            <AlertTriangle className="h-5 w-5 text-red" />
+            <h3 className="text-lg font-semibold text-red">Emergency Actions</h3>
           </div>
-          <p className="text-sm text-[#a3a3a3] mb-6">
+          <p className="text-sm text-muted-foreground mb-6">
             Critical system controls - use with caution
           </p>
           <div className="flex space-x-4">
             <button
               onClick={() => handleToggleControl("llm_processing_enabled")}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-300 hover:bg-red-500/20 transition-standard"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-muted border border-red/20 text-red hover:bg-red/20 transition-colors"
             >
               <Pause className="h-4 w-4" />
               <span className="text-sm font-medium">Emergency Stop All LLM</span>
@@ -459,7 +451,7 @@ export default function AdminDashboard() {
                   description: "Emergency re-enable of LLM processing"
                 })
               }
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/20 text-green-300 hover:bg-green-500/20 transition-standard"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-muted border border-green-400/20 text-green-400 hover:bg-green-400/20 transition-colors"
             >
               <Play className="h-4 w-4" />
               <span className="text-sm font-medium">Resume All LLM</span>

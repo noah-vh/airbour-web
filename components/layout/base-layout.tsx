@@ -18,7 +18,7 @@ export function BaseLayout({
   return (
     <div
       className={cn(
-        "min-h-screen bg-[#0a0a0a]",
+        "min-h-screen bg-background",
         isMapPage ? "relative" : "flex flex-col",
         !noPadding && !isMapPage && "p-6",
         className

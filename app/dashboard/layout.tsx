@@ -8,22 +8,20 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed } = useSidebar();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#0a0a0a]">
+    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: '#F5F5F4' }}>
       {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content Area */}
+      {/* Main Content Area - Account for floating sidebar */}
       <div
         className={cn(
           "flex flex-1 flex-col overflow-hidden transition-all duration-300",
-          isCollapsed ? "pl-16" : "pl-64"
+          isCollapsed ? "pl-24" : "pl-64"
         )}
       >
         {/* Page Content */}
-        <main className="relative flex-1 overflow-y-auto bg-[#0a0a0a] p-6">
-          <div className="relative mx-auto max-w-7xl">
-            {children}
-          </div>
+        <main className="relative flex-1 overflow-y-auto">
+          {children}
         </main>
       </div>
     </div>

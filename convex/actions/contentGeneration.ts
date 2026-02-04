@@ -41,12 +41,18 @@ export const generateContentIdeas = action({
     mentionIds: v.array(v.id("raw_mentions")),
     contentFormats: v.array(v.string()),
     numberOfIdeas: v.number(),
+    voiceContext: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const signalsContext = await buildSignalContext(ctx, args.signalIds);
     const mentionsContext = await buildMentionContext(ctx, args.mentionIds);
 
+    const voiceInstructions = args.voiceContext
+      ? `\nVOICE/PERSPECTIVE:\n${args.voiceContext}\n`
+      : '';
+
     const prompt = `You are a content strategist for innovation and technology content.
+${voiceInstructions}
 
 Available source materials:
 
@@ -97,8 +103,8 @@ IMPORTANT: Return a JSON object with this EXACT structure:
         headers: {
           "Authorization": `Bearer ${apiKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "https://sysinno.app",
-          "X-Title": "SysInno Innovation Platform"
+          "HTTP-Referer": "https://airbour.app",
+          "X-Title": "Airbour Innovation Platform"
         },
         body: JSON.stringify({
           model: "anthropic/claude-3.5-sonnet",
@@ -184,6 +190,7 @@ export const generateContentOutline = action({
     contentIdeaId: v.id("content_ideas"),
     platform: v.string(),
     customInstructions: v.optional(v.string()),
+    voiceContext: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const idea = await ctx.runQuery(api.contentIdeas.get, { id: args.contentIdeaId });
@@ -198,7 +205,12 @@ export const generateContentOutline = action({
 
     const signalsContext = await buildSignalContext(ctx, idea.sourceSignalIds);
 
+    const voiceInstructions = args.voiceContext
+      ? `\nVOICE/PERSPECTIVE:\n${args.voiceContext}\n`
+      : '';
+
     const prompt = `Create a detailed content outline for this idea:
+${voiceInstructions}
 
 Hook: "${idea.hook}"
 Angle: "${idea.angle}"
@@ -247,7 +259,7 @@ Return as JSON:
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "X-Title": "SysInno Innovation Platform"
+        "X-Title": "Airbour Innovation Platform"
       },
       body: JSON.stringify({
         model: "anthropic/claude-3.5-sonnet",
@@ -324,6 +336,7 @@ export const generateFullContent = action({
   args: {
     draftId: v.id("content_drafts"),
     customInstructions: v.optional(v.string()),
+    voiceContext: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const draft = await ctx.runQuery(api.contentDrafts.get, { id: args.draftId });
@@ -342,7 +355,12 @@ export const generateFullContent = action({
     const isVideo = draft.contentType.includes('video');
     const isShortForm = ['tiktok', 'youtube_shorts', 'ig_reels'].includes(draft.platform!);
 
+    const voiceInstructions = args.voiceContext
+      ? `\nVOICE/PERSPECTIVE:\n${args.voiceContext}\n`
+      : '';
+
     let prompt = `Write complete ${draft.contentType} content for ${draft.platform}.
+${voiceInstructions}
 
 Content Plan:
 ${JSON.stringify(draft.outline, null, 2)}
@@ -385,7 +403,7 @@ Format: ${platformConfig?.constraints.supportsMarkdown ? 'Use markdown (**bold**
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "X-Title": "SysInno Innovation Platform"
+        "X-Title": "Airbour Innovation Platform"
       },
       body: JSON.stringify({
         model: "anthropic/claude-3.5-sonnet",
@@ -522,7 +540,7 @@ Return the enhanced version, maintaining the overall structure and message.`;
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "X-Title": "SysInno Innovation Platform"
+        "X-Title": "Airbour Innovation Platform"
       },
       body: JSON.stringify({
         model: "anthropic/claude-3.5-sonnet",

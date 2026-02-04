@@ -1,30 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useSidebar } from "@/components/dashboard/sidebar-context";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 import {
   Bell,
   MessageSquare,
   Twitter,
   Linkedin,
   Globe,
-  Plus,
   Search,
-  Filter,
   ExternalLink,
   Heart,
   Repeat2,
   TrendingUp,
   BarChart3,
-  Calendar,
   Users,
   Star,
   Flag,
@@ -32,12 +22,12 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  Settings,
-  Hash
+  Hash,
+  Sparkles,
+  X,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import Link from "next/link";
 
 type MentionSource = "twitter" | "linkedin" | "reddit" | "news" | "blog" | "forum";
 type MentionSentiment = "positive" | "negative" | "neutral";
@@ -65,7 +55,6 @@ interface Mention {
 }
 
 export default function MentionsPage() {
-  const { isCollapsed } = useSidebar();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterSource, setFilterSource] = useState<MentionSource | "all">("all");
   const [filterSentiment, setFilterSentiment] = useState<MentionSentiment | "all">("all");
@@ -189,35 +178,6 @@ export default function MentionsPage() {
     }
   };
 
-  const getSentimentColor = (sentiment: MentionSentiment) => {
-    switch (sentiment) {
-      case "positive": return "bg-green-100 text-green-800 border-green-200";
-      case "negative": return "bg-red-100 text-red-800 border-red-200";
-      case "neutral": return "bg-gray-100 text-gray-800 border-gray-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  const getStatusColor = (status: MentionStatus) => {
-    switch (status) {
-      case "new": return "bg-blue-100 text-blue-800 border-blue-200";
-      case "reviewed": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "responded": return "bg-green-100 text-green-800 border-green-200";
-      case "ignored": return "bg-gray-100 text-gray-800 border-gray-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  const getStatusIcon = (status: MentionStatus) => {
-    switch (status) {
-      case "new": return <Bell className="h-4 w-4" />;
-      case "reviewed": return <Eye className="h-4 w-4" />;
-      case "responded": return <CheckCircle className="h-4 w-4" />;
-      case "ignored": return <Clock className="h-4 w-4" />;
-      default: return <Bell className="h-4 w-4" />;
-    }
-  };
-
   // Calculate stats
   const totalMentions = mentions.length;
   const newMentions = mentions.filter(m => m.status === "new").length;
@@ -225,392 +185,352 @@ export default function MentionsPage() {
   const negativeMentions = mentions.filter(m => m.sentiment === "negative").length;
   const avgEngagementScore = mentions.reduce((sum, m) => sum + m.engagementScore, 0) / mentions.length;
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 }
-  };
-
   const handleStatusChange = (mentionId: string, newStatus: MentionStatus) => {
-    // Implement status change logic
     toast.success(`Mention marked as ${newStatus}`);
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 6 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+  };
+
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      {/* Header */}
+    <div className="min-h-screen">
       <motion.div
-        className="mb-8"
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-      >
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Brand Mentions
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Monitor and respond to mentions across social media and web platforms
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Analytics
-            </Button>
-            <Button variant="outline">
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Button>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-          <motion.div variants={itemVariants}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      Total Mentions
-                    </p>
-                    <p className="text-2xl font-bold">{totalMentions}</p>
-                  </div>
-                  <MessageSquare className="h-8 w-8 text-blue-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      New
-                    </p>
-                    <p className="text-2xl font-bold text-blue-600">{newMentions}</p>
-                  </div>
-                  <Bell className="h-8 w-8 text-orange-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      Positive
-                    </p>
-                    <p className="text-2xl font-bold text-green-600">{positiveMentions}</p>
-                  </div>
-                  <Heart className="h-8 w-8 text-green-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      Negative
-                    </p>
-                    <p className="text-2xl font-bold text-red-600">{negativeMentions}</p>
-                  </div>
-                  <AlertCircle className="h-8 w-8 text-red-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      Avg. Engagement
-                    </p>
-                    <p className="text-2xl font-bold">{Math.round(avgEngagementScore)}</p>
-                  </div>
-                  <TrendingUp className="h-8 w-8 text-purple-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* Filters and Search */}
-      <motion.div
-        className="mb-6"
-        variants={itemVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    placeholder="Search mentions..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Select value={filterSource} onValueChange={(value) => setFilterSource(value as MentionSource | "all")}>
-                  <SelectTrigger className="w-[120px]">
-                    <SelectValue placeholder="Source" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Sources</SelectItem>
-                    <SelectItem value="twitter">Twitter</SelectItem>
-                    <SelectItem value="linkedin">LinkedIn</SelectItem>
-                    <SelectItem value="reddit">Reddit</SelectItem>
-                    <SelectItem value="news">News</SelectItem>
-                    <SelectItem value="blog">Blog</SelectItem>
-                    <SelectItem value="forum">Forum</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={filterSentiment} onValueChange={(value) => setFilterSentiment(value as MentionSentiment | "all")}>
-                  <SelectTrigger className="w-[120px]">
-                    <SelectValue placeholder="Sentiment" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Sentiment</SelectItem>
-                    <SelectItem value="positive">Positive</SelectItem>
-                    <SelectItem value="negative">Negative</SelectItem>
-                    <SelectItem value="neutral">Neutral</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={filterStatus} onValueChange={(value) => setFilterStatus(value as MentionStatus | "all")}>
-                  <SelectTrigger className="w-[120px]">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="new">New</SelectItem>
-                    <SelectItem value="reviewed">Reviewed</SelectItem>
-                    <SelectItem value="responded">Responded</SelectItem>
-                    <SelectItem value="ignored">Ignored</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant={showImportantOnly ? "default" : "outline"}
-                  onClick={() => setShowImportantOnly(!showImportantOnly)}
-                  className="px-3"
-                >
-                  <Star className="h-4 w-4 mr-1" />
-                  Important
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Mentions List */}
-      <motion.div
-        className="space-y-4"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
+        className="p-8 max-w-[1400px]"
       >
-        {filteredMentions.map((mention) => (
-          <motion.div key={mention._id} variants={itemVariants}>
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  {/* Header */}
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
-                        {getSourceIcon(mention.source)}
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-gray-900 dark:text-white">
-                            {mention.author}
-                          </h3>
-                          {mention.authorFollowers && (
-                            <Badge variant="outline" className="text-xs">
-                              <Users className="h-3 w-3 mr-1" />
-                              {mention.authorFollowers.toLocaleString()}
-                            </Badge>
-                          )}
-                          {mention.isImportant && (
-                            <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <span className="capitalize">{mention.source}</span>
-                          <span>•</span>
-                          <span>{new Date(mention.publishedAt).toLocaleDateString()}</span>
-                          <span>•</span>
-                          <span>Engagement: {mention.engagementScore}/100</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className={getSentimentColor(mention.sentiment)} variant="outline">
-                        {mention.sentiment}
-                      </Badge>
-                      <Badge className={getStatusColor(mention.status)} variant="outline">
-                        {getStatusIcon(mention.status)}
-                        <span className="ml-1 capitalize">{mention.status}</span>
-                      </Badge>
-                    </div>
-                  </div>
+        {/* Header - Stats + Actions */}
+        <motion.div variants={itemVariants} className="flex items-center justify-between mb-8">
+          {/* Compact Stats */}
+          <div className="flex items-center gap-8">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{totalMentions}</span>
+              <span className="text-sm text-muted-foreground">mentions</span>
+            </div>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-blue-500">{newMentions}</span>
+              <span className="text-sm text-muted-foreground">new</span>
+              <span className="h-1.5 w-1.5 rounded-full bg-blue-500 ml-1 animate-pulse" />
+            </div>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-emerald-500">{positiveMentions}</span>
+              <span className="text-sm text-muted-foreground">positive</span>
+            </div>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-red-500">{negativeMentions}</span>
+              <span className="text-sm text-muted-foreground">negative</span>
+            </div>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{Math.round(avgEngagementScore)}</span>
+              <span className="text-sm text-muted-foreground">avg engagement</span>
+            </div>
+          </div>
 
-                  {/* Content */}
-                  <div className="pl-11">
-                    <p className="text-gray-900 dark:text-white leading-relaxed">
-                      {mention.content}
-                    </p>
-                  </div>
+          {/* Quick Actions */}
+          <div className="flex items-center gap-2">
+            <Link href="/dashboard/signals">
+              <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-black/[0.06] hover:border-black/[0.12] transition-colors text-sm">
+                <BarChart3 className="h-4 w-4 text-purple-500" />
+                <span>Signals</span>
+              </button>
+            </Link>
+            <Link href="/dashboard/content-ideation">
+              <button className="bg-[#1C1C1C] text-white rounded-full px-5 py-2 text-sm font-medium hover:bg-[#2C2C2C] transition-colors flex items-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                Create Content
+              </button>
+            </Link>
+          </div>
+        </motion.div>
 
-                  {/* Engagement Metrics */}
-                  {(mention.likes || mention.shares || mention.comments) && (
-                    <div className="pl-11">
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        {mention.likes && (
-                          <div className="flex items-center gap-1">
-                            <Heart className="h-4 w-4" />
-                            <span>{mention.likes}</span>
-                          </div>
-                        )}
-                        {mention.shares && (
-                          <div className="flex items-center gap-1">
-                            <Repeat2 className="h-4 w-4" />
-                            <span>{mention.shares}</span>
-                          </div>
-                        )}
-                        {mention.comments && (
-                          <div className="flex items-center gap-1">
-                            <MessageSquare className="h-4 w-4" />
-                            <span>{mention.comments}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+        {/* Filters */}
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-black/[0.04] p-4 mb-6">
+          <div className="flex items-center gap-4 flex-wrap">
+            {/* Search */}
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search mentions..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-full bg-gray-50 border-0 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+
+            {/* Source Filter */}
+            <div className="flex items-center gap-1">
+              {["all", "twitter", "linkedin", "reddit", "news"].map((source) => (
+                <button
+                  key={source}
+                  onClick={() => setFilterSource(source as MentionSource | "all")}
+                  className={cn(
+                    "px-3 py-1.5 rounded-full text-xs font-medium transition-colors border",
+                    filterSource === source
+                      ? "bg-blue-50 text-blue-600 border-blue-200"
+                      : "bg-white border-black/[0.06] text-muted-foreground hover:border-black/[0.12]"
                   )}
+                >
+                  {source === "all" ? "All" : source.charAt(0).toUpperCase() + source.slice(1)}
+                </button>
+              ))}
+            </div>
 
-                  {/* Keywords and Companies */}
-                  <div className="pl-11 space-y-2">
-                    {mention.keywords.length > 0 && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-gray-500">Keywords:</span>
-                        <div className="flex flex-wrap gap-1">
-                          {mention.keywords.map((keyword) => (
-                            <Badge key={keyword} variant="secondary" className="text-xs">
-                              <Hash className="h-3 w-3 mr-1" />
-                              {keyword}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {mention.companyMentioned.length > 0 && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-gray-500">Mentions:</span>
-                        <div className="flex flex-wrap gap-1">
-                          {mention.companyMentioned.map((company) => (
-                            <Badge key={company} variant="outline" className="text-xs">
-                              {company}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+            <div className="h-6 w-px bg-black/[0.06]" />
 
-                  {/* Actions */}
-                  <div className="pl-11 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <a
-                        href={mention.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                      >
-                        View original
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
+            {/* Sentiment Filter */}
+            <div className="flex items-center gap-1">
+              {(["all", "positive", "negative", "neutral"] as const).map((sentiment) => (
+                <button
+                  key={sentiment}
+                  onClick={() => setFilterSentiment(sentiment)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-full text-xs font-medium transition-colors border",
+                    filterSentiment === sentiment
+                      ? sentiment === "positive" ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
+                        sentiment === "negative" ? "bg-red-50 text-red-600 border-red-200" :
+                        sentiment === "neutral" ? "bg-gray-100 text-gray-600 border-gray-200" :
+                        "bg-blue-50 text-blue-600 border-blue-200"
+                      : "bg-white border-black/[0.06] text-muted-foreground hover:border-black/[0.12]"
+                  )}
+                >
+                  {sentiment.charAt(0).toUpperCase() + sentiment.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            <div className="h-6 w-px bg-black/[0.06]" />
+
+            {/* Important Toggle */}
+            <button
+              onClick={() => setShowImportantOnly(!showImportantOnly)}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border",
+                showImportantOnly
+                  ? "bg-amber-50 text-amber-600 border-amber-200"
+                  : "bg-white border-black/[0.06] text-muted-foreground hover:border-black/[0.12]"
+              )}
+            >
+              <Star className="h-3 w-3" />
+              Important
+            </button>
+
+            {/* Clear Filters */}
+            {(filterSource !== "all" || filterSentiment !== "all" || filterStatus !== "all" || searchQuery || showImportantOnly) && (
+              <button
+                onClick={() => {
+                  setFilterSource("all");
+                  setFilterSentiment("all");
+                  setFilterStatus("all");
+                  setSearchQuery("");
+                  setShowImportantOnly(false);
+                }}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-3 w-3" />
+                Clear
+              </button>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Mentions List */}
+        <motion.div variants={itemVariants}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-foreground">Brand Mentions</h2>
+            <span className="text-sm text-muted-foreground">{filteredMentions.length} mentions</span>
+          </div>
+
+          <div className="space-y-3">
+            {filteredMentions.length > 0 ? (
+              filteredMentions.map((mention) => (
+                <div
+                  key={mention._id}
+                  className="bg-white rounded-2xl border border-black/[0.04] p-5 hover:border-black/[0.08] transition-colors"
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Icon Box */}
+                    <div className={cn(
+                      "h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0",
+                      mention.sentiment === "positive" ? "bg-emerald-50" :
+                      mention.sentiment === "negative" ? "bg-red-50" : "bg-gray-50"
+                    )}>
+                      <span className={
+                        mention.sentiment === "positive" ? "text-emerald-500" :
+                        mention.sentiment === "negative" ? "text-red-500" : "text-gray-500"
+                      }>
+                        {getSourceIcon(mention.source)}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {mention.status === "new" && (
-                        <>
-                          <Button size="sm" variant="outline" onClick={() => handleStatusChange(mention._id, "reviewed")}>
-                            <Eye className="h-4 w-4 mr-1" />
-                            Review
-                          </Button>
-                          <Button size="sm" onClick={() => handleStatusChange(mention._id, "responded")}>
-                            <MessageSquare className="h-4 w-4 mr-1" />
-                            Respond
-                          </Button>
-                        </>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      {/* Header */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-medium text-foreground">{mention.author}</span>
+                        {mention.authorFollowers && (
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            {mention.authorFollowers.toLocaleString()}
+                          </span>
+                        )}
+                        {mention.isImportant && (
+                          <Star className="h-3.5 w-3.5 text-amber-500 fill-current" />
+                        )}
+                        <span className="text-xs text-muted-foreground capitalize">{mention.source}</span>
+                        <span className="text-xs text-muted-foreground">•</span>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(mention.publishedAt).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      {/* Content */}
+                      <p className="text-sm text-foreground mb-3">{mention.content}</p>
+
+                      {/* Engagement */}
+                      {(mention.likes || mention.shares || mention.comments) && (
+                        <div className="flex items-center gap-4 mb-3 text-xs text-muted-foreground">
+                          {mention.likes && (
+                            <span className="flex items-center gap-1">
+                              <Heart className="h-3 w-3" />
+                              {mention.likes}
+                            </span>
+                          )}
+                          {mention.shares && (
+                            <span className="flex items-center gap-1">
+                              <Repeat2 className="h-3 w-3" />
+                              {mention.shares}
+                            </span>
+                          )}
+                          {mention.comments && (
+                            <span className="flex items-center gap-1">
+                              <MessageSquare className="h-3 w-3" />
+                              {mention.comments}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1">
+                            <TrendingUp className="h-3 w-3" />
+                            {mention.engagementScore}/100
+                          </span>
+                        </div>
                       )}
-                      {mention.status === "reviewed" && (
-                        <Button size="sm" onClick={() => handleStatusChange(mention._id, "responded")}>
-                          <MessageSquare className="h-4 w-4 mr-1" />
-                          Respond
-                        </Button>
+
+                      {/* Keywords */}
+                      {mention.keywords.length > 0 && (
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {mention.keywords.map((keyword) => (
+                            <span key={keyword} className="px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-600 border border-blue-100">
+                              <Hash className="h-3 w-3 inline mr-0.5" />
+                              {keyword}
+                            </span>
+                          ))}
+                        </div>
                       )}
-                      <Button size="sm" variant="ghost">
-                        <Flag className="h-4 w-4" />
-                      </Button>
+                    </div>
+
+                    {/* Status & Actions */}
+                    <div className="flex flex-col items-end gap-2">
+                      <span className={cn(
+                        "px-2 py-0.5 rounded-full text-xs font-medium border",
+                        mention.sentiment === "positive" ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
+                        mention.sentiment === "negative" ? "bg-red-50 text-red-600 border-red-200" :
+                        "bg-gray-50 text-gray-600 border-gray-200"
+                      )}>
+                        {mention.sentiment}
+                      </span>
+
+                      <span className={cn(
+                        "px-2 py-0.5 rounded-full text-xs font-medium border flex items-center gap-1",
+                        mention.status === "new" ? "bg-blue-50 text-blue-600 border-blue-200" :
+                        mention.status === "responded" ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
+                        "bg-gray-50 text-gray-600 border-gray-200"
+                      )}>
+                        {mention.status === "new" && <Bell className="h-3 w-3" />}
+                        {mention.status === "reviewed" && <Eye className="h-3 w-3" />}
+                        {mention.status === "responded" && <CheckCircle className="h-3 w-3" />}
+                        {mention.status}
+                      </span>
+
+                      <div className="flex items-center gap-1 mt-2">
+                        <a
+                          href={mention.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 rounded-lg text-muted-foreground hover:text-blue-500 hover:bg-blue-50 transition-colors"
+                          title="View original"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                        {mention.status === "new" && (
+                          <>
+                            <button
+                              onClick={() => handleStatusChange(mention._id, "reviewed")}
+                              className="p-2 rounded-lg text-muted-foreground hover:text-amber-500 hover:bg-amber-50 transition-colors"
+                              title="Mark reviewed"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleStatusChange(mention._id, "responded")}
+                              className="p-2 rounded-lg text-muted-foreground hover:text-emerald-500 hover:bg-emerald-50 transition-colors"
+                              title="Mark responded"
+                            >
+                              <MessageSquare className="h-4 w-4" />
+                            </button>
+                          </>
+                        )}
+                        <button
+                          className="p-2 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors"
+                          title="Flag"
+                        >
+                          <Flag className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {filteredMentions.length === 0 && (
-        <motion.div
-          className="text-center py-12"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          <Bell className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">No Mentions Found</h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {searchQuery || filterSource !== "all" || filterSentiment !== "all" || filterStatus !== "all" || showImportantOnly
-              ? "No mentions match your current filters."
-              : "No mentions have been detected yet. Check your monitoring settings."}
-          </p>
-          {(!searchQuery && filterSource === "all" && filterSentiment === "all" && filterStatus === "all" && !showImportantOnly) && (
-            <Button variant="outline">
-              <Settings className="h-4 w-4 mr-2" />
-              Configure Monitoring
-            </Button>
-          )}
+              ))
+            ) : (
+              <div className="bg-white rounded-2xl border border-black/[0.04] py-16 text-center">
+                <div className="h-12 w-12 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                  <Bell className="h-6 w-6 text-blue-500" />
+                </div>
+                <h3 className="text-base font-medium text-foreground mb-2">No mentions found</h3>
+                <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                  {searchQuery || filterSource !== "all" || filterSentiment !== "all" || filterStatus !== "all" || showImportantOnly
+                    ? "Try adjusting your filters"
+                    : "Mentions will appear here as they're detected"
+                  }
+                </p>
+              </div>
+            )}
+          </div>
         </motion.div>
-      )}
+
+        {/* Footer Status */}
+        <motion.div variants={itemVariants} className="mt-8 pt-6 border-t border-black/[0.06]">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Mention monitoring active
+            </span>
+            <span>•</span>
+            <span>Last scan 5m ago</span>
+          </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

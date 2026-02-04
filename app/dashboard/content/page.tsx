@@ -370,7 +370,7 @@ export default function ContentPage() {
       draft: { color: "bg-gray-500/10 text-gray-300 border-gray-500/20", icon: FileText },
       scheduled: { color: "bg-blue-500/10 text-blue-300 border-blue-500/20", icon: Clock },
       published: { color: "bg-green-500/10 text-green-300 border-green-500/20", icon: CheckCircle },
-      archived: { color: "bg-orange-500/10 text-orange-300 border-orange-500/20", icon: Archive },
+      archived: { color: "bg-amber-500/10 text-amber-300 border-amber-500/20", icon: Archive },
     };
 
     const config = configs[status];
@@ -391,15 +391,15 @@ export default function ContentPage() {
 
   // Calculate stats
   const totalDrafts = drafts?.length || 0;
-  const draftCount = drafts?.filter(d => d.status === "draft").length || 0;
-  const scheduledCount = drafts?.filter(d => d.status === "scheduled").length || 0;
-  const publishedCount = drafts?.filter(d => d.status === "published").length || 0;
+  const draftCount = drafts?.filter((d: ContentDraft) => d.status === "draft").length || 0;
+  const scheduledCount = drafts?.filter((d: ContentDraft) => d.status === "scheduled").length || 0;
+  const publishedCount = drafts?.filter((d: ContentDraft) => d.status === "published").length || 0;
   const totalLayoutTemplates = templates?.length || 0;
   const totalIdeas = savedIdeas?.length || 0;
 
   return (
     <div className={cn(
-      "fixed right-0 top-0 bottom-0 transition-all duration-300 bg-[#0a0a0a]",
+      "fixed right-0 top-0 bottom-0 transition-all duration-300 bg-background",
       isCollapsed ? "left-16" : "left-64",
       sidePanelOpen ? "right-96" : "right-0"
     )}>
@@ -411,8 +411,8 @@ export default function ContentPage() {
               <FileText className="h-6 w-6 text-purple-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold text-[#f5f5f5] tracking-tight">Content Management</h1>
-              <p className="text-sm text-[#a3a3a3]">
+              <h1 className="text-2xl font-semibold text-foreground tracking-tight">Content Management</h1>
+              <p className="text-sm text-muted-foreground">
                 Create drafts, manage templates, and organize content ideas
               </p>
             </div>
@@ -437,94 +437,94 @@ export default function ContentPage() {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+          <Card className="bg-card border">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
-                  <FileText className="h-4 w-4 text-purple-400" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
+                  <FileText className="h-4 w-4 text-blue-400" />
                 </div>
-                <span className="text-2xl font-bold text-[#f5f5f5]">{totalDrafts}</span>
+                <span className="text-2xl font-bold text-foreground">{totalDrafts}</span>
               </div>
-              <h3 className="text-sm font-medium text-[#a3a3a3] mb-1">Total Drafts</h3>
-              <p className="text-xs text-[#666]">All content drafts</p>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Drafts</h3>
+              <p className="text-xs text-muted-foreground/60">All content drafts</p>
             </CardContent>
           </Card>
 
-          <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+          <Card className="bg-card border">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
                   <LayoutTemplate className="h-4 w-4 text-blue-400" />
                 </div>
-                <span className="text-2xl font-bold text-[#f5f5f5]">{totalLayoutTemplates}</span>
+                <span className="text-2xl font-bold text-foreground">{totalLayoutTemplates}</span>
               </div>
-              <h3 className="text-sm font-medium text-[#a3a3a3] mb-1">LayoutTemplates</h3>
-              <p className="text-xs text-[#666]">Reusable content templates</p>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">LayoutTemplates</h3>
+              <p className="text-xs text-muted-foreground/60">Reusable content templates</p>
             </CardContent>
           </Card>
 
-          <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+          <Card className="bg-card border">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-500/20 border border-yellow-500/30">
-                  <Lightbulb className="h-4 w-4 text-yellow-400" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 border border-amber-500/30">
+                  <Lightbulb className="h-4 w-4 text-amber-400" />
                 </div>
-                <span className="text-2xl font-bold text-[#f5f5f5]">{totalIdeas}</span>
+                <span className="text-2xl font-bold text-foreground">{totalIdeas}</span>
               </div>
-              <h3 className="text-sm font-medium text-[#a3a3a3] mb-1">Saved Ideas</h3>
-              <p className="text-xs text-[#666]">Content inspiration</p>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">Saved Ideas</h3>
+              <p className="text-xs text-muted-foreground/60">Content inspiration</p>
             </CardContent>
           </Card>
 
-          <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+          <Card className="bg-card border">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20 border border-green-500/30">
                   <CheckCircle className="h-4 w-4 text-green-400" />
                 </div>
-                <span className="text-2xl font-bold text-[#f5f5f5]">{publishedCount}</span>
+                <span className="text-2xl font-bold text-foreground">{publishedCount}</span>
               </div>
-              <h3 className="text-sm font-medium text-[#a3a3a3] mb-1">Published</h3>
-              <p className="text-xs text-[#666]">Live content pieces</p>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">Published</h3>
+              <p className="text-xs text-muted-foreground/60">Live content pieces</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Filters and Search */}
-        <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+        <Card className="bg-card border">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <Filter className="h-5 w-5 text-[#a3a3a3]" />
-                <h3 className="text-lg font-semibold text-[#f5f5f5]">Filters</h3>
+                <Filter className="h-5 w-5 text-muted-foreground" />
+                <h3 className="text-lg font-semibold text-foreground">Filters</h3>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="search" className="text-[#f5f5f5]">Search Content</Label>
+                <Label htmlFor="search" className="text-foreground">Search Content</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-[#666]" />
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground/60" />
                   <Input
                     id="search"
                     placeholder="Search drafts, templates, ideas..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-white/5 border-white/10 text-[#f5f5f5] placeholder:text-[#666]"
+                    className="pl-10 bg-muted border text-foreground placeholder:text-muted-foreground/60"
                   />
                 </div>
               </div>
               <div>
-                <Label className="text-[#f5f5f5]">Status</Label>
+                <Label className="text-foreground">Status</Label>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-[#f5f5f5]">
+                  <SelectTrigger className="bg-muted border text-foreground">
                     <SelectValue placeholder="All statuses" />
                   </SelectTrigger>
-                  <SelectContent className="glass bg-[#0a0a0a]/95 border border-white/10">
-                    <SelectItem value="all" className="text-[#f5f5f5] focus:bg-white/10">All Statuses</SelectItem>
-                    <SelectItem value="draft" className="text-[#f5f5f5] focus:bg-white/10">Draft</SelectItem>
-                    <SelectItem value="scheduled" className="text-[#f5f5f5] focus:bg-white/10">Scheduled</SelectItem>
-                    <SelectItem value="published" className="text-[#f5f5f5] focus:bg-white/10">Published</SelectItem>
-                    <SelectItem value="archived" className="text-[#f5f5f5] focus:bg-white/10">Archived</SelectItem>
+                  <SelectContent className="bg-background-elevated border">
+                    <SelectItem value="all" className="text-foreground focus:bg-muted">All Statuses</SelectItem>
+                    <SelectItem value="draft" className="text-foreground focus:bg-muted">Draft</SelectItem>
+                    <SelectItem value="scheduled" className="text-foreground focus:bg-muted">Scheduled</SelectItem>
+                    <SelectItem value="published" className="text-foreground focus:bg-muted">Published</SelectItem>
+                    <SelectItem value="archived" className="text-foreground focus:bg-muted">Archived</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -534,16 +534,16 @@ export default function ContentPage() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-white/5 border border-white/10">
-            <TabsTrigger value="drafts" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
+          <TabsList className="grid w-full grid-cols-3 bg-muted border">
+            <TabsTrigger value="drafts" className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-300">
               <FileText className="h-4 w-4 mr-2" />
               Drafts
             </TabsTrigger>
-            <TabsTrigger value="templates" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
+            <TabsTrigger value="templates" className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-300">
               <LayoutTemplate className="h-4 w-4 mr-2" />
               LayoutTemplates
             </TabsTrigger>
-            <TabsTrigger value="ideas" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
+            <TabsTrigger value="ideas" className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-300">
               <Lightbulb className="h-4 w-4 mr-2" />
               Ideas
             </TabsTrigger>
@@ -551,10 +551,10 @@ export default function ContentPage() {
 
           <TabsContent value="drafts" className="space-y-6 mt-6">
             {/* Content Drafts */}
-            <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+            <Card className="bg-card border">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-[#f5f5f5]">Content Drafts</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Content Drafts</h3>
                   {selectedDrafts.length > 0 && (
                     <Button
                       size="sm"
@@ -573,10 +573,10 @@ export default function ContentPage() {
 
                 {drafts && drafts.length > 0 ? (
                   <div className="space-y-4">
-                    {drafts.map((draft) => (
+                    {drafts.map((draft: ContentDraft) => (
                       <div
                         key={draft._id}
-                        className="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-standard cursor-pointer"
+                        className="flex items-center justify-between p-4 rounded-lg bg-muted border hover:bg-muted/80 transition-colors cursor-pointer"
                         onClick={() => handleItemClick(draft)}
                       >
                         <div className="flex items-center gap-4">
@@ -589,19 +589,19 @@ export default function ContentPage() {
                                 setSelectedDrafts(prev => prev.filter(id => id !== draft._id));
                               }
                             }}
-                            className="border-white/10"
+                            className="border"
                             onClick={(e) => e.stopPropagation()}
                           />
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
-                            <FileText className="h-5 w-5 text-purple-400" />
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
+                            <FileText className="h-5 w-5 text-blue-400" />
                           </div>
                           <div>
-                            <h4 className="font-medium text-[#f5f5f5]">{draft.title}</h4>
+                            <h4 className="font-medium text-foreground">{draft.title}</h4>
                             <div className="flex items-center gap-4 mt-1">
-                              <span className="text-xs text-[#666]">
+                              <span className="text-xs text-muted-foreground/60">
                                 {draft.wordCount} words
                               </span>
-                              <span className="text-xs text-[#666]">
+                              <span className="text-xs text-muted-foreground/60">
                                 Updated: {new Date(draft.updatedAt).toLocaleDateString()}
                               </span>
                               {getStatusBadge(draft.status)}
@@ -616,7 +616,7 @@ export default function ContentPage() {
                               e.stopPropagation();
                               openEditDraftDialog(draft);
                             }}
-                            className="text-[#a3a3a3] hover:text-[#f5f5f5] hover:bg-white/5"
+                            className="text-muted-foreground hover:text-foreground hover:bg-muted"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -650,14 +650,14 @@ export default function ContentPage() {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <FileText className="h-12 w-12 text-[#666] mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-[#f5f5f5] mb-2">No drafts found</h3>
-                    <p className="text-[#a3a3a3] mb-4">
+                    <FileText className="h-12 w-12 text-muted-foreground/60 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">No drafts found</h3>
+                    <p className="text-muted-foreground mb-4">
                       Create your first content draft to get started
                     </p>
                     <Button
                       onClick={() => setCreateDraftDialogOpen(true)}
-                      className="bg-purple-500/20 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30"
+                      className="bg-blue-500/20 border border-blue-500/30 text-blue-300 hover:bg-blue-500/30"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Create Draft
@@ -670,10 +670,10 @@ export default function ContentPage() {
 
           <TabsContent value="templates" className="space-y-6 mt-6">
             {/* Content LayoutTemplates */}
-            <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+            <Card className="bg-card border">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-[#f5f5f5]">Content LayoutTemplates</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Content LayoutTemplates</h3>
                   <Button
                     onClick={() => setCreateLayoutTemplateDialogOpen(true)}
                     className="bg-blue-500/20 border border-blue-500/30 text-blue-300 hover:bg-blue-500/30"
@@ -685,10 +685,10 @@ export default function ContentPage() {
 
                 {templates && templates.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {templates.map((template) => (
+                    {templates.map((template: ContentTemplate) => (
                       <div
                         key={template._id}
-                        className="p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-standard cursor-pointer"
+                        className="p-4 rounded-lg bg-muted border hover:bg-muted/80 transition-colors cursor-pointer"
                         onClick={() => handleItemClick(template)}
                       >
                         <div className="flex items-start justify-between mb-3">
@@ -697,7 +697,7 @@ export default function ContentPage() {
                               <LayoutTemplate className="h-4 w-4 text-blue-400" />
                             </div>
                             <div>
-                              <h4 className="font-medium text-[#f5f5f5]">{template.name}</h4>
+                              <h4 className="font-medium text-foreground">{template.name}</h4>
                               <div className="flex items-center gap-2 mt-1">
                                 <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 text-xs">
                                   {template.category}
@@ -711,10 +711,10 @@ export default function ContentPage() {
                             </div>
                           </div>
                         </div>
-                        <p className="text-sm text-[#a3a3a3] mb-3 line-clamp-2">
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                           {template.description}
                         </p>
-                        <div className="flex items-center justify-between text-xs text-[#666]">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground/60">
                           <span>Used {template.usageCount} times</span>
                           <span>{template.variables.length} variables</span>
                         </div>
@@ -723,9 +723,9 @@ export default function ContentPage() {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <LayoutTemplate className="h-12 w-12 text-[#666] mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-[#f5f5f5] mb-2">No templates found</h3>
-                    <p className="text-[#a3a3a3] mb-4">
+                    <LayoutTemplate className="h-12 w-12 text-muted-foreground/60 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">No templates found</h3>
+                    <p className="text-muted-foreground mb-4">
                       Create reusable content templates to speed up your workflow
                     </p>
                     <Button
@@ -743,26 +743,26 @@ export default function ContentPage() {
 
           <TabsContent value="ideas" className="space-y-6 mt-6">
             {/* Content Ideas */}
-            <Card className="glass bg-[#0a0a0a]/80 border-white/5">
+            <Card className="bg-card border">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-[#f5f5f5]">Saved Content Ideas</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Saved Content Ideas</h3>
                 </div>
 
                 {savedIdeas && savedIdeas.length > 0 ? (
                   <div className="space-y-4">
-                    {savedIdeas.map((idea) => (
+                    {savedIdeas.map((idea: ContentIdea) => (
                       <div
                         key={idea._id}
-                        className="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-standard cursor-pointer"
+                        className="flex items-center justify-between p-4 rounded-lg bg-muted border hover:bg-muted/80 transition-colors cursor-pointer"
                         onClick={() => handleItemClick(idea)}
                       >
                         <div className="flex items-center gap-4">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-500/20 border border-yellow-500/30">
-                            <Lightbulb className="h-5 w-5 text-yellow-400" />
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/20 border border-amber-500/30">
+                            <Lightbulb className="h-5 w-5 text-amber-400" />
                           </div>
                           <div>
-                            <h4 className="font-medium text-[#f5f5f5]">{idea.title}</h4>
+                            <h4 className="font-medium text-foreground">{idea.title}</h4>
                             <div className="flex items-center gap-4 mt-1">
                               <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
                                 {idea.type}
@@ -773,12 +773,12 @@ export default function ContentPage() {
                                     key={i}
                                     className={cn(
                                       "w-2 h-2 rounded-full",
-                                      i < idea.priority ? "bg-yellow-400" : "bg-gray-600"
+                                      i < idea.priority ? "bg-amber-400" : "bg-gray-600"
                                     )}
                                   />
                                 ))}
                               </div>
-                              <span className="text-xs text-[#666]">
+                              <span className="text-xs text-muted-foreground/60">
                                 ~{idea.estimatedWordCount} words
                               </span>
                             </div>
@@ -821,9 +821,9 @@ export default function ContentPage() {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <Lightbulb className="h-12 w-12 text-[#666] mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-[#f5f5f5] mb-2">No ideas saved</h3>
-                    <p className="text-[#a3a3a3] mb-4">
+                    <Lightbulb className="h-12 w-12 text-muted-foreground/60 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">No ideas saved</h3>
+                    <p className="text-muted-foreground mb-4">
                       Save content ideas from signals and mentions to organize your inspiration
                     </p>
                     <Button
@@ -843,10 +843,10 @@ export default function ContentPage() {
 
       {/* Side Panel - Content Details */}
       {sidePanelOpen && selectedItem && (
-        <div className="fixed right-0 top-0 bottom-0 w-96 bg-[#0a0a0a] border-l border-white/10 shadow-2xl z-50">
+        <div className="fixed right-0 top-0 bottom-0 w-96 bg-background border-l border z-50">
           <div className="p-6 h-full overflow-auto">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-[#f5f5f5]">
+              <h2 className="text-lg font-semibold text-foreground">
                 {'content' in selectedItem ? 'Draft Details' :
                  'template' in selectedItem ? 'LayoutTemplate Details' : 'Idea Details'}
               </h2>
@@ -854,7 +854,7 @@ export default function ContentPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidePanelOpen(false)}
-                className="p-1.5 h-auto text-[#a3a3a3] hover:text-[#f5f5f5] hover:bg-white/5"
+                className="p-1.5 h-auto text-muted-foreground hover:text-foreground hover:bg-muted"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -862,8 +862,8 @@ export default function ContentPage() {
 
             <div className="space-y-6">
               <div>
-                <h3 className="text-sm font-medium text-[#a3a3a3] mb-2">Title</h3>
-                <p className="font-medium text-[#f5f5f5]">
+                <h3 className="text-sm font-medium text-muted-foreground mb-2">Title</h3>
+                <p className="font-medium text-foreground">
                   {'title' in selectedItem ? selectedItem.title :
                    'name' in selectedItem ? selectedItem.name : 'Unknown'}
                 </p>
@@ -872,9 +872,9 @@ export default function ContentPage() {
               {'content' in selectedItem && (
                 <>
                   <div>
-                    <h3 className="text-sm font-medium text-[#a3a3a3] mb-2">Content Preview</h3>
-                    <div className="p-3 rounded-lg bg-white/5 border border-white/10 max-h-40 overflow-auto">
-                      <p className="text-sm text-[#f5f5f5] whitespace-pre-wrap line-clamp-6">
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Content Preview</h3>
+                    <div className="p-3 rounded-lg bg-muted border max-h-40 overflow-auto">
+                      <p className="text-sm text-foreground whitespace-pre-wrap line-clamp-6">
                         {(selectedItem as ContentDraft).content}
                       </p>
                     </div>
@@ -882,11 +882,11 @@ export default function ContentPage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <h3 className="text-sm font-medium text-[#a3a3a3] mb-2">Word Count</h3>
-                      <span className="text-[#f5f5f5]">{(selectedItem as ContentDraft).wordCount}</span>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Word Count</h3>
+                      <span className="text-foreground">{(selectedItem as ContentDraft).wordCount}</span>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-[#a3a3a3] mb-2">Status</h3>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Status</h3>
                       {getStatusBadge((selectedItem as ContentDraft).status)}
                     </div>
                   </div>
@@ -896,21 +896,21 @@ export default function ContentPage() {
               {'template' in selectedItem && (
                 <>
                   <div>
-                    <h3 className="text-sm font-medium text-[#a3a3a3] mb-2">Description</h3>
-                    <p className="text-[#f5f5f5]">{(selectedItem as ContentTemplate).description}</p>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Description</h3>
+                    <p className="text-foreground">{(selectedItem as ContentTemplate).description}</p>
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-medium text-[#a3a3a3] mb-2">LayoutTemplate Preview</h3>
-                    <div className="p-3 rounded-lg bg-white/5 border border-white/10 max-h-32 overflow-auto">
-                      <p className="text-sm text-[#f5f5f5] font-mono whitespace-pre-wrap">
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">LayoutTemplate Preview</h3>
+                    <div className="p-3 rounded-lg bg-muted border max-h-32 overflow-auto">
+                      <p className="text-sm text-foreground font-mono whitespace-pre-wrap">
                         {(selectedItem as ContentTemplate).template}
                       </p>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-medium text-[#a3a3a3] mb-2">Variables</h3>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Variables</h3>
                     <div className="flex flex-wrap gap-1">
                       {(selectedItem as ContentTemplate).variables.map((variable) => (
                         <Badge key={variable} className="bg-blue-500/20 text-blue-300 border-blue-500/30 text-xs">
@@ -925,26 +925,26 @@ export default function ContentPage() {
               {'description' in selectedItem && !('template' in selectedItem) && (
                 <>
                   <div>
-                    <h3 className="text-sm font-medium text-[#a3a3a3] mb-2">Description</h3>
-                    <p className="text-[#f5f5f5]">{(selectedItem as ContentIdea).description}</p>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Description</h3>
+                    <p className="text-foreground">{(selectedItem as ContentIdea).description}</p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <h3 className="text-sm font-medium text-[#a3a3a3] mb-2">Type</h3>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Type</h3>
                       <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
                         {(selectedItem as ContentIdea).type}
                       </Badge>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-[#a3a3a3] mb-2">Priority</h3>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Priority</h3>
                       <div className="flex items-center gap-1">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <div
                             key={i}
                             className={cn(
                               "w-2 h-2 rounded-full",
-                              i < (selectedItem as ContentIdea).priority ? "bg-yellow-400" : "bg-gray-600"
+                              i < (selectedItem as ContentIdea).priority ? "bg-amber-400" : "bg-gray-600"
                             )}
                           />
                         ))}
@@ -956,7 +956,7 @@ export default function ContentPage() {
 
               {'tags' in selectedItem && (selectedItem as any).tags?.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-medium text-[#a3a3a3] mb-2">Tags</h3>
+                  <h3 className="text-sm font-medium text-muted-foreground mb-2">Tags</h3>
                   <div className="flex flex-wrap gap-1">
                     {(selectedItem as any).tags.map((tag: string) => (
                       <Badge key={tag} className="bg-gray-500/20 text-gray-300 border-gray-500/30 text-xs">
@@ -967,7 +967,7 @@ export default function ContentPage() {
                 </div>
               )}
 
-              <div className="flex items-center gap-2 pt-4 border-t border-white/10">
+              <div className="flex items-center gap-2 pt-4 border-t">
                 {'content' in selectedItem ? (
                   <Button
                     size="sm"
@@ -1026,45 +1026,45 @@ export default function ContentPage() {
 
       {/* Create Draft Dialog */}
       <Dialog open={createDraftDialogOpen} onOpenChange={setCreateDraftDialogOpen}>
-        <DialogContent className="max-w-2xl glass bg-[#0a0a0a]/95 border border-white/10">
+        <DialogContent className="max-w-2xl bg-background-elevated border">
           <DialogHeader>
-            <DialogTitle className="text-[#f5f5f5]">Create Content Draft</DialogTitle>
-            <DialogDescription className="text-[#a3a3a3]">
+            <DialogTitle className="text-foreground">Create Content Draft</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Start working on a new content piece
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="draft-title" className="text-[#f5f5f5]">Title</Label>
+              <Label htmlFor="draft-title" className="text-foreground">Title</Label>
               <Input
                 id="draft-title"
                 value={draftFormData.title}
                 onChange={(e) => setDraftFormData(prev => ({ ...prev, title: e.target.value }))}
                 placeholder="Enter content title"
-                className="bg-white/5 border-white/10 text-[#f5f5f5] placeholder:text-[#666]"
+                className="bg-muted border text-foreground placeholder:text-muted-foreground/60"
               />
             </div>
             <div>
-              <Label htmlFor="draft-content" className="text-[#f5f5f5]">Content</Label>
+              <Label htmlFor="draft-content" className="text-foreground">Content</Label>
               <Textarea
                 id="draft-content"
                 value={draftFormData.content}
                 onChange={(e) => setDraftFormData(prev => ({ ...prev, content: e.target.value }))}
                 placeholder="Start writing your content..."
                 rows={12}
-                className="bg-white/5 border-white/10 text-[#f5f5f5] placeholder:text-[#666]"
+                className="bg-muted border text-foreground placeholder:text-muted-foreground/60"
               />
             </div>
             <div>
-              <Label className="text-[#f5f5f5]">LayoutTemplate (Optional)</Label>
+              <Label className="text-foreground">LayoutTemplate (Optional)</Label>
               <Select value={draftFormData.templateId} onValueChange={(value) => setDraftFormData(prev => ({ ...prev, templateId: value }))}>
-                <SelectTrigger className="bg-white/5 border-white/10 text-[#f5f5f5]">
+                <SelectTrigger className="bg-muted border text-foreground">
                   <SelectValue placeholder="Select a template (optional)" />
                 </SelectTrigger>
-                <SelectContent className="glass bg-[#0a0a0a]/95 border border-white/10">
-                  <SelectItem value="" className="text-[#f5f5f5] focus:bg-white/10">No LayoutTemplate</SelectItem>
-                  {templates?.map((template) => (
-                    <SelectItem key={template._id} value={template._id} className="text-[#f5f5f5] focus:bg-white/10">
+                <SelectContent className="bg-background-elevated border">
+                  <SelectItem value="" className="text-foreground focus:bg-muted">No LayoutTemplate</SelectItem>
+                  {templates?.map((template: ContentTemplate) => (
+                    <SelectItem key={template._id} value={template._id} className="text-foreground focus:bg-muted">
                       {template.name}
                     </SelectItem>
                   ))}
@@ -1076,7 +1076,7 @@ export default function ContentPage() {
             <Button
               variant="outline"
               onClick={() => setCreateDraftDialogOpen(false)}
-              className="bg-white/5 border-white/10 text-[#a3a3a3] hover:bg-white/10"
+              className="bg-muted border text-muted-foreground hover:bg-muted/80"
             >
               Cancel
             </Button>
@@ -1093,33 +1093,33 @@ export default function ContentPage() {
 
       {/* Edit Draft Dialog */}
       <Dialog open={!!editingDraft} onOpenChange={() => setEditingDraft(null)}>
-        <DialogContent className="max-w-2xl glass bg-[#0a0a0a]/95 border border-white/10">
+        <DialogContent className="max-w-2xl bg-background-elevated border">
           <DialogHeader>
-            <DialogTitle className="text-[#f5f5f5]">Edit Content Draft</DialogTitle>
-            <DialogDescription className="text-[#a3a3a3]">
+            <DialogTitle className="text-foreground">Edit Content Draft</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Make changes to your content draft
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit-draft-title" className="text-[#f5f5f5]">Title</Label>
+              <Label htmlFor="edit-draft-title" className="text-foreground">Title</Label>
               <Input
                 id="edit-draft-title"
                 value={draftFormData.title}
                 onChange={(e) => setDraftFormData(prev => ({ ...prev, title: e.target.value }))}
                 placeholder="Enter content title"
-                className="bg-white/5 border-white/10 text-[#f5f5f5] placeholder:text-[#666]"
+                className="bg-muted border text-foreground placeholder:text-muted-foreground/60"
               />
             </div>
             <div>
-              <Label htmlFor="edit-draft-content" className="text-[#f5f5f5]">Content</Label>
+              <Label htmlFor="edit-draft-content" className="text-foreground">Content</Label>
               <Textarea
                 id="edit-draft-content"
                 value={draftFormData.content}
                 onChange={(e) => setDraftFormData(prev => ({ ...prev, content: e.target.value }))}
                 placeholder="Start writing your content..."
                 rows={12}
-                className="bg-white/5 border-white/10 text-[#f5f5f5] placeholder:text-[#666]"
+                className="bg-muted border text-foreground placeholder:text-muted-foreground/60"
               />
             </div>
           </div>
@@ -1127,7 +1127,7 @@ export default function ContentPage() {
             <Button
               variant="outline"
               onClick={() => setEditingDraft(null)}
-              className="bg-white/5 border-white/10 text-[#a3a3a3] hover:bg-white/10"
+              className="bg-muted border text-muted-foreground hover:bg-muted/80"
             >
               Cancel
             </Button>
@@ -1144,62 +1144,62 @@ export default function ContentPage() {
 
       {/* Create LayoutTemplate Dialog */}
       <Dialog open={createLayoutTemplateDialogOpen} onOpenChange={setCreateLayoutTemplateDialogOpen}>
-        <DialogContent className="max-w-2xl glass bg-[#0a0a0a]/95 border border-white/10">
+        <DialogContent className="max-w-2xl bg-background-elevated border">
           <DialogHeader>
-            <DialogTitle className="text-[#f5f5f5]">Create Content LayoutTemplate</DialogTitle>
-            <DialogDescription className="text-[#a3a3a3]">
+            <DialogTitle className="text-foreground">Create Content LayoutTemplate</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Create a reusable template for content creation
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="template-name" className="text-[#f5f5f5]">LayoutTemplate Name</Label>
+                <Label htmlFor="template-name" className="text-foreground">LayoutTemplate Name</Label>
                 <Input
                   id="template-name"
                   value={templateFormData.name}
                   onChange={(e) => setLayoutTemplateFormData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Enter template name"
-                  className="bg-white/5 border-white/10 text-[#f5f5f5] placeholder:text-[#666]"
+                  className="bg-muted border text-foreground placeholder:text-muted-foreground/60"
                 />
               </div>
               <div>
-                <Label className="text-[#f5f5f5]">Category</Label>
+                <Label className="text-foreground">Category</Label>
                 <Select value={templateFormData.category} onValueChange={(value) => setLayoutTemplateFormData(prev => ({ ...prev, category: value }))}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-[#f5f5f5]">
+                  <SelectTrigger className="bg-muted border text-foreground">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent className="glass bg-[#0a0a0a]/95 border border-white/10">
-                    <SelectItem value="blog" className="text-[#f5f5f5] focus:bg-white/10">Blog Post</SelectItem>
-                    <SelectItem value="social" className="text-[#f5f5f5] focus:bg-white/10">Social Media</SelectItem>
-                    <SelectItem value="newsletter" className="text-[#f5f5f5] focus:bg-white/10">Newsletter</SelectItem>
-                    <SelectItem value="report" className="text-[#f5f5f5] focus:bg-white/10">Report</SelectItem>
+                  <SelectContent className="bg-background-elevated border">
+                    <SelectItem value="blog" className="text-foreground focus:bg-muted">Blog Post</SelectItem>
+                    <SelectItem value="social" className="text-foreground focus:bg-muted">Social Media</SelectItem>
+                    <SelectItem value="newsletter" className="text-foreground focus:bg-muted">Newsletter</SelectItem>
+                    <SelectItem value="report" className="text-foreground focus:bg-muted">Report</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div>
-              <Label htmlFor="template-description" className="text-[#f5f5f5]">Description</Label>
+              <Label htmlFor="template-description" className="text-foreground">Description</Label>
               <Input
                 id="template-description"
                 value={templateFormData.description}
                 onChange={(e) => setLayoutTemplateFormData(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Describe what this template is for"
-                className="bg-white/5 border-white/10 text-[#f5f5f5] placeholder:text-[#666]"
+                className="bg-muted border text-foreground placeholder:text-muted-foreground/60"
               />
             </div>
             <div>
-              <Label htmlFor="template-content" className="text-[#f5f5f5]">LayoutTemplate Content</Label>
+              <Label htmlFor="template-content" className="text-foreground">LayoutTemplate Content</Label>
               <Textarea
                 id="template-content"
                 value={templateFormData.template}
                 onChange={(e) => setLayoutTemplateFormData(prev => ({ ...prev, template: e.target.value }))}
                 placeholder="Use {{variable_name}} for dynamic content..."
                 rows={8}
-                className="bg-white/5 border-white/10 text-[#f5f5f5] placeholder:text-[#666]"
+                className="bg-muted border text-foreground placeholder:text-muted-foreground/60"
               />
-              <p className="text-xs text-[#666] mt-1">
-                Use double curly braces for variables: {{title}}, {{content}}, etc.
+              <p className="text-xs text-muted-foreground/60 mt-1">
+                {"Use double curly braces for variables: {{title}}, {{content}}, etc."}
               </p>
             </div>
           </div>
@@ -1207,7 +1207,7 @@ export default function ContentPage() {
             <Button
               variant="outline"
               onClick={() => setCreateLayoutTemplateDialogOpen(false)}
-              className="bg-white/5 border-white/10 text-[#a3a3a3] hover:bg-white/10"
+              className="bg-muted border text-muted-foreground hover:bg-muted/80"
             >
               Cancel
             </Button>
@@ -1224,64 +1224,64 @@ export default function ContentPage() {
 
       {/* Save Idea Dialog */}
       <Dialog open={saveIdeaDialogOpen} onOpenChange={setSaveIdeaDialogOpen}>
-        <DialogContent className="max-w-lg glass bg-[#0a0a0a]/95 border border-white/10">
+        <DialogContent className="max-w-lg bg-background-elevated border">
           <DialogHeader>
-            <DialogTitle className="text-[#f5f5f5]">Save Content Idea</DialogTitle>
-            <DialogDescription className="text-[#a3a3a3]">
+            <DialogTitle className="text-foreground">Save Content Idea</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Capture a content idea for future development
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="idea-title" className="text-[#f5f5f5]">Idea Title</Label>
+              <Label htmlFor="idea-title" className="text-foreground">Idea Title</Label>
               <Input
                 id="idea-title"
                 value={ideaFormData.title}
                 onChange={(e) => setIdeaFormData(prev => ({ ...prev, title: e.target.value }))}
                 placeholder="Enter your content idea"
-                className="bg-white/5 border-white/10 text-[#f5f5f5] placeholder:text-[#666]"
+                className="bg-muted border text-foreground placeholder:text-muted-foreground/60"
               />
             </div>
             <div>
-              <Label htmlFor="idea-description" className="text-[#f5f5f5]">Description</Label>
+              <Label htmlFor="idea-description" className="text-foreground">Description</Label>
               <Textarea
                 id="idea-description"
                 value={ideaFormData.description}
                 onChange={(e) => setIdeaFormData(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Describe your idea in detail..."
                 rows={4}
-                className="bg-white/5 border-white/10 text-[#f5f5f5] placeholder:text-[#666]"
+                className="bg-muted border text-foreground placeholder:text-muted-foreground/60"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-[#f5f5f5]">Content Type</Label>
+                <Label className="text-foreground">Content Type</Label>
                 <Select value={ideaFormData.type} onValueChange={(value: ContentType) => setIdeaFormData(prev => ({ ...prev, type: value }))}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-[#f5f5f5]">
+                  <SelectTrigger className="bg-muted border text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="glass bg-[#0a0a0a]/95 border border-white/10">
-                    <SelectItem value="blog" className="text-[#f5f5f5] focus:bg-white/10">Blog Post</SelectItem>
-                    <SelectItem value="social" className="text-[#f5f5f5] focus:bg-white/10">Social Media</SelectItem>
-                    <SelectItem value="newsletter" className="text-[#f5f5f5] focus:bg-white/10">Newsletter</SelectItem>
-                    <SelectItem value="report" className="text-[#f5f5f5] focus:bg-white/10">Report</SelectItem>
+                  <SelectContent className="bg-background-elevated border">
+                    <SelectItem value="blog" className="text-foreground focus:bg-muted">Blog Post</SelectItem>
+                    <SelectItem value="social" className="text-foreground focus:bg-muted">Social Media</SelectItem>
+                    <SelectItem value="newsletter" className="text-foreground focus:bg-muted">Newsletter</SelectItem>
+                    <SelectItem value="report" className="text-foreground focus:bg-muted">Report</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="idea-words" className="text-[#f5f5f5]">Est. Word Count</Label>
+                <Label htmlFor="idea-words" className="text-foreground">Est. Word Count</Label>
                 <Input
                   id="idea-words"
                   type="number"
                   value={ideaFormData.estimatedWordCount}
                   onChange={(e) => setIdeaFormData(prev => ({ ...prev, estimatedWordCount: parseInt(e.target.value) || 0 }))}
                   placeholder="500"
-                  className="bg-white/5 border-white/10 text-[#f5f5f5] placeholder:text-[#666]"
+                  className="bg-muted border text-foreground placeholder:text-muted-foreground/60"
                 />
               </div>
             </div>
             <div>
-              <Label className="text-[#f5f5f5]">Priority</Label>
+              <Label className="text-foreground">Priority</Label>
               <div className="flex items-center gap-2 mt-2">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <button
@@ -1289,11 +1289,11 @@ export default function ContentPage() {
                     onClick={() => setIdeaFormData(prev => ({ ...prev, priority: i + 1 }))}
                     className={cn(
                       "w-4 h-4 rounded-full transition-colors",
-                      i < ideaFormData.priority ? "bg-yellow-400" : "bg-gray-600 hover:bg-gray-500"
+                      i < ideaFormData.priority ? "bg-amber-400" : "bg-gray-600 hover:bg-gray-500"
                     )}
                   />
                 ))}
-                <span className="text-sm text-[#a3a3a3] ml-2">{ideaFormData.priority}/5</span>
+                <span className="text-sm text-muted-foreground ml-2">{ideaFormData.priority}/5</span>
               </div>
             </div>
           </div>
@@ -1301,7 +1301,7 @@ export default function ContentPage() {
             <Button
               variant="outline"
               onClick={() => setSaveIdeaDialogOpen(false)}
-              className="bg-white/5 border-white/10 text-[#a3a3a3] hover:bg-white/10"
+              className="bg-muted border text-muted-foreground hover:bg-muted/80"
             >
               Cancel
             </Button>
@@ -1319,22 +1319,22 @@ export default function ContentPage() {
 
       {/* Schedule Draft Dialog */}
       <Dialog open={scheduleDialogOpen} onOpenChange={setScheduleDialogOpen}>
-        <DialogContent className="max-w-lg glass bg-[#0a0a0a]/95 border border-white/10">
+        <DialogContent className="max-w-lg bg-background-elevated border">
           <DialogHeader>
-            <DialogTitle className="text-[#f5f5f5]">Schedule Draft</DialogTitle>
-            <DialogDescription className="text-[#a3a3a3]">
+            <DialogTitle className="text-foreground">Schedule Draft</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Set when this draft should be published
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="schedule-date" className="text-[#f5f5f5]">Publish Date & Time</Label>
+              <Label htmlFor="schedule-date" className="text-foreground">Publish Date & Time</Label>
               <Input
                 id="schedule-date"
                 type="datetime-local"
                 value={scheduleData.scheduledAt}
                 onChange={(e) => setScheduleData(prev => ({ ...prev, scheduledAt: e.target.value }))}
-                className="bg-white/5 border-white/10 text-[#f5f5f5]"
+                className="bg-muted border text-foreground"
               />
             </div>
           </div>
@@ -1342,7 +1342,7 @@ export default function ContentPage() {
             <Button
               variant="outline"
               onClick={() => setScheduleDialogOpen(false)}
-              className="bg-white/5 border-white/10 text-[#a3a3a3] hover:bg-white/10"
+              className="bg-muted border text-muted-foreground hover:bg-muted/80"
             >
               Cancel
             </Button>

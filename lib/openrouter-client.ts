@@ -66,7 +66,7 @@ export async function callOpenRouter(
         headers: {
           "Authorization": `Bearer ${apiKey}`,
           "Content-Type": "application/json",
-          "X-Title": "SysInno Innovation Platform"
+          "X-Title": "Airbour Innovation Platform"
         },
         body: JSON.stringify({
           model,

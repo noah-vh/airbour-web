@@ -47,14 +47,20 @@ export const generateNewsletterSection = action({
     signalIds: v.array(v.id("signals")),
     mentionIds: v.array(v.id("raw_mentions")),
     customContext: v.optional(v.string()),
+    voiceContext: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const signalsContext = await buildSignalContext(ctx, args.signalIds);
     const mentionsContext = await buildMentionContext(ctx, args.mentionIds);
 
+    // Build voice instructions
+    const voiceInstructions = args.voiceContext
+      ? `\n\nVOICE/PERSPECTIVE:\n${args.voiceContext}\n`
+      : '';
+
     // Build section-specific prompt
     let prompt = '';
-    let systemPrompt = 'You are an expert innovation newsletter writer.';
+    let systemPrompt = `You are an expert innovation newsletter writer.${voiceInstructions}`;
 
     switch (args.sectionType) {
       case 'header':
@@ -112,7 +118,7 @@ export const generateNewsletterSection = action({
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "X-Title": "SysInno Innovation Platform"
+        "X-Title": "Airbour Innovation Platform"
       },
       body: JSON.stringify({
         model: "anthropic/claude-3.5-sonnet",

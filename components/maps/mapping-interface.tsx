@@ -56,7 +56,8 @@ export function MappingInterface() {
   const signals = useQuery(api.signals.listSignalsWithUpdates, {})
 
   // Transform signals to match expected format
-  const transformedSignals: Signal[] = (signals || []).map(signal => ({
+  type ConvexSignal = NonNullable<typeof signals>[number];
+  const transformedSignals: Signal[] = (signals || []).map((signal: ConvexSignal) => ({
     _id: signal._id,
     id: signal._id, // Add id field for compatibility
     signal_name: signal.name || "Untitled Signal",
