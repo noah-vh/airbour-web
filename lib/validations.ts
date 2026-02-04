@@ -171,10 +171,10 @@ export const validationHelpers = {
       return { success: true, data: result };
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const firstError = error.errors[0];
+        const firstError = error.issues[0];
         return {
           success: false,
-          error: firstError.message || "Validation failed"
+          error: firstError?.message || "Validation failed"
         };
       }
       return { success: false, error: "Validation failed" };
@@ -190,7 +190,7 @@ export const validationHelpers = {
       return [];
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return error.errors.map(err => `${err.path.join(".")}: ${err.message}`);
+        return error.issues.map((issue: z.ZodIssue) => `${issue.path.join(".")}: ${issue.message}`);
       }
       return ["Validation failed"];
     }
