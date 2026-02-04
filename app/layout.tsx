@@ -1,24 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexProviderWrapper } from "./convex-provider";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "next-themes";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "SysInno - Innovation Monitoring",
-  description: "Innovation signal monitoring and analysis dashboard",
+  title: "Airbour - Intelligence That Learns Your Business",
+  description: "AI-powered innovation intelligence platform. Gather signals, generate content, and get personalized recommendations.",
 };
 
 export default function RootLayout({
@@ -29,10 +18,22 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <head>
+          {/* Cactus Classical Serif from Google Fonts */}
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Cactus+Classical+Serif&display=swap"
+            rel="stylesheet"
+          />
+          {/* Satoshi from Fontshare */}
+          <link
+            href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap"
+            rel="stylesheet"
+          />
+        </head>
+        <body className="font-sans antialiased">
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
             <ConvexProviderWrapper>{children}</ConvexProviderWrapper>
             <Toaster richColors position="top-right" />
           </ThemeProvider>
