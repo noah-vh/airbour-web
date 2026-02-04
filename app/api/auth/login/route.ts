@@ -6,14 +6,18 @@ function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password).digest("hex");
 }
 
-// Pre-computed SHA-256 hash (set DEMO_PASSWORD_HASH env var to override)
-const DEMO_PASSWORD_HASH = "6147537f8d6af65bb643839036f23ff02420e045229c36d5a6df4afa1e34478c";
+// Password hash must be set in environment variables for security
 
 export async function POST(request: NextRequest) {
   const { password } = await request.json();
 
-  // Use env variable if set, otherwise use the hardcoded hash
-  const expectedHash = process.env.DEMO_PASSWORD_HASH || DEMO_PASSWORD_HASH;
+  // Get hash from environment variable
+  const expectedHash = process.env.DEMO_PASSWORD_HASH;
+
+  if (!expectedHash) {
+    console.error("DEMO_PASSWORD_HASH environment variable not set");
+    return NextResponse.json({ error: "Auth not configured" }, { status: 500 });
+  }
   const providedHash = hashPassword(password);
 
   if (providedHash === expectedHash) {
