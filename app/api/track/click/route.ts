@@ -3,7 +3,14 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+// Lazy initialization to avoid build-time errors
+function getConvexClient() {
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!url) {
+    throw new Error("NEXT_PUBLIC_CONVEX_URL not configured");
+  }
+  return new ConvexHttpClient(url);
+}
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -33,6 +40,7 @@ export async function GET(request: NextRequest) {
   // Record the click event asynchronously
   if (newsletterId && subscriberId) {
     try {
+      const convex = getConvexClient();
       await convex.mutation(api.emailEvents.recordClick, {
         newsletterId: newsletterId as Id<"newsletters">,
         subscriberId: subscriberId as Id<"subscribers">,
