@@ -3,7 +3,7 @@
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 
-export const collectHackerNewsManual = action({
+export const collectHackerNewsManual: ReturnType<typeof action> = action({
   args: {
     storyTypes: v.array(v.string()), // ["top", "new", "best", "ask", "show"]
     limit: v.optional(v.number()),
@@ -51,7 +51,7 @@ export const collectHackerNewsManual = action({
   },
 });
 
-export const collectHackerNews = action({
+export const collectHackerNews: ReturnType<typeof action> = action({
   args: {
     sourceId: v.id("sources"),
     config: v.optional(v.object({

@@ -7,21 +7,24 @@ const crons = cronJobs();
 crons.interval(
   "process-scheduled-newsletters",
   { minutes: 5 },
-  internal.scheduler.processScheduledNewsletters
+  internal.scheduler.processScheduledNewsletters,
+  {}
 );
 
 // Collect signals from all sources every 6 hours
 crons.interval(
   "collect-signals",
   { hours: 6 },
-  internal.scheduler.collectAllSignals
+  internal.scheduler.collectAllSignals,
+  {}
 );
 
 // Aggregate email metrics every hour
 crons.interval(
   "aggregate-metrics",
   { hours: 1 },
-  internal.scheduler.aggregateMetrics
+  internal.scheduler.aggregateMetrics,
+  {}
 );
 
 export default crons;

@@ -3,7 +3,7 @@
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 
-export const classify = action({
+export const classify: ReturnType<typeof action> = action({
   args: {
     content: v.string(),
     categories: v.optional(v.array(v.string())),
@@ -29,12 +29,12 @@ export const classify = action({
 
     // Mock classification results
     const classifications = categories
-      .map(category => ({
+      .map((category: any) => ({
         category,
         confidence: Math.random(),
         relevanceScore: Math.random(),
       }))
-      .filter(result => result.confidence >= threshold)
+      .filter((result: any) => result.confidence >= threshold)
       .sort((a, b) => b.confidence - a.confidence)
       .slice(0, 3);
 

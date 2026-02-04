@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
 import {
   Search,
@@ -50,7 +49,6 @@ interface ContentItem {
 type ViewMode = "all" | "drafts" | "scheduled" | "published";
 
 export default function ContentLibraryPage() {
-  const { isCollapsed } = useSidebar();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("all");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -202,10 +200,7 @@ export default function ContentLibraryPage() {
   };
 
   return (
-    <div className={cn(
-      "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-background",
-      isCollapsed ? "left-16" : "left-64"
-    )}>
+    <div className="min-h-screen">
       <motion.div
         variants={containerVariants}
         initial="hidden"

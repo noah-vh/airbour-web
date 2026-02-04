@@ -200,22 +200,28 @@ export const list = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db.query("content_drafts");
+    const limit = args.limit || 50;
 
     if (args.status) {
-      query = query.withIndex("by_status", (q) => q.eq("status", args.status));
+      return await ctx.db.query("content_drafts")
+        .withIndex("by_status", (q) => q.eq("status", args.status!))
+        .order("desc")
+        .take(limit);
     } else if (args.stage) {
-      query = query.withIndex("by_stage", (q) => q.eq("stage", args.stage));
+      return await ctx.db.query("content_drafts")
+        .withIndex("by_stage", (q) => q.eq("stage", args.stage!))
+        .order("desc")
+        .take(limit);
     } else if (args.platform) {
-      query = query.withIndex("by_platform", (q) => q.eq("platform", args.platform));
+      return await ctx.db.query("content_drafts")
+        .withIndex("by_platform", (q) => q.eq("platform", args.platform!))
+        .order("desc")
+        .take(limit);
     } else {
-      query = query.withIndex("by_created");
+      return await ctx.db.query("content_drafts")
+        .withIndex("by_created")
+        .order("desc")
+        .take(limit);
     }
-
-    const drafts = await query
-      .order("desc")
-      .take(args.limit || 50);
-
-    return drafts;
   },
 });

@@ -3,7 +3,7 @@
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 
-export const generateContentIdeas = action({
+export const generateContentIdeas: ReturnType<typeof action> = action({
   args: {
     topic: v.string(),
     audience: v.optional(v.string()),

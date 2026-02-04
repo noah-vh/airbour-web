@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
 import {
   User,
@@ -72,7 +71,6 @@ const mockStats = {
 };
 
 export default function TeamMemberProfile() {
-  const { isCollapsed } = useSidebar();
   const params = useParams();
   const memberId = params.memberId as string;
 
@@ -118,10 +116,7 @@ export default function TeamMemberProfile() {
   };
 
   return (
-    <div className={cn(
-      "fixed right-0 top-0 bottom-0 overflow-auto transition-all duration-300 bg-background",
-      isCollapsed ? "left-16" : "left-64"
-    )}>
+    <div className="min-h-screen">
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

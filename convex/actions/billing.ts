@@ -243,7 +243,7 @@ export const getSubscriptionStatus: ReturnType<typeof action> = action({
     try {
       const subscription = await stripe.subscriptions.retrieve(
         organization.stripeSubscriptionId
-      );
+      ) as any;
 
       return {
         status: subscription.status,

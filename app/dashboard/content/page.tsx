@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -99,7 +98,6 @@ interface ContentIdea {
 }
 
 export default function ContentPage() {
-  const { isCollapsed } = useSidebar();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("drafts");
@@ -391,18 +389,14 @@ export default function ContentPage() {
 
   // Calculate stats
   const totalDrafts = drafts?.length || 0;
-  const draftCount = drafts?.filter((d: ContentDraft) => d.status === "draft").length || 0;
-  const scheduledCount = drafts?.filter((d: ContentDraft) => d.status === "scheduled").length || 0;
-  const publishedCount = drafts?.filter((d: ContentDraft) => d.status === "published").length || 0;
+  const draftCount = drafts?.filter((d: any) => d.status === "draft").length || 0;
+  const scheduledCount = drafts?.filter((d: any) => d.status === "scheduled").length || 0;
+  const publishedCount = drafts?.filter((d: any) => d.status === "published").length || 0;
   const totalLayoutTemplates = templates?.length || 0;
   const totalIdeas = savedIdeas?.length || 0;
 
   return (
-    <div className={cn(
-      "fixed right-0 top-0 bottom-0 transition-all duration-300 bg-background",
-      isCollapsed ? "left-16" : "left-64",
-      sidePanelOpen ? "right-96" : "right-0"
-    )}>
+    <div className="min-h-screen">
       <div className="p-6 space-y-6 h-full overflow-auto">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -573,7 +567,7 @@ export default function ContentPage() {
 
                 {drafts && drafts.length > 0 ? (
                   <div className="space-y-4">
-                    {drafts.map((draft: ContentDraft) => (
+                    {drafts.map((draft: any) => (
                       <div
                         key={draft._id}
                         className="flex items-center justify-between p-4 rounded-lg bg-muted border hover:bg-muted/80 transition-colors cursor-pointer"
@@ -685,7 +679,7 @@ export default function ContentPage() {
 
                 {templates && templates.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {templates.map((template: ContentTemplate) => (
+                    {templates.map((template: any) => (
                       <div
                         key={template._id}
                         className="p-4 rounded-lg bg-muted border hover:bg-muted/80 transition-colors cursor-pointer"
@@ -751,7 +745,7 @@ export default function ContentPage() {
 
                 {savedIdeas && savedIdeas.length > 0 ? (
                   <div className="space-y-4">
-                    {savedIdeas.map((idea: ContentIdea) => (
+                    {savedIdeas.map((idea: any) => (
                       <div
                         key={idea._id}
                         className="flex items-center justify-between p-4 rounded-lg bg-muted border hover:bg-muted/80 transition-colors cursor-pointer"
@@ -1063,7 +1057,7 @@ export default function ContentPage() {
                 </SelectTrigger>
                 <SelectContent className="bg-background-elevated border">
                   <SelectItem value="" className="text-foreground focus:bg-muted">No LayoutTemplate</SelectItem>
-                  {templates?.map((template: ContentTemplate) => (
+                  {templates?.map((template: any) => (
                     <SelectItem key={template._id} value={template._id} className="text-foreground focus:bg-muted">
                       {template.name}
                     </SelectItem>

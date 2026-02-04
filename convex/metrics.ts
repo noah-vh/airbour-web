@@ -240,7 +240,7 @@ export const getTagAnalysis = query({
         const keywords = signal.classificationReasoningConcise
           .toLowerCase()
           .match(/\b\w+\b/g) || []
-        tags.push(...keywords.filter(w => w.length > 3))
+        tags.push(...keywords.filter((w: string) => w.length > 3))
       }
 
       // From description
@@ -248,7 +248,7 @@ export const getTagAnalysis = query({
         const keywords = signal.description
           .toLowerCase()
           .match(/\b\w+\b/g) || []
-        tags.push(...keywords.filter(w => w.length > 3))
+        tags.push(...keywords.filter((w: string) => w.length > 3))
       }
 
       // Process tags
@@ -275,7 +275,7 @@ export const getTagAnalysis = query({
 
     // Filter and sort tags
     const filteredTags = Object.entries(tagCounts)
-      .filter(([_, data]) => data.count >= minCount)
+      .filter(([_tag, data]) => data.count >= minCount)
       .sort((a, b) => b[1].count - a[1].count)
       .slice(0, limit)
       .map(([tag, data]) => ({

@@ -96,7 +96,7 @@ export default function SubscribersPage() {
   const updateTags = useMutation(api.subscribers.updateTags);
 
   // Filter subscribers based on search and filters
-  const filteredSubscribers = subscribers?.filter((sub: Subscriber) => {
+  const filteredSubscribers = subscribers?.filter((sub: any) => {
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -133,16 +133,16 @@ export default function SubscribersPage() {
 
   // Get unique tags from all subscribers
   const allTags: string[] = Array.from(
-    new Set(subscribers?.flatMap((sub: Subscriber) => sub.tags || []) || [])
+    new Set(subscribers?.flatMap((sub: any) => sub.tags || []) || [])
   ).sort() as string[];
 
   // Get unique sources
   const allSources: string[] = Array.from(
-    new Set(subscribers?.map((sub: Subscriber) => sub.source) || [])
+    new Set(subscribers?.map((sub: any) => sub.source) || [])
   ).sort() as string[];
 
   // Handler functions
-  const handleSubscriberClick = (subscriber: Subscriber) => {
+  const handleSubscriberClick = (subscriber: any) => {
     setSelectedSubscriber(subscriber);
     setSidePanelOpen(true);
   };
@@ -208,7 +208,7 @@ export default function SubscribersPage() {
 
     try {
       for (const id of selectedSubscribers) {
-        const subscriber = subscribers?.find((s: Subscriber) => s._id === id);
+        const subscriber = subscribers?.find((s: any) => s._id === id);
         if (subscriber) {
           const currentTags = subscriber.tags || [];
           if (!currentTags.includes(newTag.trim())) {
@@ -244,11 +244,11 @@ export default function SubscribersPage() {
 
   const handleExportCSV = () => {
     const dataToExport = selectedSubscribers.length > 0
-      ? filteredSubscribers.filter((s: Subscriber) => selectedSubscribers.includes(s._id))
+      ? filteredSubscribers.filter((s: any) => selectedSubscribers.includes(s._id))
       : filteredSubscribers;
 
     const headers = ["Email", "Name", "Status", "Source", "Tags", "Joined"];
-    const rows = dataToExport.map((sub: Subscriber) => [
+    const rows = dataToExport.map((sub: any) => [
       sub.email,
       sub.name || "",
       sub.status,
@@ -572,7 +572,7 @@ export default function SubscribersPage() {
                           checked={selectedSubscribers.length === filteredSubscribers.length && filteredSubscribers.length > 0}
                           onCheckedChange={(checked) => {
                             if (checked) {
-                              setSelectedSubscribers(filteredSubscribers.map((s: Subscriber) => s._id));
+                              setSelectedSubscribers(filteredSubscribers.map((s: any) => s._id));
                             } else {
                               setSelectedSubscribers([]);
                             }
@@ -590,7 +590,7 @@ export default function SubscribersPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredSubscribers.map((subscriber: Subscriber) => (
+                    {filteredSubscribers.map((subscriber: any) => (
                       <TableRow
                         key={subscriber._id}
                         className="border-border hover:bg-muted cursor-pointer"
@@ -627,7 +627,7 @@ export default function SubscribersPage() {
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
                             {subscriber.tags && subscriber.tags.length > 0 ? (
-                              subscriber.tags.slice(0, 2).map(tag => (
+                              subscriber.tags.slice(0, 2).map((tag: string) => (
                                 <Badge
                                   key={tag}
                                   variant="outline"
@@ -795,7 +795,7 @@ export default function SubscribersPage() {
                     <div className="space-y-3">
                       {subscriberEvents
                         .sort((a: { timestamp: number }, b: { timestamp: number }) => b.timestamp - a.timestamp)
-                        .map((event: { _id: string; type: string; eventType: string; timestamp: number; metadata?: { type?: string; subject?: string; url?: string } }) => (
+                        .map((event: { _id: string; eventType: string; timestamp: number; metadata?: { url?: string } }) => (
                           <div
                             key={event._id}
                             className="flex items-start gap-3 p-3 rounded-lg bg-muted border border-border"

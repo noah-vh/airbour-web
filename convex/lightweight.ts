@@ -41,15 +41,14 @@ export const getSignalsLightweight = query({
   handler: async (ctx, args) => {
     const limit = args.limit || 20
 
-    let signalsQuery = ctx.db.query("signals")
-
-    if (args.lifecycle) {
-      signalsQuery = signalsQuery.withIndex("by_lifecycle", q => q.eq("lifecycle", args.lifecycle))
-    } else {
-      signalsQuery = signalsQuery.withIndex("by_creation").order("desc")
-    }
-
-    const signals = await signalsQuery.take(limit)
+    const signals = args.lifecycle
+      ? await ctx.db.query("signals")
+          .withIndex("by_lifecycle", q => q.eq("lifecycle", args.lifecycle!))
+          .take(limit)
+      : await ctx.db.query("signals")
+          .withIndex("by_creation")
+          .order("desc")
+          .take(limit)
 
     return signals.map(signal => ({
       _id: signal._id,

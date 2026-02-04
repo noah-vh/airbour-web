@@ -2,7 +2,7 @@
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 
-export const collectRedditManual = action({
+export const collectRedditManual: ReturnType<typeof action> = action({
   args: {
     subreddits: v.array(v.string()),
     sortBy: v.optional(v.string()), // "hot", "new", "top", "rising"
@@ -70,7 +70,7 @@ export const collectRedditManual = action({
   },
 });
 
-export const collectReddit = action({
+export const collectReddit: ReturnType<typeof action> = action({
   args: {
     sourceId: v.id("sources"),
     config: v.optional(v.object({

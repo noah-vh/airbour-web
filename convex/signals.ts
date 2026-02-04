@@ -332,9 +332,10 @@ export const listSignalsForNewsletter = query({
     let signals = await ctx.db.query("signals").collect();
 
     // Filter by confidence
-    if (args.minConfidence) {
+    if (args.minConfidence !== undefined) {
+      const minConf = args.minConfidence;
       signals = signals.filter(signal =>
-        (signal.confidence || 0) >= args.minConfidence
+        (signal.confidence || 0) >= minConf
       );
     }
 
@@ -420,8 +421,8 @@ export const getSignalsByLifecycle = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db.query("signals")
-      .filter(q => q.eq(q.field("behaviorLayer"), args.lifecycle));
+    const query = ctx.db.query("signals")
+      .withIndex("by_lifecycle", q => q.eq("lifecycle", args.lifecycle));
 
     const signals = await query.collect();
     const limit = args.limit || 50;
@@ -443,13 +444,12 @@ export const getSignalsBySteep = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db.query("signals")
-      .filter(q => q.eq(q.field("classifiedBy"), args.steep));
+    const signals = await ctx.db.query("signals").collect();
 
-    const signals = await query.collect();
+    const filteredSignals = signals.filter(signal => signal.classifiedBy === args.steep);
     const limit = args.limit || 50;
 
-    return signals.slice(0, limit).map(signal => ({
+    return filteredSignals.slice(0, limit).map(signal => ({
       _id: signal._id,
       name: signal.description || "Untitled Signal",
       description: signal.classificationReasoningConcise || "",
@@ -662,19 +662,24 @@ export const listSignalUpdates = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db.query("signal_updates");
-
     if (args.signalId) {
-      query = query.withIndex("by_signal", (q) => q.eq("signalId", args.signalId));
+      const query = ctx.db.query("signal_updates")
+        .withIndex("by_signal", (q) => q.eq("signalId", args.signalId!))
+        .order("desc");
+
+      if (args.limit) {
+        return await query.take(args.limit);
+      }
+      return await query.collect();
+    } else {
+      const query = ctx.db.query("signal_updates")
+        .order("desc");
+
+      if (args.limit) {
+        return await query.take(args.limit);
+      }
+      return await query.collect();
     }
-
-    query = query.order("desc");
-
-    if (args.limit) {
-      return await query.take(args.limit);
-    }
-
-    return await query.collect();
   },
 });
 

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexProviderWrapper } from "./convex-provider";
+import { ClerkWrapper } from "./clerk-provider";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
@@ -16,29 +16,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <head>
-          {/* Cactus Classical Serif from Google Fonts */}
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-          <link
-            href="https://fonts.googleapis.com/css2?family=Cactus+Classical+Serif&display=swap"
-            rel="stylesheet"
-          />
-          {/* Satoshi from Fontshare */}
-          <link
-            href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap"
-            rel="stylesheet"
-          />
-        </head>
-        <body className="font-sans antialiased">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Cactus Classical Serif from Google Fonts */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cactus+Classical+Serif&display=swap"
+          rel="stylesheet"
+        />
+        {/* Satoshi from Fontshare */}
+        <link
+          href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="font-sans antialiased">
+        <ClerkWrapper>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
             <ConvexProviderWrapper>{children}</ConvexProviderWrapper>
             <Toaster richColors position="top-right" />
           </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkWrapper>
+      </body>
+    </html>
   );
 }

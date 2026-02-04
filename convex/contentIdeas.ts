@@ -77,18 +77,18 @@ export const list = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db.query("content_ideas");
+    const limit = args.limit || 50;
 
     if (args.status) {
-      query = query.withIndex("by_status", (q) => q.eq("status", args.status));
+      return await ctx.db.query("content_ideas")
+        .withIndex("by_status", (q) => q.eq("status", args.status!))
+        .order("desc")
+        .take(limit);
     } else {
-      query = query.withIndex("by_created");
+      return await ctx.db.query("content_ideas")
+        .withIndex("by_created")
+        .order("desc")
+        .take(limit);
     }
-
-    const ideas = await query
-      .order("desc")
-      .take(args.limit || 50);
-
-    return ideas;
   },
 });

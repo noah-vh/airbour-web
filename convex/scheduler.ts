@@ -8,7 +8,7 @@ import { internal, api } from "./_generated/api";
 import { v } from "convex/values";
 
 // Process scheduled newsletters that are due to be sent
-export const processScheduledNewsletters = internalMutation({
+export const processScheduledNewsletters: ReturnType<typeof internalMutation> = internalMutation({
   args: {},
   handler: async (ctx) => {
     const now = Date.now();
@@ -53,7 +53,7 @@ export const processScheduledNewsletters = internalMutation({
 });
 
 // Auto-generate content and then send
-export const autoGenerateAndSend = internalAction({
+export const autoGenerateAndSend: ReturnType<typeof internalAction> = internalAction({
   args: {
     newsletterId: v.id("newsletters"),
   },
@@ -73,7 +73,7 @@ export const autoGenerateAndSend = internalAction({
 });
 
 // Send newsletter (internal wrapper)
-export const sendNewsletterInternal = internalAction({
+export const sendNewsletterInternal: ReturnType<typeof internalAction> = internalAction({
   args: {
     newsletterId: v.id("newsletters"),
   },
@@ -85,7 +85,7 @@ export const sendNewsletterInternal = internalAction({
 });
 
 // Collect signals from all active sources
-export const collectAllSignals = internalMutation({
+export const collectAllSignals: ReturnType<typeof internalMutation> = internalMutation({
   args: {},
   handler: async (ctx) => {
     // Get all active sources
@@ -118,7 +118,7 @@ export const collectAllSignals = internalMutation({
 });
 
 // Collect from a specific source (placeholder - integrates with existing collectors)
-export const collectFromSource = internalMutation({
+export const collectFromSource: ReturnType<typeof internalMutation> = internalMutation({
   args: {
     sourceId: v.id("sources"),
     sourceType: v.string(),
@@ -142,7 +142,7 @@ export const collectFromSource = internalMutation({
 });
 
 // Aggregate email metrics from events
-export const aggregateMetrics = internalMutation({
+export const aggregateMetrics: ReturnType<typeof internalMutation> = internalMutation({
   args: {},
   handler: async (ctx) => {
     // Get newsletters that were sent in the last 7 days

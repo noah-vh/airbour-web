@@ -241,7 +241,7 @@ export default function SignalsDashboard() {
           </div>
 
           <div className="grid grid-cols-5 gap-3">
-            {trendingSignals?.map((signal: LocalSignal, index: number) => (
+            {trendingSignals?.map((signal: any, index: number) => (
               <div
                 key={signal._id}
                 className="bg-[#1C1C1C] rounded-2xl p-4 text-white hover:bg-[#2C2C2C] transition-colors cursor-pointer"
@@ -387,7 +387,7 @@ export default function SignalsDashboard() {
         <motion.div variants={itemVariants}>
           <div className="bg-white rounded-2xl border border-black/[0.04] overflow-hidden">
             {displayedSignals && displayedSignals.length > 0 ? (
-              displayedSignals.map((signal: LocalSignal, index: number, arr: LocalSignal[]) => {
+              displayedSignals.map((signal: any, index: number, arr: any[]) => {
                 const lifecycleConfig = getLifecycleConfig(signal.lifecycle);
                 const isSelected = selectedSignals.includes(signal._id);
 
@@ -461,7 +461,7 @@ export default function SignalsDashboard() {
                             </span>
                           </span>
                           <div className="flex gap-1">
-                            {signal.steep?.map((cat) => {
+                            {signal.steep?.map((cat: string) => {
                               const steepOpt = STEEP_OPTIONS.find(s => s.value === cat);
                               return steepOpt ? (
                                 <span key={cat} className="text-sm" title={steepOpt.label}>{steepOpt.icon}</span>

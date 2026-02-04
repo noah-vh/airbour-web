@@ -281,7 +281,7 @@ export const removeTags = mutation({
     }
 
     const existingTags = document.tags || []
-    const filteredTags = existingTags.filter(tag => !args.tags.includes(tag))
+    const filteredTags = existingTags.filter((tag: string) => !args.tags.includes(tag))
 
     await ctx.db.patch(args.id, {
       tags: filteredTags,
@@ -358,7 +358,7 @@ export const getAvailableTags = query({
 
     const tagCounts = filteredDocs.reduce((acc, doc) => {
       const tags = doc.tags || []
-      tags.forEach(tag => {
+      tags.forEach((tag: string) => {
         acc[tag] = (acc[tag] || 0) + 1
       })
       return acc
@@ -393,7 +393,7 @@ export const getAvailableExpertiseAreas = query({
 
     const areaCounts = filteredDocs.reduce((acc, doc) => {
       const areas = doc.expertiseAreas || []
-      areas.forEach(area => {
+      areas.forEach((area: string) => {
         acc[area] = (acc[area] || 0) + 1
       })
       return acc

@@ -87,7 +87,7 @@ export const validators = {
     }
   },
 
-  isValidId: <T extends string>(id: string): id is Id<T> => {
+  isValidId: (id: string): boolean => {
     return typeof id === "string" && id.length > 0;
   },
 

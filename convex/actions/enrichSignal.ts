@@ -3,7 +3,7 @@
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 
-export const enrichSignal = action({
+export const enrichSignal: ReturnType<typeof action> = action({
   args: {
     signalId: v.string(),
     enrichmentType: v.optional(v.string()),

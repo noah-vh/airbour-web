@@ -8,10 +8,10 @@ import { Id } from "../_generated/dataModel";
 // Helper to build signal context
 async function buildSignalContext(ctx: any, signalIds: Id<"signals">[]) {
   const signals = await Promise.all(
-    signalIds.map(id => ctx.runQuery(api.signals.getSignal, { id }))
+    signalIds.map((id: any) => ctx.runQuery(api.signals.getSignal, { id }))
   );
 
-  return signals.map(signal => `
+  return signals.map((signal: any) => `
 Signal: ${signal.name}
 Lifecycle: ${signal.lifecycle}
 Description: ${signal.description}
@@ -29,10 +29,10 @@ async function buildMentionContext(ctx: any, mentionIds: Id<"raw_mentions">[]) {
   if (mentionIds.length === 0) return '';
 
   const mentions = await Promise.all(
-    mentionIds.map(id => ctx.runQuery(api.mentions.getMentionById, { id }))
+    mentionIds.map((id: any) => ctx.runQuery(api.mentions.getMentionById, { id }))
   );
 
-  return mentions.map(m => `
+  return mentions.map((m: any) => `
 Author: ${m?.author || 'Unknown'}
 Content: "${m?.content || 'N/A'}"
 Platform: ${m?.source || 'Unknown'}
@@ -41,7 +41,7 @@ Sentiment: ${m?.sentiment || 'neutral'}
 }
 
 // Generate content for a single newsletter section
-export const generateNewsletterSection = action({
+export const generateNewsletterSection: ReturnType<typeof action> = action({
   args: {
     sectionType: v.string(),
     signalIds: v.array(v.id("signals")),
@@ -148,7 +148,7 @@ export const generateNewsletterSection = action({
 });
 
 // Generate full newsletter
-export const generateFullNewsletter = action({
+export const generateFullNewsletter: ReturnType<typeof action> = action({
   args: {
     newsletterId: v.id("newsletters"),
     regenerateSections: v.optional(v.array(v.string())),
@@ -165,11 +165,11 @@ export const generateFullNewsletter = action({
 
     // Generate content for each section
     const sectionsToGenerate = args.regenerateSections
-      ? newsletter.sections.filter(s => args.regenerateSections!.includes(s.id))
-      : newsletter.sections.filter(s => !s.content || !s.aiGenerated);
+      ? newsletter.sections.filter((s: any) => args.regenerateSections!.includes(s.id))
+      : newsletter.sections.filter((s: any) => !s.content || !s.aiGenerated);
 
     const generatedSections = await Promise.all(
-      sectionsToGenerate.map(section =>
+      sectionsToGenerate.map((section: any) =>
         ctx.runAction(api.actions.newsletterGeneration.generateNewsletterSection, {
           sectionType: section.type,
           signalIds: section.signalIds || [],
@@ -179,7 +179,7 @@ export const generateFullNewsletter = action({
     );
 
     // Update newsletter with generated content
-    const updatedSections = newsletter.sections.map(section => {
+    const updatedSections = newsletter.sections.map((section: any) => {
       const generated = generatedSections.find(g => g.sectionType === section.type);
       if (generated) {
         return {

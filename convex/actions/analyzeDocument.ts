@@ -3,7 +3,7 @@
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 
-export const analyzeDocument = action({
+export const analyzeDocument: ReturnType<typeof action> = action({
   args: {
     content: v.string(),
     documentId: v.optional(v.string()),

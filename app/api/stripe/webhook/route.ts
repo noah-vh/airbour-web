@@ -3,15 +3,51 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import Stripe from "stripe";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+// Lazy initialization to avoid build-time errors when env vars aren't set
+function getConvexClient() {
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!url) {
+    throw new Error("NEXT_PUBLIC_CONVEX_URL not configured");
+  }
+  return new ConvexHttpClient(url);
+}
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-01-28.clover",
-});
+function getStripeClient() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) {
+    throw new Error("STRIPE_SECRET_KEY not configured");
+  }
+  return new Stripe(key, {
+    apiVersion: "2026-01-28.clover",
+  });
+}
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+function getWebhookSecret() {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret) {
+    throw new Error("STRIPE_WEBHOOK_SECRET not configured");
+  }
+  return secret;
+}
 
 export async function POST(request: NextRequest) {
+  // Initialize clients lazily
+  let stripe: Stripe;
+  let convex: ConvexHttpClient;
+  let webhookSecret: string;
+
+  try {
+    stripe = getStripeClient();
+    convex = getConvexClient();
+    webhookSecret = getWebhookSecret();
+  } catch (error: any) {
+    console.error("Stripe webhook configuration error:", error.message);
+    return NextResponse.json(
+      { error: "Webhook not configured" },
+      { status: 500 }
+    );
+  }
+
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
 
@@ -87,7 +123,6 @@ export async function POST(request: NextRequest) {
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
         console.error("Payment failed for invoice:", invoice.id);
-        // Could notify the organization about payment failure
         break;
       }
 
@@ -110,10 +145,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Disable body parsing - we need raw body for signature verification
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};

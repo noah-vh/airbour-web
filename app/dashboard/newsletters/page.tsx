@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,7 +55,6 @@ interface Newsletter {
 }
 
 export default function NewslettersPage() {
-  const { isCollapsed } = useSidebar();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -122,16 +120,13 @@ export default function NewslettersPage() {
 
   // Calculate stats
   const totalNewsletters = newsletters?.length || 0;
-  const scheduledCount = newsletters?.filter((n: Newsletter) => n.status === "scheduled").length || 0;
-  const publishedCount = newsletters?.filter((n: Newsletter) => n.status === "published").length || 0;
+  const scheduledCount = newsletters?.filter((n: any) => n.status === "scheduled").length || 0;
+  const publishedCount = newsletters?.filter((n: any) => n.status === "published").length || 0;
   const avgOpenRate = newsletters?.length ?
-    (newsletters.reduce((sum: number, n: Newsletter) => sum + (n.openRate || 0), 0) / newsletters.length) : 0;
+    (newsletters.reduce((sum: number, n: any) => sum + (n.openRate || 0), 0) / newsletters.length) : 0;
 
   return (
-    <div className={cn(
-      "fixed right-0 top-0 bottom-0 transition-all duration-300 bg-background",
-      isCollapsed ? "left-16" : "left-64"
-    )}>
+    <div className="min-h-screen">
       <div className="p-6 space-y-6 h-full overflow-auto">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -296,7 +291,7 @@ export default function NewslettersPage() {
                               checked={selectedNewsletters.length === newsletters.length && newsletters.length > 0}
                               onCheckedChange={(checked) => {
                                 if (checked) {
-                                  setSelectedNewsletters(newsletters.map((n: Newsletter) => n._id));
+                                  setSelectedNewsletters(newsletters.map((n: any) => n._id));
                                 } else {
                                   setSelectedNewsletters([]);
                                 }
@@ -313,7 +308,7 @@ export default function NewslettersPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {newsletters.map((newsletter: Newsletter) => (
+                        {newsletters.map((newsletter: any) => (
                           <TableRow
                             key={newsletter._id}
                             className="border-b hover:bg-muted cursor-pointer"
@@ -432,7 +427,7 @@ export default function NewslettersPage() {
 
                 {scheduledNewsletters && scheduledNewsletters.length > 0 ? (
                   <div className="space-y-4">
-                    {scheduledNewsletters.map((newsletter: Newsletter) => (
+                    {scheduledNewsletters.map((newsletter: any) => (
                       <div
                         key={newsletter._id}
                         onClick={() => handleRowClick(newsletter._id)}

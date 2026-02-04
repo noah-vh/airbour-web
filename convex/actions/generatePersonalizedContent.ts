@@ -3,7 +3,7 @@
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 
-export const generatePersonalizedContent = action({
+export const generatePersonalizedContent: ReturnType<typeof action> = action({
   args: {
     userId: v.string(),
     contentType: v.optional(v.string()),
@@ -95,7 +95,7 @@ export const generatePersonalizedContent = action({
       content: personalizedContent,
       html: `<div class="personalized-content">
         <h1>${personalizedContent.title}</h1>
-        ${personalizedSections.map(section =>
+        ${personalizedSections.map((section: any) =>
           `<section data-relevance="${section.relevanceScore}">
             <h2>${section.title}</h2>
             <p>${section.content}</p>

@@ -2,7 +2,7 @@
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 
-export const collectProductHuntManual = action({
+export const collectProductHuntManual: ReturnType<typeof action> = action({
   args: {
     categories: v.optional(v.array(v.string())),
     featured: v.optional(v.boolean()),
@@ -57,7 +57,7 @@ export const collectProductHuntManual = action({
   },
 });
 
-export const collectProductHunt = action({
+export const collectProductHunt: ReturnType<typeof action> = action({
   args: {
     sourceId: v.id("sources"),
     config: v.optional(v.object({
@@ -86,6 +86,33 @@ export const collectProductHunt = action({
         // Skip if featuredOnly is true but product is not featured
         if (featuredOnly && !isFeatured) continue;
 
+        const makerCount = Math.floor(Math.random() * 8) + 1;
+        const phData: {
+          productId: number;
+          category: string;
+          tagline: string;
+          makerCount: number;
+          featured: boolean;
+          hunterCount: number;
+          makers?: { id: number; name: string; headline: string }[];
+        } = {
+          productId: Math.floor(Math.random() * 100000),
+          category: category,
+          tagline: `Revolutionary ${category} solution for modern teams`,
+          makerCount: makerCount,
+          featured: isFeatured,
+          hunterCount: Math.floor(Math.random() * 10) + 1,
+        };
+
+        // Add maker information if requested
+        if (args.config?.includeMakers) {
+          phData.makers = Array.from({ length: makerCount }, (_, j) => ({
+            id: Math.floor(Math.random() * 10000),
+            name: `Maker ${j + 1}`,
+            headline: `${category} expert and innovator`,
+          }));
+        }
+
         const signal = {
           id: `ph_auto_${Date.now()}_${category}_${i}`,
           sourceId: args.sourceId,
@@ -103,24 +130,8 @@ export const collectProductHunt = action({
             featured: isFeatured,
           },
           keywords: ["producthunt", category, "innovation", "startup"],
-          phData: {
-            productId: Math.floor(Math.random() * 100000),
-            category: category,
-            tagline: `Revolutionary ${category} solution for modern teams`,
-            makerCount: Math.floor(Math.random() * 8) + 1,
-            featured: isFeatured,
-            hunterCount: Math.floor(Math.random() * 10) + 1,
-          },
+          phData,
         };
-
-        // Add maker information if requested
-        if (args.config?.includeMakers) {
-          signal.phData.makers = Array.from({ length: signal.phData.makerCount }, (_, j) => ({
-            id: Math.floor(Math.random() * 10000),
-            name: `Maker ${j + 1}`,
-            headline: `${category} expert and innovator`,
-          }));
-        }
 
         mockSignals.push(signal);
       }

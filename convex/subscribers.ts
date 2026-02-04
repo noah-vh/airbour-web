@@ -48,13 +48,11 @@ export const list = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db.query("subscribers");
-
-    if (args.status) {
-      query = query.withIndex("by_status", (q) => q.eq("status", args.status!));
-    }
-
-    const results = await query.collect();
+    const results = args.status
+      ? await ctx.db.query("subscribers")
+          .withIndex("by_status", (q) => q.eq("status", args.status!))
+          .collect()
+      : await ctx.db.query("subscribers").collect();
 
     if (args.limit) {
       return results.slice(0, args.limit);

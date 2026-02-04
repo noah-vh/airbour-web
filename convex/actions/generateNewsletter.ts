@@ -3,7 +3,7 @@
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 
-export const generateNewsletter = action({
+export const generateNewsletter: ReturnType<typeof action> = action({
   args: {
     template: v.optional(v.string()),
     signals: v.optional(v.array(v.string())),
@@ -70,10 +70,10 @@ export const generateNewsletter = action({
     return {
       success: true,
       newsletter,
-      html: `<html><body><h1>${newsletter.title}</h1>${mockSections.map(section =>
+      html: `<html><body><h1>${newsletter.title}</h1>${mockSections.map((section: any) =>
         `<section><h2>${section.title}</h2><p>${section.content}</p></section>`
       ).join('')}</body></html>`,
-      plainText: mockSections.map(section => `${section.title}\n${section.content}\n`).join('\n'),
+      plainText: mockSections.map((section: any) => `${section.title}\n${section.content}\n`).join('\n'),
       metadata: {
         processingTime: Math.floor(Math.random() * 3000) + 1000,
         model: "newsletter-generator-v1",

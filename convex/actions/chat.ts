@@ -3,7 +3,7 @@
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 
-export const chatMessage = action({
+export const chatMessage: ReturnType<typeof action> = action({
   args: {
     message: v.string(),
     conversationId: v.optional(v.string()),

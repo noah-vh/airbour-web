@@ -3,7 +3,7 @@
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 
-export const collectGitHubManual = action({
+export const collectGitHubManual: ReturnType<typeof action> = action({
   args: {
     repositories: v.array(v.string()),
     keywords: v.optional(v.array(v.string())),
@@ -39,7 +39,7 @@ export const collectGitHubManual = action({
   },
 });
 
-export const collectGitHub = action({
+export const collectGitHub: ReturnType<typeof action> = action({
   args: {
     sourceId: v.id("sources"),
     config: v.optional(v.object({

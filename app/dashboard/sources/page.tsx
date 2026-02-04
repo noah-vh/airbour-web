@@ -334,7 +334,7 @@ export default function SourcesPage() {
 
           <div className="bg-white rounded-2xl border border-black/[0.04] overflow-hidden">
             {sources && sources.length > 0 ? (
-              sources.map((source: LocalSource, index: number, arr: LocalSource[]) => (
+              sources.map((source: any, index: number, arr: any[]) => (
                 <div
                   key={source._id}
                   className={cn(

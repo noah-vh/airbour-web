@@ -2,15 +2,9 @@
 
 import { v } from "convex/values";
 import { action } from "../_generated/server";
+import { api } from "../_generated/api";
 
-// Import individual collectors
-import { collectGitHub, collectGitHubManual } from "./github";
-import { collectHackerNews, collectHackerNewsManual } from "./hackernews";
-import { collectProductHunt, collectProductHuntManual } from "./producthunt";
-import { collectReddit, collectRedditManual } from "./reddit";
-import { collectRSSNews, collectRSSNewsManual } from "./rssNews";
-
-export const collectAllDueSources = action({
+export const collectAllDueSources: ReturnType<typeof action> = action({
   args: {
     forceRefresh: v.optional(v.boolean()),
     sourceTypes: v.optional(v.array(v.string())),
@@ -45,31 +39,31 @@ export const collectAllDueSources = action({
           // Route to appropriate collector based on source type
           switch (source.type) {
             case "github":
-              result = await ctx.runAction(collectGitHub, {
+              result = await ctx.runAction(api.collectors.github.collectGitHub, {
                 sourceId: source._id,
                 config: source.config
               });
               break;
             case "hackernews":
-              result = await ctx.runAction(collectHackerNews, {
+              result = await ctx.runAction(api.collectors.hackernews.collectHackerNews, {
                 sourceId: source._id,
                 config: source.config
               });
               break;
             case "producthunt":
-              result = await ctx.runAction(collectProductHunt, {
+              result = await ctx.runAction(api.collectors.producthunt.collectProductHunt, {
                 sourceId: source._id,
                 config: source.config
               });
               break;
             case "reddit":
-              result = await ctx.runAction(collectReddit, {
+              result = await ctx.runAction(api.collectors.reddit.collectReddit, {
                 sourceId: source._id,
                 config: source.config
               });
               break;
             case "rss_news":
-              result = await ctx.runAction(collectRSSNews, {
+              result = await ctx.runAction(api.collectors.rssNews.collectRSSNews, {
                 sourceId: source._id,
                 config: source.config
               });
@@ -120,7 +114,7 @@ export const collectAllDueSources = action({
   },
 });
 
-export const collectFromSource = action({
+export const collectFromSource: ReturnType<typeof action> = action({
   args: {
     sourceId: v.id("sources"),
     forceRefresh: v.optional(v.boolean()),
@@ -144,31 +138,31 @@ export const collectFromSource = action({
       // Route to appropriate collector
       switch (mockSource.type) {
         case "github":
-          result = await ctx.runAction(collectGitHub, {
+          result = await ctx.runAction(api.collectors.github.collectGitHub, {
             sourceId: args.sourceId,
             config: { ...mockSource.config, ...args.config },
           });
           break;
         case "hackernews":
-          result = await ctx.runAction(collectHackerNews, {
+          result = await ctx.runAction(api.collectors.hackernews.collectHackerNews, {
             sourceId: args.sourceId,
             config: { ...mockSource.config, ...args.config },
           });
           break;
         case "producthunt":
-          result = await ctx.runAction(collectProductHunt, {
+          result = await ctx.runAction(api.collectors.producthunt.collectProductHunt, {
             sourceId: args.sourceId,
             config: { ...mockSource.config, ...args.config },
           });
           break;
         case "reddit":
-          result = await ctx.runAction(collectReddit, {
+          result = await ctx.runAction(api.collectors.reddit.collectReddit, {
             sourceId: args.sourceId,
             config: { ...mockSource.config, ...args.config },
           });
           break;
         case "rss_news":
-          result = await ctx.runAction(collectRSSNews, {
+          result = await ctx.runAction(api.collectors.rssNews.collectRSSNews, {
             sourceId: args.sourceId,
             config: { ...mockSource.config, ...args.config },
           });
@@ -198,7 +192,7 @@ export const collectFromSource = action({
   },
 });
 
-export const collectSourceManual = action({
+export const collectSourceManual: ReturnType<typeof action> = action({
   args: {
     sourceType: v.string(),
     config: v.any(),
@@ -216,19 +210,19 @@ export const collectSourceManual = action({
       // Route to appropriate manual collector
       switch (args.sourceType) {
         case "github":
-          result = await ctx.runAction(collectGitHubManual, args.config);
+          result = await ctx.runAction(api.collectors.github.collectGitHubManual, args.config);
           break;
         case "hackernews":
-          result = await ctx.runAction(collectHackerNewsManual, args.config);
+          result = await ctx.runAction(api.collectors.hackernews.collectHackerNewsManual, args.config);
           break;
         case "producthunt":
-          result = await ctx.runAction(collectProductHuntManual, args.config);
+          result = await ctx.runAction(api.collectors.producthunt.collectProductHuntManual, args.config);
           break;
         case "reddit":
-          result = await ctx.runAction(collectRedditManual, args.config);
+          result = await ctx.runAction(api.collectors.reddit.collectRedditManual, args.config);
           break;
         case "rss_news":
-          result = await ctx.runAction(collectRSSNewsManual, args.config);
+          result = await ctx.runAction(api.collectors.rssNews.collectRSSNewsManual, args.config);
           break;
         default:
           throw new Error(`Unsupported source type for manual collection: ${args.sourceType}`);
@@ -256,15 +250,8 @@ export const collectSourceManual = action({
 });
 
 // Re-export individual collectors for direct access
-export {
-  collectGitHub,
-  collectGitHubManual,
-  collectHackerNews,
-  collectHackerNewsManual,
-  collectProductHunt,
-  collectProductHuntManual,
-  collectReddit,
-  collectRedditManual,
-  collectRSSNews,
-  collectRSSNewsManual,
-};
+export { collectGitHub, collectGitHubManual } from "./github";
+export { collectHackerNews, collectHackerNewsManual } from "./hackernews";
+export { collectProductHunt, collectProductHuntManual } from "./producthunt";
+export { collectReddit, collectRedditManual } from "./reddit";
+export { collectRSSNews, collectRSSNewsManual } from "./rssNews";

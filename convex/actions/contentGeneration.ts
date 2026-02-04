@@ -6,12 +6,12 @@ import { api } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 
 // Helper to build signal context
-async function buildSignalContext(ctx: any, signalIds: Id<"signals">[]) {
+async function buildSignalContext(ctx: any, signalIds: Id<"signals">[]): Promise<string> {
   const signals = await Promise.all(
-    signalIds.map(id => ctx.runQuery(api.signals.getSignal, { id }))
+    signalIds.map((id: any) => ctx.runQuery(api.signals.getSignal, { id }))
   );
 
-  return signals.map(signal => `
+  return signals.map((signal: any) => `
 Signal: ${signal.name}
 Lifecycle: ${signal.lifecycle}
 Description: ${signal.description}
@@ -21,21 +21,21 @@ Keywords: ${signal.keywords?.join(', ') || 'N/A'}
 }
 
 // Helper to build mention context
-async function buildMentionContext(ctx: any, mentionIds: Id<"raw_mentions">[]) {
+async function buildMentionContext(ctx: any, mentionIds: Id<"raw_mentions">[]): Promise<string> {
   if (mentionIds.length === 0) return '';
 
   const mentions = await Promise.all(
-    mentionIds.map(id => ctx.runQuery(api.mentions.getMentionById, { id }))
+    mentionIds.map((id: any) => ctx.runQuery(api.mentions.getMentionById, { id }))
   );
 
-  return mentions.map(m => `
+  return mentions.map((m: any) => `
 Author: ${m?.author || 'Unknown'}
 Content: "${m?.content || 'N/A'}"
   `).join('\n---\n');
 }
 
 // Stage 1: Generate multiple content ideas
-export const generateContentIdeas = action({
+export const generateContentIdeas: ReturnType<typeof action> = action({
   args: {
     signalIds: v.array(v.id("signals")),
     mentionIds: v.array(v.id("raw_mentions")),
@@ -185,7 +185,7 @@ IMPORTANT: Return a JSON object with this EXACT structure:
 });
 
 // Stage 2: Generate detailed outline
-export const generateContentOutline = action({
+export const generateContentOutline: ReturnType<typeof action> = action({
   args: {
     contentIdeaId: v.id("content_ideas"),
     platform: v.string(),
@@ -332,7 +332,7 @@ Return as JSON:
 });
 
 // Stage 3: Generate full content
-export const generateFullContent = action({
+export const generateFullContent: ReturnType<typeof action> = action({
   args: {
     draftId: v.id("content_drafts"),
     customInstructions: v.optional(v.string()),
@@ -465,16 +465,16 @@ Format: ${platformConfig?.constraints.supportsMarkdown ? 'Use markdown (**bold**
 // Helper functions for video content
 function extractVideoHooks(script: string): string[] {
   const hookMatches = script.match(/Hook:\s*(.+?)(?:\n|$)/gi) || [];
-  return hookMatches.map(h => h.replace(/Hook:\s*/i, '').trim());
+  return hookMatches.map((h: any) => h.replace(/Hook:\s*/i, '').trim());
 }
 
 function extractBRollSuggestions(script: string): string[] {
   const bRollMatches = script.match(/\[([^\]]+)\]/g) || [];
-  return bRollMatches.map(b => b.replace(/[\[\]]/g, ''));
+  return bRollMatches.map((b: any) => b.replace(/[\[\]]/g, ''));
 }
 
 function extractCaptions(script: string): string[] {
-  const lines = script.split('\n').filter(l => l.trim() && !l.includes('['));
+  const lines = script.split('\n').filter((l: any) => l.trim() && !l.includes('['));
   return lines;
 }
 
@@ -489,7 +489,7 @@ function calculateVideoDuration(script: string): number {
 }
 
 // AI Enhancement: Refine existing content
-export const enhanceContent = action({
+export const enhanceContent: ReturnType<typeof action> = action({
   args: {
     draftId: v.id("content_drafts"),
     enhancementType: v.union(

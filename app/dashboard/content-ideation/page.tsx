@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useQuery, useAction, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
 import { Id } from "@/convex/_generated/dataModel";
 import {
@@ -70,8 +69,6 @@ const STEEP_CATEGORIES = [
 ];
 
 export default function ContentIdeationPage() {
-  const { isCollapsed } = useSidebar();
-
   // Wizard state
   const [currentStep, setCurrentStep] = useState<WizardStep>("ideas");
   const [completedSteps, setCompletedSteps] = useState<Set<WizardStep>>(new Set());
@@ -1138,10 +1135,7 @@ export default function ContentIdeationPage() {
   };
 
   return (
-    <div className={cn(
-      "fixed right-0 top-0 bottom-0 overflow-hidden transition-colors duration-300 bg-background",
-      isCollapsed ? "left-16" : "left-64"
-    )}>
+    <div className="min-h-screen overflow-hidden">
       <div className="flex h-full">
         {/* Left Column - Signals (1/3 width) */}
         <div className="w-1/3 border-r border flex flex-col">

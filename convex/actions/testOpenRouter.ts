@@ -3,7 +3,7 @@
 import { action } from "../_generated/server";
 import { v } from "convex/values";
 
-export const testOpenRouter = action({
+export const testOpenRouter: ReturnType<typeof action> = action({
   args: {},
   handler: async (ctx, args) => {
     const apiKey = process.env.OPENROUTER_API_KEY;

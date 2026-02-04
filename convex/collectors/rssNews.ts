@@ -2,7 +2,7 @@
 import { v } from "convex/values";
 import { action } from "../_generated/server";
 
-export const collectRSSNewsManual = action({
+export const collectRSSNewsManual: ReturnType<typeof action> = action({
   args: {
     feedUrls: v.array(v.string()),
     keywords: v.optional(v.array(v.string())),
@@ -69,7 +69,7 @@ export const collectRSSNewsManual = action({
   },
 });
 
-export const collectRSSNews = action({
+export const collectRSSNews: ReturnType<typeof action> = action({
   args: {
     sourceId: v.id("sources"),
     config: v.optional(v.object({

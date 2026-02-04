@@ -6,7 +6,7 @@ import { api } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 
 // Analyze performance of a single newsletter
-export const analyzePerformance = action({
+export const analyzePerformance: ReturnType<typeof action> = action({
   args: {
     newsletterId: v.id("newsletters"),
   },
@@ -132,7 +132,7 @@ export const analyzePerformance = action({
 });
 
 // Suggest improvements based on multiple newsletters' performance
-export const suggestImprovements = action({
+export const suggestImprovements: ReturnType<typeof action> = action({
   args: {
     newsletterIds: v.optional(v.array(v.id("newsletters"))),
     limit: v.optional(v.number()),
@@ -164,7 +164,7 @@ export const suggestImprovements = action({
 
     // Gather performance data for each newsletter
     const performanceData = await Promise.all(
-      newsletters.map(async (nl) => {
+      newsletters.map(async (nl: any) => {
         const stats = await ctx.runQuery(api.emailEvents.getNewsletterStats, {
           newsletterId: nl._id,
         });
@@ -203,13 +203,13 @@ Click Rate Statistics:
 - Best: ${sortedByClickRate[0]?.clickRate.toFixed(1)}% (${sortedByClickRate[0]?.title})
 
 High Performing Subject Lines:
-${highOpenPerformers.map((n) => `- "${n.subject}" (${n.openRate.toFixed(1)}% open rate)`).join("\n")}
+${highOpenPerformers.map((n: any) => `- "${n.subject}" (${n.openRate.toFixed(1)}% open rate)`).join("\n")}
 
 High Click-Through Newsletters:
-${highClickPerformers.map((n) => `- "${n.title}" (${n.clickRate.toFixed(1)}% CTR)`).join("\n")}
+${highClickPerformers.map((n: any) => `- "${n.title}" (${n.clickRate.toFixed(1)}% CTR)`).join("\n")}
 
 Section Types in High Performers:
-${highClickPerformers.flatMap((n) => n.sections.map((s: any) => s.type)).join(", ")}
+${highClickPerformers.flatMap((n: any) => n.sections.map((s: any) => s.type)).join(", ")}
     `;
 
     // Call OpenRouter API for AI-generated recommendations
@@ -281,15 +281,15 @@ Format your response as a JSON array of objects with fields: "category" (subject
       averageClickRate: (performanceData.reduce((sum, n) => sum + n.clickRate, 0) / performanceData.length).toFixed(1),
       recommendations,
       topPerformers: {
-        byOpenRate: highOpenPerformers.slice(0, 3).map((n) => ({ title: n.title, openRate: n.openRate })),
-        byClickRate: highClickPerformers.slice(0, 3).map((n) => ({ title: n.title, clickRate: n.clickRate })),
+        byOpenRate: highOpenPerformers.slice(0, 3).map((n: any) => ({ title: n.title, openRate: n.openRate })),
+        byClickRate: highClickPerformers.slice(0, 3).map((n: any) => ({ title: n.title, clickRate: n.clickRate })),
       },
     };
   },
 });
 
 // Optimize subject lines using AI
-export const optimizeSubjectLines = action({
+export const optimizeSubjectLines: ReturnType<typeof action> = action({
   args: {
     subjectLines: v.array(
       v.object({
@@ -319,13 +319,13 @@ Subject Line Performance Data:
 Best Performers:
 ${sorted
   .slice(0, 3)
-  .map((s) => `- "${s.subject}" (${s.openRate.toFixed(1)}% open rate)`)
+  .map((s: any) => `- "${s.subject}" (${s.openRate.toFixed(1)}% open rate)`)
   .join("\n")}
 
 Worst Performers:
 ${sorted
   .slice(-3)
-  .map((s) => `- "${s.subject}" (${s.openRate.toFixed(1)}% open rate)`)
+  .map((s: any) => `- "${s.subject}" (${s.openRate.toFixed(1)}% open rate)`)
   .join("\n")}
 
 Average Open Rate: ${avgOpenRate.toFixed(1)}%
@@ -414,7 +414,7 @@ Format as JSON array with fields: "subject", "rationale", "predictedImprovement"
         predictedImprovement: s.predictedImprovement || 0,
       })),
       patternsIdentified: {
-        bestPerformers: sorted.slice(0, 3).map((s) => s.subject),
+        bestPerformers: sorted.slice(0, 3).map((s: any) => s.subject),
         averageLength: Math.round(args.subjectLines.reduce((sum, s) => sum + s.subject.length, 0) / args.subjectLines.length),
       },
     };
@@ -422,7 +422,7 @@ Format as JSON array with fields: "subject", "rationale", "predictedImprovement"
 });
 
 // Adjust signal weights based on engagement correlation
-export const adjustSignalWeights = action({
+export const adjustSignalWeights: ReturnType<typeof action> = action({
   args: {
     newsletterIds: v.optional(v.array(v.id("newsletters"))),
     limit: v.optional(v.number()),
@@ -511,7 +511,7 @@ export const adjustSignalWeights = action({
     }
 
     // Calculate average performance per signal
-    const signalStats = Object.values(signalPerformance).map((sp) => ({
+    const signalStats = Object.values(signalPerformance).map((sp: any) => ({
       signalId: sp.signalId,
       appearances: sp.appearances,
       avgOpenRate: sp.appearances > 0 ? sp.totalOpenRate / sp.appearances : 0,
@@ -547,7 +547,7 @@ export const adjustSignalWeights = action({
     }
 
     // Calculate category weights
-    const categoryStats = Object.values(categoryPerformance).map((cp) => ({
+    const categoryStats = Object.values(categoryPerformance).map((cp: any) => ({
       category: cp.category,
       signalCount: cp.signalCount,
       avgOpenRate: cp.signalCount > 0 ? cp.totalOpenRate / cp.signalCount : 0,
@@ -592,7 +592,7 @@ export const adjustSignalWeights = action({
         return scoreB - scoreA;
       })
       .slice(0, 5)
-      .map((s) => ({
+      .map((s: any) => ({
         signalId: s.signalId,
         appearances: s.appearances,
         avgOpenRate: parseFloat(s.avgOpenRate.toFixed(1)),

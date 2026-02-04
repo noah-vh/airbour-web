@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
 import { Id } from "@/convex/_generated/dataModel";
 import {
@@ -131,7 +130,6 @@ const SECTION_TYPES = [
 ] as const;
 
 export default function CreateNewsletterPage() {
-  const { isCollapsed } = useSidebar();
   const router = useRouter();
 
   // Newsletter state
@@ -503,10 +501,7 @@ export default function CreateNewsletterPage() {
   };
 
   return (
-    <div className={cn(
-      "fixed right-0 top-0 bottom-0 transition-colors duration-300 bg-background flex flex-col",
-      isCollapsed ? "left-16" : "left-64"
-    )}>
+    <div className="min-h-screen flex flex-col">
       {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-3 border-b bg-background">
         <div className="flex items-center gap-3">

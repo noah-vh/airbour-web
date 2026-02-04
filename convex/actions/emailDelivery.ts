@@ -91,7 +91,7 @@ function wrapLinksForTracking(html: string, newsletterId: string, subscriberId: 
 }
 
 // Send newsletter to all active subscribers
-export const sendNewsletter = action({
+export const sendNewsletter: ReturnType<typeof action> = action({
   args: {
     newsletterId: v.id("newsletters"),
     testEmail: v.optional(v.string()), // For test sends
@@ -171,8 +171,8 @@ export const sendNewsletter = action({
       })
     );
 
-    const successful = results.filter(r => r.status === "fulfilled").length;
-    const failed = results.filter(r => r.status === "rejected").length;
+    const successful = results.filter((r: PromiseSettledResult<any>) => r.status === "fulfilled").length;
+    const failed = results.filter((r: PromiseSettledResult<any>) => r.status === "rejected").length;
 
     // Update newsletter status
     await ctx.runMutation(api.newsletters.update, {
@@ -187,7 +187,7 @@ export const sendNewsletter = action({
 });
 
 // Track email event (called from HTTP endpoints)
-export const trackEvent = action({
+export const trackEvent: ReturnType<typeof action> = action({
   args: {
     newsletterId: v.string(),
     subscriberId: v.optional(v.string()),
@@ -207,7 +207,7 @@ export const trackEvent = action({
 });
 
 // Get delivery stats for a newsletter
-export const getDeliveryStats = action({
+export const getDeliveryStats: ReturnType<typeof action> = action({
   args: {
     newsletterId: v.id("newsletters"),
   },
@@ -268,12 +268,12 @@ export const getDeliveryStats = action({
 });
 
 // Internal action for scheduled sends
-export const sendScheduledNewsletter = internalAction({
+export const sendScheduledNewsletter: ReturnType<typeof internalAction> = internalAction({
   args: {
     newsletterId: v.id("newsletters"),
   },
   handler: async (ctx, args) => {
     // This wraps the public action for internal scheduling
-    return await sendNewsletter(ctx, { newsletterId: args.newsletterId });
+    return await ctx.runAction(api.actions.emailDelivery.sendNewsletter, { newsletterId: args.newsletterId });
   },
 });

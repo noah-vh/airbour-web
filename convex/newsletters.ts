@@ -303,6 +303,11 @@ export const update = mutation({
       generatedAt: v.optional(v.number()),
     }))),
     scheduledFor: v.optional(v.number()),
+    sentAt: v.optional(v.number()),
+    deliveryStats: v.optional(v.object({
+      sent: v.number(),
+      failed: v.number(),
+    })),
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
@@ -336,18 +341,18 @@ export const list = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db.query("newsletters");
+    const limit = args.limit || 50;
 
     if (args.status) {
-      query = query.withIndex("by_status", (q) => q.eq("status", args.status));
+      return await ctx.db.query("newsletters")
+        .withIndex("by_status", (q) => q.eq("status", args.status!))
+        .order("desc")
+        .take(limit);
     } else {
-      query = query.withIndex("by_created");
+      return await ctx.db.query("newsletters")
+        .withIndex("by_created")
+        .order("desc")
+        .take(limit);
     }
-
-    const newsletters = await query
-      .order("desc")
-      .take(args.limit || 50);
-
-    return newsletters;
   },
 });

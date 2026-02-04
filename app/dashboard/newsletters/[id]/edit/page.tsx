@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useSidebar } from "@/components/dashboard/sidebar-context";
 import { cn } from "@/lib/utils";
 import { Id } from "@/convex/_generated/dataModel";
 import {
@@ -128,7 +127,6 @@ const SECTION_TYPES = [
 ] as const;
 
 export default function EditNewsletterPage() {
-  const { isCollapsed } = useSidebar();
   const params = useParams();
   const router = useRouter();
   const newsletterId = params.id as Id<"newsletters">;
@@ -487,10 +485,7 @@ export default function EditNewsletterPage() {
   // Loading state
   if (!newsletter) {
     return (
-      <div className={cn(
-        "fixed right-0 top-0 bottom-0 transition-colors duration-300 bg-background flex items-center justify-center",
-        isCollapsed ? "left-16" : "left-64"
-      )}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 text-blue-400 animate-spin" />
           <p className="text-sm text-muted-foreground">Loading newsletter...</p>
@@ -500,10 +495,7 @@ export default function EditNewsletterPage() {
   }
 
   return (
-    <div className={cn(
-      "fixed right-0 top-0 bottom-0 transition-colors duration-300 bg-background flex flex-col",
-      isCollapsed ? "left-16" : "left-64"
-    )}>
+    <div className="min-h-screen flex flex-col">
       {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-3 border-b border bg-background">
         <div className="flex items-center gap-3">
