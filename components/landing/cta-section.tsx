@@ -62,7 +62,7 @@ export function CTASection() {
   };
 
   return (
-    <section className="relative py-32 md:py-44 bg-[#141414] text-white overflow-hidden">
+    <section className="relative py-16 md:py-44 bg-[#141414] text-white overflow-hidden">
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20" />
 
@@ -71,8 +71,86 @@ export function CTASection() {
 
       <div className="container-wide relative z-10">
         <div className="max-w-4xl mx-auto">
-          {/* Editorial layout */}
-          <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+          {/* Mobile: Stacked compact layout */}
+          <div className="md:hidden">
+            <div className="text-center mb-6">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-3">
+                Join the Waitlist
+              </p>
+              <h2 className="font-serif text-2xl tracking-tight leading-[1.15] mb-3">
+                The future satisfies those who see it first.
+              </h2>
+              <p className="text-sm text-white/60 leading-relaxed">
+                Early access to Airbour. Be among the first.
+              </p>
+            </div>
+
+            {status === "success" ? (
+              <div className="p-5 bg-white/[0.03] border border-white/10 rounded-xl">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                    <CheckCircle className="h-5 w-5 text-green-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-white">You're on the list</p>
+                    <p className="text-xs text-white/50">We'll be in touch</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="p-5 bg-white/[0.03] border border-white/10 rounded-xl space-y-4">
+                  <div>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (status === "error") setStatus("idle");
+                      }}
+                      placeholder="your@email.com"
+                      className="w-full px-4 py-3 bg-white/[0.05] border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-white/30 text-base"
+                      disabled={status === "loading"}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={status === "loading"}
+                    className="w-full inline-flex items-center justify-center gap-2 bg-white hover:bg-white/90 text-[#141414] px-5 py-3 rounded-lg font-medium text-base transition-all"
+                  >
+                    {status === "loading" ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <>
+                        Request Access
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </button>
+
+                  {status === "error" && errorMessage && (
+                    <div className="flex items-center justify-center gap-2 text-red-400 text-xs">
+                      <AlertCircle className="h-3.5 w-3.5" />
+                      <span>{errorMessage}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-center gap-3 text-white/30 text-xs">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500/60" />
+                    Limited spots
+                  </span>
+                  <span className="w-0.5 h-0.5 rounded-full bg-white/20" />
+                  <span>No card required</span>
+                </div>
+              </form>
+            )}
+          </div>
+
+          {/* Desktop: Editorial layout - unchanged */}
+          <div className="hidden md:grid md:grid-cols-2 gap-20 items-center">
             {/* Left: Statement */}
             <div>
               <motion.p
@@ -91,7 +169,7 @@ export function CTASection() {
                 animate={isMobile ? { opacity: 1, y: 0 } : undefined}
                 viewport={{ once: true }}
                 transition={isMobile ? undefined : { duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight leading-[1.1] mb-6"
+                className="font-serif text-5xl lg:text-6xl tracking-tight leading-[1.1] mb-6"
               >
                 The future satisfies those who see it first.
               </motion.h2>

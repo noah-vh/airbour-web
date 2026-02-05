@@ -69,16 +69,16 @@ export function FeaturesSection() {
   const isMobile = useIsMobile();
 
   return (
-    <section className="section-padding section-gradient-soft section-hr">
+    <section className="py-12 md:py-20 section-gradient-soft section-hr">
       <div className="container-wide">
         {/* Header */}
-        <div className="max-w-2xl mx-auto text-center mb-16">
+        <div className="max-w-2xl mx-auto text-center mb-8 md:mb-16">
           <motion.p
             initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
             whileInView={{ opacity: 1 }}
             animate={isMobile ? { opacity: 1 } : undefined}
             viewport={{ once: true }}
-            className="section-label mb-4"
+            className="section-label mb-3 md:mb-4"
           >
             Capabilities
           </motion.p>
@@ -87,7 +87,7 @@ export function FeaturesSection() {
             whileInView={{ opacity: 1, y: 0 }}
             animate={isMobile ? { opacity: 1, y: 0 } : undefined}
             viewport={{ once: true }}
-            className="font-serif text-headline mb-4"
+            className="font-serif text-2xl md:text-4xl mb-3 md:mb-4"
           >
             Intelligence, engineered
           </motion.h2>
@@ -97,14 +97,41 @@ export function FeaturesSection() {
             animate={isMobile ? { opacity: 1, y: 0 } : undefined}
             viewport={{ once: true }}
             transition={isMobile ? undefined : { delay: 0.1 }}
-            className="text-[var(--foreground-secondary)]"
+            className="text-sm md:text-base text-[var(--foreground-secondary)]"
           >
-            Every feature designed to give you an unfair advantage in spotting what's next.
+            Every feature designed to give you an unfair advantage.
           </motion.p>
         </div>
 
-        {/* Features grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        {/* Mobile: Horizontal scrolling feature cards */}
+        <div className="md:hidden -mx-5 px-5">
+          <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-thin">
+            {features.map((feature) => (
+              <div
+                key={feature.title}
+                className="flex-shrink-0 w-[200px] p-4 rounded-xl bg-[var(--background-elevated)] border border-[var(--border)]"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-9 h-9 rounded-lg bg-[var(--accent-blue)]/10 flex items-center justify-center">
+                    <feature.icon className="h-4 w-4 text-[var(--accent-blue)]" />
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-serif text-[var(--accent-blue)]">{feature.stat}</div>
+                    <div className="text-[8px] uppercase tracking-wider text-[var(--foreground-muted)]">{feature.statLabel}</div>
+                  </div>
+                </div>
+
+                <h3 className="font-semibold text-sm mb-1.5">{feature.title}</h3>
+                <p className="text-[11px] text-[var(--foreground-secondary)] leading-relaxed line-clamp-3">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop: Full grid - unchanged */}
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {features.map((feature) => (
             <div
               key={feature.title}

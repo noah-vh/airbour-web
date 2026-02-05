@@ -52,17 +52,17 @@ export function FAQSection() {
   const isMobile = useIsMobile();
 
   return (
-    <section className="section-padding section-bordered">
+    <section className="py-12 md:py-20 section-bordered">
       <div className="container-wide">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 md:mb-12">
             <motion.p
               initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
               whileInView={{ opacity: 1 }}
               animate={isMobile ? { opacity: 1 } : undefined}
               viewport={{ once: true }}
-              className="section-label mb-4"
+              className="section-label mb-3 md:mb-4"
             >
               FAQ
             </motion.p>
@@ -71,20 +71,20 @@ export function FAQSection() {
               whileInView={{ opacity: 1, y: 0 }}
               animate={isMobile ? { opacity: 1, y: 0 } : undefined}
               viewport={{ once: true }}
-              className="font-serif text-headline"
+              className="font-serif text-2xl md:text-4xl"
             >
               Common questions
             </motion.h2>
           </div>
 
           {/* FAQ items */}
-          <div className="space-y-3">
+          <div className="space-y-2 md:space-y-3">
             {faqs.map((faq, index) => {
               const isOpen = openIndex === index;
               return (
                 <div
                   key={index}
-                  className={`rounded-2xl border transition-all duration-300 ${
+                  className={`rounded-xl md:rounded-2xl border transition-all duration-300 ${
                     isOpen
                       ? "bg-[var(--background-elevated)] border-[var(--border-hover)] shadow-[var(--shadow-elevated)]"
                       : "bg-transparent border-[var(--border)] hover:border-[var(--border-hover)]"
@@ -92,19 +92,19 @@ export function FAQSection() {
                 >
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : index)}
-                    className="w-full flex items-center justify-between p-5 text-left"
+                    className="w-full flex items-center justify-between p-4 md:p-5 text-left"
                   >
-                    <span className={`font-medium pr-4 transition-colors ${
+                    <span className={`font-medium text-sm md:text-base pr-3 md:pr-4 transition-colors ${
                       isOpen ? "text-[var(--foreground)]" : "text-[var(--foreground-secondary)]"
                     }`}>
                       {faq.question}
                     </span>
-                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                    <div className={`flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-colors ${
                       isOpen
                         ? "bg-[var(--accent-blue)] text-white"
                         : "bg-[var(--background-secondary)] text-[var(--foreground-muted)]"
                     }`}>
-                      {isOpen ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                      {isOpen ? <Minus className="h-3.5 w-3.5 md:h-4 md:w-4" /> : <Plus className="h-3.5 w-3.5 md:h-4 md:w-4" />}
                     </div>
                   </button>
 
@@ -117,8 +117,8 @@ export function FAQSection() {
                         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                         className="overflow-hidden"
                       >
-                        <div className="px-5 pb-5 pt-0">
-                          <p className="text-[var(--foreground-secondary)] leading-relaxed">
+                        <div className="px-4 pb-4 md:px-5 md:pb-5 pt-0">
+                          <p className="text-sm md:text-base text-[var(--foreground-secondary)] leading-relaxed">
                             {faq.answer}
                           </p>
                         </div>

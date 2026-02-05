@@ -93,8 +93,36 @@ export function SourcesSection() {
           </motion.p>
         </div>
 
-        {/* Sources grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+        {/* Mobile: Compact horizontal scrolling categories */}
+        <div className="md:hidden space-y-6">
+          {sourceCategories.map((category) => (
+            <div key={category.label}>
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--foreground-muted)] mb-3 px-1">
+                {category.label}
+              </h3>
+              <div className="flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-thin">
+                {category.sources.map((source) => (
+                  <div
+                    key={source.name}
+                    className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--background-elevated)] border border-[var(--border)]"
+                  >
+                    <source.icon className="h-4 w-4 text-[var(--foreground-muted)]" />
+                    <span className="text-sm font-medium whitespace-nowrap">{source.name}</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)] opacity-60" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          <div className="text-center pt-4">
+            <p className="text-xs text-[var(--foreground-muted)]">
+              500+ sources • Custom feeds & APIs
+            </p>
+          </div>
+        </div>
+
+        {/* Desktop: Full grid - unchanged */}
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {sourceCategories.map((category) => (
             <div
               key={category.label}
@@ -123,8 +151,8 @@ export function SourcesSection() {
           ))}
         </div>
 
-        {/* Bottom stat */}
-        <div className="text-center mt-12">
+        {/* Bottom stat - desktop only */}
+        <div className="hidden md:block text-center mt-12">
           <p className="text-sm text-[var(--foreground-muted)]">
             Plus custom RSS feeds, webhooks, and API integrations
           </p>

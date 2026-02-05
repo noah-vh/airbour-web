@@ -230,7 +230,7 @@ export function Hero() {
       </section>
 
       {/* Interactive Demo - split layout */}
-      <section className="pb-20 md:pb-32" ref={demoRef}>
+      <section className="pb-16 md:pb-32" ref={demoRef}>
         <div className="container-wide">
           <motion.div
             initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
@@ -240,8 +240,45 @@ export function Hero() {
             transition={isMobile ? undefined : { duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-5xl mx-auto"
           >
-            {/* Split layout: Features left, Demo right */}
-            <div className="grid lg:grid-cols-[300px_1fr] gap-8 lg:gap-12">
+            {/* Mobile: Horizontal scrolling tabs + content */}
+            <div className="lg:hidden">
+              {/* Mobile tab selector - horizontal scrolling pills */}
+              <div className="-mx-5 px-5 mb-4">
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                  {[
+                    { id: "signals" as const, icon: BarChart3, label: "Live Signals" },
+                    { id: "sources" as const, icon: Radio, label: "500+ Sources" },
+                    { id: "ai" as const, icon: Sparkles, label: "AI Analysis" },
+                  ].map((feature) => {
+                    const isActive = activeTab === feature.id;
+                    return (
+                      <button
+                        key={feature.id}
+                        onClick={() => setActiveTab(feature.id)}
+                        className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all ${
+                          isActive
+                            ? "bg-[var(--accent-blue)] text-white shadow-md"
+                            : "bg-[var(--background-elevated)] text-[var(--foreground-secondary)] border border-[var(--border)]"
+                        }`}
+                      >
+                        <feature.icon className="h-4 w-4" />
+                        {feature.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Mobile demo content */}
+              <div className="float-card rounded-xl overflow-hidden">
+                {activeTab === "signals" && <SignalsDemoMobile />}
+                {activeTab === "sources" && <SourcesDemoMobile />}
+                {activeTab === "ai" && <AIDemoMobile />}
+              </div>
+            </div>
+
+            {/* Desktop: Split layout - unchanged */}
+            <div className="hidden lg:grid lg:grid-cols-[300px_1fr] gap-12">
               {/* Left: Feature selector with narrative */}
               <div className="space-y-3">
                 {[
@@ -527,6 +564,124 @@ function AIDemo() {
           <span className="font-medium text-[var(--foreground)]"> Recommend: High priority tracking.</span>
         </p>
       </motion.div>
+    </div>
+  );
+}
+
+// Mobile-specific compact demo components
+function SignalsDemoMobile() {
+  const signals = [
+    { name: "AI Agent Frameworks", confidence: 94, trend: "+12%", lifecycle: "Emerging" },
+    { name: "Climate Tech Investment", confidence: 87, trend: "+8%", lifecycle: "Growing" },
+    { name: "Quantum Computing", confidence: 76, trend: "+5%", lifecycle: "Weak" },
+  ];
+
+  return (
+    <div className="p-4">
+      <div className="flex items-center justify-between mb-3 pb-3 border-b border-black/[0.04]">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-sm font-medium">Live Signals</span>
+        </div>
+        <span className="text-xs text-[var(--foreground-muted)]">247 active</span>
+      </div>
+
+      <div className="space-y-2">
+        {signals.map((signal) => (
+          <div
+            key={signal.name}
+            className="flex items-center justify-between p-3 rounded-lg bg-black/[0.02]"
+          >
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-sm truncate">{signal.name}</div>
+              <div className="text-xs text-[var(--foreground-muted)]">{signal.lifecycle}</div>
+            </div>
+            <div className="text-right ml-3">
+              <div className="text-lg font-light tabular-nums">{signal.confidence}%</div>
+              <div className="text-xs font-medium text-emerald-600">{signal.trend}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SourcesDemoMobile() {
+  const sources = [
+    { name: "GitHub", count: "1.2K", category: "Dev" },
+    { name: "HN", count: "892", category: "Dev" },
+    { name: "Reddit", count: "634", category: "Social" },
+    { name: "ArXiv", count: "287", category: "Research" },
+  ];
+
+  return (
+    <div className="p-4">
+      <div className="flex items-center justify-between mb-3 pb-3 border-b border-black/[0.04]">
+        <span className="text-sm font-medium">Sources</span>
+        <span className="flex items-center gap-1.5 text-xs text-emerald-600">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          All active
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        {sources.map((source) => (
+          <div
+            key={source.name}
+            className="p-3 rounded-lg border border-black/[0.04] bg-white"
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/[0.03] text-[var(--foreground-muted)]">{source.category}</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            </div>
+            <div className="font-medium text-sm">{source.name}</div>
+            <div className="text-lg font-light tabular-nums">{source.count}</div>
+          </div>
+        ))}
+      </div>
+
+      <p className="text-center text-xs text-[var(--foreground-muted)] mt-3">500+ sources monitored</p>
+    </div>
+  );
+}
+
+function AIDemoMobile() {
+  return (
+    <div className="p-4">
+      <div className="flex items-center justify-between mb-3 pb-3 border-b border-black/[0.04]">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-purple-500" />
+          <span className="text-sm font-medium">AI Analysis</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-600">Claude</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600">Gemini</span>
+        </div>
+      </div>
+
+      <div className="p-3 rounded-lg border border-black/[0.04] bg-white mb-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="font-medium text-sm">AI Agents</span>
+          <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">89%</span>
+        </div>
+        <div className="flex items-center gap-3 text-xs text-[var(--foreground-muted)]">
+          <span>Technology</span>
+          <span>•</span>
+          <span className="text-blue-600 font-medium">Emerging</span>
+        </div>
+      </div>
+
+      <div className="p-3 rounded-lg bg-gradient-to-br from-purple-50/80 to-blue-50/50 border border-purple-100/50">
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <Sparkles className="h-3 w-3 text-purple-500" />
+          <span className="text-[10px] font-medium text-purple-600 uppercase">Insight</span>
+        </div>
+        <p className="text-xs leading-relaxed text-[var(--foreground-secondary)]">
+          Rapid adoption in dev tools. GitHub +340% QoQ.
+          <span className="font-medium text-[var(--foreground)]"> High priority.</span>
+        </p>
+      </div>
     </div>
   );
 }

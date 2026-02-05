@@ -50,14 +50,14 @@ export function SignalLifecycle() {
   const isMobile = useIsMobile();
 
   return (
-    <section className="py-20 md:py-28 section-bordered">
+    <section className="py-12 md:py-28 section-bordered">
       <div className="container-wide">
         <motion.p
           initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
           whileInView={{ opacity: 1 }}
           animate={isMobile ? { opacity: 1 } : undefined}
           viewport={{ once: true }}
-          className="section-label text-center mb-4"
+          className="section-label text-center mb-3 md:mb-4"
         >
           Signal Intelligence
         </motion.p>
@@ -66,7 +66,7 @@ export function SignalLifecycle() {
           whileInView={{ opacity: 1, y: 0 }}
           animate={isMobile ? { opacity: 1, y: 0 } : undefined}
           viewport={{ once: true }}
-          className="font-serif text-headline text-center mb-6"
+          className="font-serif text-2xl md:text-4xl text-center mb-4 md:mb-6"
         >
           Watch signals mature
         </motion.h2>
@@ -76,18 +76,59 @@ export function SignalLifecycle() {
           animate={isMobile ? { opacity: 1, y: 0 } : undefined}
           viewport={{ once: true }}
           transition={isMobile ? undefined : { delay: 0.1 }}
-          className="text-center text-[var(--foreground-muted)] mb-16 max-w-lg mx-auto"
+          className="text-center text-sm md:text-base text-[var(--foreground-muted)] mb-8 md:mb-16 max-w-lg mx-auto"
         >
           Spot the trajectory, not just the trend
         </motion.p>
 
-        {/* Lifecycle visualization */}
-        <div className="max-w-4xl mx-auto">
+        {/* Mobile: Compact horizontal lifecycle */}
+        <div className="md:hidden">
+          <div className="flex items-center justify-between px-2 mb-6">
+            {stages.map((stage, i) => (
+              <div key={stage.name} className="flex flex-col items-center relative">
+                {/* Connection line */}
+                {i < stages.length - 1 && (
+                  <div className="absolute top-5 left-[50%] w-[calc(100%+20px)] h-px bg-[var(--border)]" />
+                )}
+                {/* Node */}
+                <div
+                  className="w-10 h-10 rounded-full border-2 flex items-center justify-center bg-[var(--background)] relative z-10 mb-2"
+                  style={{ borderColor: stage.color }}
+                >
+                  <span className="text-xs font-serif" style={{ color: stage.color }}>
+                    {stage.signals}
+                  </span>
+                </div>
+                <span className="text-[10px] font-medium text-center">{stage.name}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile example signal - condensed */}
+          <div className="p-4 bg-[var(--background-elevated)] border border-[var(--border)] rounded-xl">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">AI Agent Frameworks</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--accent-blue)]/10 text-[var(--accent-blue)]">
+                Growing
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-[10px] text-[var(--foreground-muted)]">
+              <span>8mo ago</span>
+              <span>•</span>
+              <span>+340%</span>
+              <span>•</span>
+              <span>89% conf</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop: Full lifecycle visualization - unchanged */}
+        <div className="hidden md:block max-w-4xl mx-auto">
           <div className="relative">
             {/* Connection line */}
-            <div className="absolute top-1/2 left-0 right-0 h-px bg-[var(--border)] -translate-y-1/2 hidden md:block" />
+            <div className="absolute top-1/2 left-0 right-0 h-px bg-[var(--border)] -translate-y-1/2" />
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
+            <div className="grid grid-cols-4 gap-4">
               {stages.map((stage) => (
                 <div
                   key={stage.name}
@@ -119,11 +160,11 @@ export function SignalLifecycle() {
                 Growing
               </span>
             </div>
-            <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs text-[var(--foreground-muted)]">
+            <div className="flex flex-wrap items-center gap-4 text-xs text-[var(--foreground-muted)]">
               <span>First detected: 8 months ago</span>
-              <span className="hidden md:inline">•</span>
+              <span>•</span>
               <span>340% growth</span>
-              <span className="hidden md:inline">•</span>
+              <span>•</span>
               <span>89% confidence</span>
             </div>
           </div>

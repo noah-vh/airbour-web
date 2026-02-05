@@ -102,85 +102,122 @@ export function OutputShowcase() {
           </motion.p>
         </div>
 
-        {/* Split layout: Formats left, Preview right */}
-        <div className="grid lg:grid-cols-[280px_1fr] gap-8 lg:gap-12 max-w-5xl mx-auto">
-          {/* Left: Format selector */}
-          <motion.div
-            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            animate={isMobile ? { opacity: 1, x: 0 } : undefined}
-            viewport={{ once: true }}
-            className="space-y-2"
-          >
-            {outputs.map((output, index) => {
-              const isActive = active === output.id;
-              return (
-                <button
-                  key={output.id}
-                  onClick={() => setActive(output.id)}
-                  className={`w-full text-left p-4 rounded-xl transition-all duration-300 group relative ${
-                    isActive
-                      ? "bg-[var(--background-elevated)] shadow-[var(--shadow-elevated)]"
-                      : "hover:bg-[var(--background-elevated)]/50"
-                  }`}
-                >
-                  {/* Active indicator line */}
-                  <motion.div
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 bg-[var(--accent-blue)] rounded-full"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{
-                      height: isActive ? 32 : 0,
-                      opacity: isActive ? 1 : 0,
-                    }}
-                    transition={{ duration: 0.2 }}
-                  />
-
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+        {/* Mobile: Horizontal scrolling tabs + stacked preview */}
+        {/* Desktop: Split layout with sidebar */}
+        <div className="max-w-5xl mx-auto">
+          {/* Mobile Tab Selector - horizontal scrolling pills */}
+          <div className="lg:hidden mb-6 -mx-5 px-5">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+              {outputs.map((output) => {
+                const isActive = active === output.id;
+                return (
+                  <button
+                    key={output.id}
+                    onClick={() => setActive(output.id)}
+                    className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all ${
                       isActive
-                        ? "bg-[var(--accent-blue)]/10"
-                        : "bg-[var(--background-secondary)] group-hover:bg-[var(--accent-blue)]/5"
-                    }`}>
-                      <output.icon className={`h-5 w-5 transition-colors ${
-                        isActive ? "text-[var(--accent-blue)]" : "text-[var(--foreground-muted)]"
+                        ? "bg-[var(--accent-blue)] text-white shadow-md"
+                        : "bg-[var(--background-elevated)] text-[var(--foreground-secondary)] border border-[var(--border)]"
+                    }`}
+                  >
+                    <output.icon className="h-4 w-4" />
+                    {output.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Desktop Layout - unchanged */}
+          <div className="hidden lg:grid lg:grid-cols-[280px_1fr] gap-8 lg:gap-12">
+            {/* Left: Format selector */}
+            <motion.div
+              initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              animate={isMobile ? { opacity: 1, x: 0 } : undefined}
+              viewport={{ once: true }}
+              className="space-y-2"
+            >
+              {outputs.map((output) => {
+                const isActive = active === output.id;
+                return (
+                  <button
+                    key={output.id}
+                    onClick={() => setActive(output.id)}
+                    className={`w-full text-left p-4 rounded-xl transition-all duration-300 group relative ${
+                      isActive
+                        ? "bg-[var(--background-elevated)] shadow-[var(--shadow-elevated)]"
+                        : "hover:bg-[var(--background-elevated)]/50"
+                    }`}
+                  >
+                    {/* Active indicator line */}
+                    <motion.div
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 bg-[var(--accent-blue)] rounded-full"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{
+                        height: isActive ? 32 : 0,
+                        opacity: isActive ? 1 : 0,
+                      }}
+                      transition={{ duration: 0.2 }}
+                    />
+
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+                        isActive
+                          ? "bg-[var(--accent-blue)]/10"
+                          : "bg-[var(--background-secondary)] group-hover:bg-[var(--accent-blue)]/5"
+                      }`}>
+                        <output.icon className={`h-5 w-5 transition-colors ${
+                          isActive ? "text-[var(--accent-blue)]" : "text-[var(--foreground-muted)]"
+                        }`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className={`font-medium text-sm transition-colors ${
+                          isActive ? "text-[var(--foreground)]" : "text-[var(--foreground-secondary)]"
+                        }`}>
+                          {output.label}
+                        </div>
+                        <div className="text-xs text-[var(--foreground-muted)] truncate">
+                          {output.description}
+                        </div>
+                      </div>
+                      <ArrowRight className={`h-4 w-4 transition-all ${
+                        isActive
+                          ? "text-[var(--accent-blue)] translate-x-0 opacity-100"
+                          : "text-[var(--foreground-muted)] -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-50"
                       }`} />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className={`font-medium text-sm transition-colors ${
-                        isActive ? "text-[var(--foreground)]" : "text-[var(--foreground-secondary)]"
-                      }`}>
-                        {output.label}
-                      </div>
-                      <div className="text-xs text-[var(--foreground-muted)] truncate">
-                        {output.description}
-                      </div>
-                    </div>
-                    <ArrowRight className={`h-4 w-4 transition-all ${
-                      isActive
-                        ? "text-[var(--accent-blue)] translate-x-0 opacity-100"
-                        : "text-[var(--foreground-muted)] -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-50"
-                    }`} />
-                  </div>
-                </button>
-              );
-            })}
-          </motion.div>
+                  </button>
+                );
+              })}
+            </motion.div>
 
-          {/* Right: Content preview */}
-          <motion.div
-            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            animate={isMobile ? { opacity: 1, x: 0 } : undefined}
-            viewport={{ once: true }}
-            className="relative min-h-[400px]"
-          >
+            {/* Right: Content preview - Desktop */}
+            <motion.div
+              initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              animate={isMobile ? { opacity: 1, x: 0 } : undefined}
+              viewport={{ once: true }}
+              className="relative min-h-[400px]"
+            >
+              <AnimatePresence mode="wait">
+                {active === "newsletter" && <NewsletterPreview key="newsletter" />}
+                {active === "linkedin" && <LinkedInPreview key="linkedin" />}
+                {active === "twitter" && <TwitterPreview key="twitter" />}
+                {active === "brief" && <BriefPreview key="brief" />}
+              </AnimatePresence>
+            </motion.div>
+          </div>
+
+          {/* Mobile Preview - Compact version */}
+          <div className="lg:hidden">
             <AnimatePresence mode="wait">
-              {active === "newsletter" && <NewsletterPreview key="newsletter" />}
-              {active === "linkedin" && <LinkedInPreview key="linkedin" />}
-              {active === "twitter" && <TwitterPreview key="twitter" />}
-              {active === "brief" && <BriefPreview key="brief" />}
+              {active === "newsletter" && <NewsletterPreviewMobile key="newsletter-mobile" />}
+              {active === "linkedin" && <LinkedInPreviewMobile key="linkedin-mobile" />}
+              {active === "twitter" && <TwitterPreviewMobile key="twitter-mobile" />}
+              {active === "brief" && <BriefPreviewMobile key="brief-mobile" />}
             </AnimatePresence>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
@@ -380,6 +417,138 @@ function BriefPreview() {
             Prioritize evaluation of agent frameworks for internal tooling. Early movers gaining significant advantage.
           </p>
         </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================
+// Mobile-optimized compact preview components
+// ============================================
+
+const mobilePreviewVariants = {
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+  exit: { opacity: 0, y: -10, transition: { duration: 0.2 } }
+};
+
+function NewsletterPreviewMobile() {
+  return (
+    <motion.div
+      variants={mobilePreviewVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="bg-[var(--background-elevated)] rounded-xl border border-[var(--border)] overflow-hidden"
+    >
+      <div className="px-4 py-3 border-b border-[var(--border)] bg-gradient-to-r from-[var(--accent-blue)]/5 to-transparent">
+        <div className="flex items-center gap-2">
+          <Mail className="h-4 w-4 text-[var(--accent-blue)]" />
+          <span className="font-medium text-sm">Weekly Brief</span>
+        </div>
+      </div>
+      <div className="p-4 space-y-3">
+        <p className="text-xs text-[var(--foreground-muted)]">Top signals this week:</p>
+        <ul className="space-y-2">
+          {[
+            "AI agents up 340% on GitHub",
+            "Climate tech investments surge",
+            "Enterprise LLM adoption accelerating"
+          ].map((item, i) => (
+            <li key={i} className="flex items-start gap-2 text-sm text-[var(--foreground-secondary)]">
+              <span className="w-1 h-1 rounded-full bg-[var(--accent-blue)] mt-2 flex-shrink-0" />
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </motion.div>
+  );
+}
+
+function LinkedInPreviewMobile() {
+  return (
+    <motion.div
+      variants={mobilePreviewVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="bg-[var(--background-elevated)] rounded-xl border border-[var(--border)] p-4"
+    >
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent-blue)]/20 to-[var(--accent-purple)]/20" />
+        <div>
+          <div className="font-medium text-sm">Your Name</div>
+          <div className="text-xs text-[var(--foreground-muted)]">Innovation Leader</div>
+        </div>
+      </div>
+      <p className="text-sm text-[var(--foreground-secondary)] mb-3">
+        AI agents are going mainstream. Here's what I'm watching...
+      </p>
+      <div className="flex gap-4 text-xs text-[var(--foreground-muted)]">
+        <span>👍 127</span>
+        <span>💬 23</span>
+        <span>🔄 18</span>
+      </div>
+    </motion.div>
+  );
+}
+
+function TwitterPreviewMobile() {
+  return (
+    <motion.div
+      variants={mobilePreviewVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="bg-[var(--background-elevated)] rounded-xl border border-[var(--border)] p-4"
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-8 h-8 rounded-full bg-[var(--foreground)]/10" />
+        <span className="font-medium text-sm">You</span>
+        <span className="text-[var(--foreground-muted)] text-sm">@yourhandle</span>
+      </div>
+      <p className="text-sm mb-3">
+        AI agent frameworks up 340% on GitHub. The teams tracking this early will have a 6-month head start.
+      </p>
+      <div className="flex gap-4 text-xs text-[var(--foreground-muted)]">
+        <span>💬 47</span>
+        <span>🔄 128</span>
+        <span>❤️ 412</span>
+      </div>
+    </motion.div>
+  );
+}
+
+function BriefPreviewMobile() {
+  return (
+    <motion.div
+      variants={mobilePreviewVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="bg-[var(--background-elevated)] rounded-xl border border-[var(--border)] overflow-hidden"
+    >
+      <div className="px-4 py-3 border-b border-[var(--border)] bg-gradient-to-r from-[var(--accent-purple)]/5 to-transparent">
+        <span className="text-xs text-[var(--accent-purple)] uppercase tracking-wide font-medium">Executive Brief</span>
+      </div>
+      <div className="p-4">
+        <h4 className="font-serif text-base mb-3">AI Agents Market Update</h4>
+        <div className="grid grid-cols-3 gap-3 py-3 border-y border-[var(--border)] mb-3">
+          {[
+            { value: "340%", label: "Growth" },
+            { value: "89%", label: "Confidence" },
+            { value: "High", label: "Priority" }
+          ].map((metric, i) => (
+            <div key={i} className="text-center">
+              <div className="text-lg font-serif text-[var(--accent-blue)]">{metric.value}</div>
+              <div className="text-[10px] text-[var(--foreground-muted)]">{metric.label}</div>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-[var(--foreground-secondary)]">
+          Prioritize agent framework evaluation. Early movers gaining advantage.
+        </p>
       </div>
     </motion.div>
   );
