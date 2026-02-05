@@ -310,23 +310,27 @@ export function Hero() {
                   />
                 </div>
 
-                {/* Content with layered crossfade transition */}
-                <div className="relative">
+                {/* Content with card-stack transition */}
+                <div className="relative overflow-hidden">
                   <AnimatePresence initial={false}>
                     <motion.div
                       key={activeTab}
-                      initial={{ opacity: 0, scale: 1.02 }}
-                      animate={{ opacity: 1, scale: 1 }}
+                      initial={{ opacity: 0, scale: 1.08, y: -10, filter: "blur(4px)" }}
+                      animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
                       exit={{
                         opacity: 0,
-                        scale: 0.96,
+                        scale: 0.88,
+                        y: 20,
+                        filter: "blur(6px)",
                         position: "absolute",
-                        inset: 0
+                        inset: 0,
+                        zIndex: 0
                       }}
                       transition={{
-                        duration: 0.35,
-                        ease: [0.32, 0.72, 0, 1]
+                        duration: 0.75,
+                        ease: [0.16, 1, 0.3, 1]
                       }}
+                      style={{ zIndex: 1 }}
                     >
                       {activeTab === "signals" && <SignalsDemoMobile />}
                       {activeTab === "sources" && <SourcesDemoMobile />}
