@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import {
@@ -18,17 +18,51 @@ import { TabSlider } from "@/components/ui/tab-slider";
 const tabs = ["signals", "sources", "ai"] as const;
 type TabType = typeof tabs[number];
 
+// Check if we're on mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return isMobile;
+}
+
 export function Hero() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [activeTab, setActiveTab] = useState<TabType>("signals");
   const demoRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   const createSubscriber = useMutation(api.subscribers.create);
 
-  // Scroll-based tab switching
+  // Auto-cycle tabs on mobile
   useEffect(() => {
+    if (!isMobile) return;
+
+    const interval = setInterval(() => {
+      setActiveTab(current => {
+        const currentIndex = tabs.indexOf(current);
+        return tabs[(currentIndex + 1) % tabs.length];
+      });
+    }, 4000); // 4 seconds per tab
+
+    return () => clearInterval(interval);
+  }, [isMobile]);
+
+  // Scroll-based tab switching - only on desktop
+  useEffect(() => {
+    // Disable scroll-based tab switching on mobile
+    if (isMobile) return;
+
     const handleScroll = () => {
       if (!demoRef.current) return;
 
@@ -55,7 +89,7 @@ export function Hero() {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isMobile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,12 +109,21 @@ export function Hero() {
     }
   };
 
+  // Animation variants - simplified on mobile
+  const fadeInUp = isMobile
+    ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } }
+    : { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 } };
+
+  const fadeInUpDelayed = (delay: number) => isMobile
+    ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 }, transition: undefined }
+    : { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] as const } };
+
   return (
     <>
       {/* Hero statement - premium editorial layout */}
       <section className="relative py-24 md:py-32 lg:py-40 overflow-hidden">
-        {/* Ambient glow */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-[var(--accent-blue)]/[0.03] rounded-full blur-[100px] pointer-events-none" />
+        {/* Ambient glow - hidden on mobile for performance */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-[var(--accent-blue)]/[0.03] rounded-full blur-[100px] pointer-events-none hidden md:block" />
 
         <div className="container-wide relative z-10">
           <div className="max-w-5xl mx-auto">
@@ -89,9 +132,9 @@ export function Hero() {
               <div>
                 {/* Product name */}
                 <motion.p
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  initial={fadeInUp.initial}
+                  animate={fadeInUp.animate}
+                  transition={isMobile ? undefined : { duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   className="font-serif text-3xl md:text-4xl text-[var(--foreground)] mb-4"
                 >
                   Airbour
@@ -99,9 +142,9 @@ export function Hero() {
 
                 {/* Main Headline */}
                 <motion.h1
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                  initial={fadeInUpDelayed(0.1).initial}
+                  animate={fadeInUpDelayed(0.1).animate}
+                  transition={fadeInUpDelayed(0.1).transition}
                   className="font-serif text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.05] mb-6"
                 >
                   <span className="inline-block">Know First.</span>{" "}
@@ -109,9 +152,9 @@ export function Hero() {
                 </motion.h1>
 
                 <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  initial={fadeInUpDelayed(0.2).initial}
+                  animate={fadeInUpDelayed(0.2).animate}
+                  transition={isMobile ? undefined : { duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                   className="text-xl md:text-2xl text-[var(--foreground-secondary)] leading-relaxed max-w-lg"
                 >
                   AI that watches the world so you can shape it.
@@ -120,9 +163,9 @@ export function Hero() {
 
               {/* Right: Signup form card */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                transition={isMobile ? undefined : { duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
               >
                 {status === "success" ? (
                   <div className="p-8 md:p-10 bg-[var(--background-elevated)] border border-[var(--border)] rounded-2xl shadow-[var(--shadow-elevated)]">
@@ -201,17 +244,118 @@ export function Hero() {
       </section>
 
       {/* Interactive Demo - split layout */}
-      <section className="pb-20 md:pb-32" ref={demoRef}>
+      <section className="pb-16 md:pb-32" ref={demoRef}>
         <div className="container-wide">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
+            animate={isMobile ? { opacity: 1, y: 0 } : undefined}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            transition={isMobile ? undefined : { duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-5xl mx-auto"
           >
-            {/* Split layout: Features left, Demo right */}
-            <div className="grid lg:grid-cols-[300px_1fr] gap-8 lg:gap-12">
+            {/* Mobile: Auto-cycling demo with visible tabs and swipe */}
+            <div className="lg:hidden">
+              {/* Visible tab bar */}
+              <div className="flex items-center gap-1 mb-3">
+                {[
+                  { id: "signals" as const, icon: BarChart3, label: "Signals" },
+                  { id: "sources" as const, icon: Radio, label: "Sources" },
+                  { id: "ai" as const, icon: Sparkles, label: "AI" },
+                ].map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-all ${
+                        isActive
+                          ? "bg-[var(--accent-blue)] text-white"
+                          : "bg-[var(--background-elevated)] text-[var(--foreground-muted)] border border-[var(--border)]"
+                      }`}
+                    >
+                      <tab.icon className="h-3.5 w-3.5" />
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Swipeable content card */}
+              <motion.div
+                className="float-card rounded-xl overflow-hidden touch-pan-y"
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragEnd={(_, info) => {
+                  if (info.offset.x > 50) {
+                    const currentIndex = tabs.indexOf(activeTab);
+                    const prevIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;
+                    setActiveTab(tabs[prevIndex]);
+                  } else if (info.offset.x < -50) {
+                    const currentIndex = tabs.indexOf(activeTab);
+                    const nextIndex = (currentIndex + 1) % tabs.length;
+                    setActiveTab(tabs[nextIndex]);
+                  }
+                }}
+              >
+                {/* Progress bar */}
+                <div className="h-0.5 bg-black/[0.04] relative">
+                  <motion.div
+                    className="absolute inset-y-0 left-0 bg-[var(--accent-blue)]"
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 4, ease: "linear" }}
+                    key={`progress-${activeTab}`}
+                  />
+                </div>
+
+                {/* Content with smooth layout + layered zoom effect */}
+                <motion.div
+                  layout
+                  transition={{
+                    layout: { type: "spring", stiffness: 200, damping: 28 }
+                  }}
+                  className="relative"
+                >
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    <motion.div
+                      key={activeTab}
+                      initial={{
+                        opacity: 0,
+                        scale: 1.04,
+                        filter: "blur(8px)"
+                      }}
+                      animate={{
+                        opacity: 1,
+                        scale: 1,
+                        filter: "blur(0px)"
+                      }}
+                      exit={{
+                        opacity: 0,
+                        scale: 0.92,
+                        filter: "blur(8px)",
+                        position: "absolute",
+                        inset: 0,
+                        zIndex: 0
+                      }}
+                      transition={{
+                        duration: 0.6,
+                        ease: [0.32, 0.72, 0, 1]
+                      }}
+                      style={{ zIndex: 1 }}
+                    >
+                      {activeTab === "signals" && <SignalsDemoMobile />}
+                      {activeTab === "sources" && <SourcesDemoMobile />}
+                      {activeTab === "ai" && <AIDemoMobile />}
+                    </motion.div>
+                  </AnimatePresence>
+                </motion.div>
+              </motion.div>
+            </div>
+
+            {/* Desktop: Split layout - unchanged */}
+            <div className="hidden lg:grid lg:grid-cols-[300px_1fr] gap-12">
               {/* Left: Feature selector with narrative */}
               <div className="space-y-3">
                 {[
@@ -497,6 +641,119 @@ function AIDemo() {
           <span className="font-medium text-[var(--foreground)]"> Recommend: High priority tracking.</span>
         </p>
       </motion.div>
+    </div>
+  );
+}
+
+// Mobile-specific compact demo components
+function SignalsDemoMobile() {
+  const signals = [
+    { name: "AI Agent Frameworks", confidence: 94, trend: "+12%", lifecycle: "Emerging" },
+    { name: "Climate Tech Investment", confidence: 87, trend: "+8%", lifecycle: "Growing" },
+    { name: "Quantum Computing", confidence: 76, trend: "+5%", lifecycle: "Weak" },
+  ];
+
+  return (
+    <div className="p-4">
+      <div className="flex items-center justify-between mb-3 text-xs text-[var(--foreground-muted)]">
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          247 active signals
+        </span>
+        <span>Updated 2m ago</span>
+      </div>
+
+      <div className="space-y-2">
+        {signals.map((signal) => (
+          <div
+            key={signal.name}
+            className="flex items-center justify-between p-3 rounded-lg bg-black/[0.02]"
+          >
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-sm truncate">{signal.name}</div>
+              <div className="text-xs text-[var(--foreground-muted)]">{signal.lifecycle}</div>
+            </div>
+            <div className="text-right ml-3">
+              <div className="text-lg font-light tabular-nums">{signal.confidence}%</div>
+              <div className="text-xs font-medium text-emerald-600">{signal.trend}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SourcesDemoMobile() {
+  const sources = [
+    { name: "GitHub", count: "1.2K", category: "Dev" },
+    { name: "HN", count: "892", category: "Dev" },
+    { name: "Reddit", count: "634", category: "Social" },
+    { name: "ArXiv", count: "287", category: "Research" },
+  ];
+
+  return (
+    <div className="p-4">
+      <div className="flex items-center justify-between mb-3 text-xs text-[var(--foreground-muted)]">
+        <span>500+ sources monitored</span>
+        <span className="flex items-center gap-1.5 text-emerald-600">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          All active
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        {sources.map((source) => (
+          <div
+            key={source.name}
+            className="p-3 rounded-lg border border-black/[0.04] bg-white"
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/[0.03] text-[var(--foreground-muted)]">{source.category}</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            </div>
+            <div className="font-medium text-sm">{source.name}</div>
+            <div className="text-lg font-light tabular-nums">{source.count}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AIDemoMobile() {
+  return (
+    <div className="p-4">
+      <div className="flex items-center justify-between mb-3 text-xs text-[var(--foreground-muted)]">
+        <span>Powered by AI</span>
+        <div className="flex items-center gap-1">
+          <span className="px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-600">Claude</span>
+          <span className="px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600">Gemini</span>
+        </div>
+      </div>
+
+      <div className="p-3 rounded-lg border border-black/[0.04] bg-white mb-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="font-medium text-sm">AI Agents</span>
+          <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">89%</span>
+        </div>
+        <div className="flex items-center gap-3 text-xs text-[var(--foreground-muted)]">
+          <span>Technology</span>
+          <span>•</span>
+          <span className="text-blue-600 font-medium">Emerging</span>
+        </div>
+      </div>
+
+      <div className="p-3 rounded-lg bg-gradient-to-br from-purple-50/80 to-blue-50/50 border border-purple-100/50">
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <Sparkles className="h-3 w-3 text-purple-500" />
+          <span className="text-[10px] font-medium text-purple-600 uppercase">Insight</span>
+        </div>
+        <p className="text-xs leading-relaxed text-[var(--foreground-secondary)]">
+          Rapid adoption in dev tools. GitHub +340% QoQ.
+          <span className="font-medium text-[var(--foreground)]"> High priority.</span>
+        </p>
+      </div>
     </div>
   );
 }

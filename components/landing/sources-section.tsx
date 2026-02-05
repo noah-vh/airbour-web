@@ -1,7 +1,24 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Github, MessageSquare, Newspaper, FileText, Rss, Globe, Beaker, BookOpen } from "lucide-react";
+
+// Check if we're on mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return isMobile;
+}
 
 const sourceCategories = [
   {
@@ -39,60 +56,106 @@ const sourceCategories = [
 ];
 
 export function SourcesSection() {
+  const isMobile = useIsMobile();
+
   return (
     <section className="section-padding section-warm section-hr">
       <div className="container-wide">
         {/* Header */}
         <div className="max-w-2xl mx-auto text-center mb-16">
           <motion.p
-            initial={{ opacity: 0 }}
+            initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
             whileInView={{ opacity: 1 }}
+            animate={isMobile ? { opacity: 1 } : undefined}
             viewport={{ once: true }}
             className="section-label mb-4"
           >
             Data Sources
           </motion.p>
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
+            initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            animate={isMobile ? { opacity: 1, y: 0 } : undefined}
             viewport={{ once: true }}
             className="font-serif text-headline mb-4"
           >
             Everywhere that matters
           </motion.h2>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            animate={isMobile ? { opacity: 1, y: 0 } : undefined}
             viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
+            transition={isMobile ? undefined : { delay: 0.1 }}
             className="text-[var(--foreground-secondary)]"
           >
             We monitor 500+ sources across the entire innovation landscape—so you never miss a signal.
           </motion.p>
         </div>
 
-        {/* Sources grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-          {sourceCategories.map((category, categoryIndex) => (
+        {/* Mobile: Animated marquee rows */}
+        <div className="md:hidden space-y-3 overflow-hidden -mx-5">
+          {/* Row 1 - scrolls left */}
+          <div className="relative">
             <motion.div
+              className="flex gap-2"
+              animate={{ x: [0, -600] }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            >
+              {[...sourceCategories[0].sources, ...sourceCategories[1].sources, ...sourceCategories[0].sources, ...sourceCategories[1].sources].map((source, i) => (
+                <div
+                  key={`${source.name}-${i}`}
+                  className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-full bg-[var(--background)] border border-[var(--border)]"
+                >
+                  <source.icon className="h-3.5 w-3.5 text-[var(--foreground-muted)]" />
+                  <span className="text-xs font-medium whitespace-nowrap">{source.name}</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)]" />
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Row 2 - scrolls right */}
+          <div className="relative">
+            <motion.div
+              className="flex gap-2"
+              animate={{ x: [-600, 0] }}
+              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+            >
+              {[...sourceCategories[2].sources, ...sourceCategories[3].sources, ...sourceCategories[2].sources, ...sourceCategories[3].sources].map((source, i) => (
+                <div
+                  key={`${source.name}-${i}`}
+                  className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-full bg-[var(--background)] border border-[var(--border)]"
+                >
+                  <source.icon className="h-3.5 w-3.5 text-[var(--foreground-muted)]" />
+                  <span className="text-xs font-medium whitespace-nowrap">{source.name}</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)]" />
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          <div className="text-center pt-4 px-5">
+            <p className="text-xs text-[var(--foreground-muted)]">
+              500+ sources • Custom feeds & APIs
+            </p>
+          </div>
+        </div>
+
+        {/* Desktop: Full grid - unchanged */}
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+          {sourceCategories.map((category) => (
+            <div
               key={category.label}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: categoryIndex * 0.1 }}
               className="space-y-3"
             >
               <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--foreground-muted)] mb-4">
                 {category.label}
               </h3>
 
-              {category.sources.map((source, sourceIndex) => (
-                <motion.div
+              {category.sources.map((source) => (
+                <div
                   key={source.name}
-                  initial={{ opacity: 0, x: -10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: categoryIndex * 0.1 + sourceIndex * 0.05 }}
                   className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background-elevated)] border border-[var(--border)] hover:border-[var(--border-hover)] hover:shadow-[var(--shadow-sm)] transition-all group"
                 >
                   <div className="w-9 h-9 rounded-lg bg-[var(--background-secondary)] flex items-center justify-center group-hover:bg-[var(--accent-blue)]/10 transition-colors">
@@ -103,24 +166,18 @@ export function SourcesSection() {
                     <div className="text-xs text-[var(--foreground-muted)]">{source.count} signals</div>
                   </div>
                   <div className="w-2 h-2 rounded-full bg-[var(--accent-green)] opacity-60" />
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
           ))}
         </div>
 
-        {/* Bottom stat */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-          className="text-center mt-12"
-        >
+        {/* Bottom stat - desktop only */}
+        <div className="hidden md:block text-center mt-12">
           <p className="text-sm text-[var(--foreground-muted)]">
             Plus custom RSS feeds, webhooks, and API integrations
           </p>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

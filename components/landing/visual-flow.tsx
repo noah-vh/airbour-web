@@ -1,7 +1,24 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Radio, Sparkles, FileText, ArrowRight } from "lucide-react";
+
+// Check if we're on mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return isMobile;
+}
 
 const steps = [
   {
@@ -28,34 +45,66 @@ const steps = [
 ];
 
 export function VisualFlow() {
+  const isMobile = useIsMobile();
+
   return (
-    <section className="section-padding section-bordered">
+    <section className="py-12 md:py-20 section-bordered">
       <div className="container-wide">
         <motion.p
-          initial={{ opacity: 0 }}
+          initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
           whileInView={{ opacity: 1 }}
+          animate={isMobile ? { opacity: 1 } : undefined}
           viewport={{ once: true }}
-          className="section-label text-center mb-4"
+          className="section-label text-center mb-3 md:mb-4"
         >
           How It Works
         </motion.p>
         <motion.h2
-          initial={{ opacity: 0, y: 20 }}
+          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
+          animate={isMobile ? { opacity: 1, y: 0 } : undefined}
           viewport={{ once: true }}
-          className="font-serif text-headline text-center mb-16"
+          className="font-serif text-2xl md:text-4xl text-center mb-8 md:mb-16"
         >
           From noise to clarity
         </motion.h2>
 
-        <div className="grid md:grid-cols-3 gap-8 md:gap-4">
+        {/* Mobile: Clean stacked flow with connecting line */}
+        <div className="md:hidden">
+          <div className="relative">
+            {/* Vertical connecting line */}
+            <div className="absolute left-5 top-8 bottom-8 w-px bg-gradient-to-b from-[var(--accent-blue)]/20 via-[var(--accent-blue)]/40 to-[var(--accent-blue)]/20" />
+
+            <div className="space-y-4">
+              {steps.map((step, i) => (
+                <div key={step.label} className="relative flex gap-4">
+                  {/* Step number circle */}
+                  <div className="relative z-10 w-10 h-10 rounded-full bg-[var(--background)] border-2 border-[var(--accent-blue)]/30 flex items-center justify-center flex-shrink-0">
+                    <step.icon className="h-4 w-4 text-[var(--accent-blue)]" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 pb-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--foreground-muted)]">{step.tagline}</span>
+                    <h3 className="font-serif text-lg mb-1">{step.label}</h3>
+                    <p className="text-sm text-[var(--foreground-muted)]">{step.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop: Full grid - unchanged */}
+        <div className="hidden md:grid md:grid-cols-3 gap-4">
           {steps.map((step, i) => (
             <motion.div
               key={step.label}
-              initial={{ opacity: 0, y: 30 }}
+              initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
+              animate={isMobile ? { opacity: 1, y: 0 } : undefined}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.15, duration: 0.6 }}
+              transition={isMobile ? undefined : { delay: i * 0.15, duration: 0.6 }}
               className="relative"
             >
               {/* Arrow between steps */}
@@ -90,28 +139,18 @@ function GatherVisual() {
   const sources = ["GitHub", "HN", "Reddit", "News", "RSS", "Custom"];
   return (
     <div className="flex flex-wrap gap-2 justify-center items-center h-full">
-      {sources.map((src, i) => (
-        <motion.div
+      {sources.map((src) => (
+        <div
           key={src}
-          initial={{ scale: 0 }}
-          whileInView={{ scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 + i * 0.08, type: "spring" }}
           className="px-3 py-2 text-xs font-medium rounded-full border border-[var(--border)] bg-[var(--background)]"
         >
           {src}
-        </motion.div>
+        </div>
       ))}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.8 }}
-        className="w-full text-center mt-4"
-      >
+      <div className="w-full text-center mt-4">
         <span className="text-2xl font-serif text-[var(--accent-blue)]">500+</span>
         <span className="text-xs text-[var(--foreground-muted)] block">sources</span>
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -130,17 +169,13 @@ function AnalyzeVisual() {
         <Sparkles className="h-3 w-3 text-[var(--accent-blue)]" />
         <span className="text-xs text-[var(--foreground-muted)]">STEEP Classification</span>
       </div>
-      {categories.map((cat, i) => (
+      {categories.map((cat) => (
         <div key={cat.name} className="flex items-center gap-2">
           <span className="text-xs w-16 text-[var(--foreground-muted)]">{cat.name}</span>
           <div className="flex-1 h-2 bg-[var(--background)] rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              whileInView={{ width: `${cat.pct}%` }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 + i * 0.1, duration: 0.6 }}
-              className="h-full bg-[var(--accent-blue)] rounded-full"
-              style={{ opacity: 0.3 + (cat.pct / 100) * 0.7 }}
+            <div
+              className="h-full bg-[var(--accent-blue)] rounded-full transition-all duration-500"
+              style={{ width: `${cat.pct}%`, opacity: 0.3 + (cat.pct / 100) * 0.7 }}
             />
           </div>
           <span className="text-xs w-8 text-right">{cat.pct}%</span>
@@ -158,13 +193,9 @@ function DeliverVisual() {
   ];
   return (
     <div className="space-y-3">
-      {outputs.map((out, i) => (
-        <motion.div
+      {outputs.map((out) => (
+        <div
           key={out.type}
-          initial={{ opacity: 0, x: -10 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 + i * 0.15 }}
           className="flex items-center justify-between p-3 rounded-lg bg-[var(--background)]"
         >
           <span className="text-sm font-medium">{out.type}</span>
@@ -176,7 +207,58 @@ function DeliverVisual() {
               Generating
             </span>
           )}
-        </motion.div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Mobile-specific compact visuals
+function GatherVisualMobile() {
+  return (
+    <div className="flex flex-wrap gap-1.5 justify-center">
+      {["GitHub", "HN", "Reddit", "News"].map((src) => (
+        <span key={src} className="px-2 py-1 text-[10px] font-medium rounded-full border border-[var(--border)] bg-[var(--background)]">
+          {src}
+        </span>
+      ))}
+      <div className="w-full text-center mt-2">
+        <span className="text-lg font-serif text-[var(--accent-blue)]">500+</span>
+      </div>
+    </div>
+  );
+}
+
+function AnalyzeVisualMobile() {
+  return (
+    <div className="space-y-1.5">
+      {[{ name: "Tech", pct: 45 }, { name: "Economic", pct: 25 }, { name: "Social", pct: 15 }].map((cat) => (
+        <div key={cat.name} className="flex items-center gap-2">
+          <span className="text-[10px] w-14 text-[var(--foreground-muted)]">{cat.name}</span>
+          <div className="flex-1 h-1.5 bg-[var(--background)] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[var(--accent-blue)] rounded-full"
+              style={{ width: `${cat.pct}%`, opacity: 0.3 + (cat.pct / 100) * 0.7 }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DeliverVisualMobile() {
+  return (
+    <div className="space-y-1.5">
+      {[{ type: "Newsletter", ready: true }, { type: "LinkedIn", ready: true }, { type: "Brief", ready: false }].map((out) => (
+        <div key={out.type} className="flex items-center justify-between p-2 rounded bg-[var(--background)]">
+          <span className="text-[10px] font-medium">{out.type}</span>
+          {out.ready ? (
+            <span className="w-2 h-2 rounded-full bg-green-500" />
+          ) : (
+            <span className="w-2 h-2 rounded-full bg-[var(--accent-blue)] animate-pulse" />
+          )}
+        </div>
       ))}
     </div>
   );
