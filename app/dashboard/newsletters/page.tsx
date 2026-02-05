@@ -127,81 +127,43 @@ export default function NewslettersPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="p-6 space-y-6 h-full overflow-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
-              <Mail className="h-6 w-6 text-blue-400" />
+      <div className="p-8 max-w-[1400px]">
+        {/* Header - Inline Stats + Actions */}
+        <div className="flex items-center justify-between mb-8">
+          {/* Inline Stats */}
+          <div className="flex items-center gap-8">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{totalNewsletters}</span>
+              <span className="text-sm text-muted-foreground">newsletters</span>
             </div>
-            <div>
-              <h1 className="text-2xl font-semibold text-foreground tracking-tight">Newsletter Management</h1>
-              <p className="text-sm text-muted-foreground">
-                Create, schedule, and track newsletter campaigns
-              </p>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{scheduledCount}</span>
+              <span className="text-sm text-muted-foreground">scheduled</span>
+              {scheduledCount > 0 && <span className="h-1.5 w-1.5 rounded-full bg-amber-500 ml-1" />}
+            </div>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{publishedCount}</span>
+              <span className="text-sm text-muted-foreground">published</span>
+              {publishedCount > 0 && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 ml-1" />}
+            </div>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{Math.round(avgOpenRate * 100)}%</span>
+              <span className="text-sm text-muted-foreground">open rate</span>
             </div>
           </div>
-          <Link href="/dashboard/newsletters/create">
-            <Button className="bg-blue-500/20 border border-blue-500/30 text-blue-300 hover:bg-blue-500/30">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Newsletter
-            </Button>
-          </Link>
-        </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-card border">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
-                  <Mail className="h-4 w-4 text-blue-400" />
-                </div>
-                <span className="text-2xl font-bold text-foreground">{totalNewsletters}</span>
-              </div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Newsletters</h3>
-              <p className="text-xs text-muted-foreground/60">All created newsletters</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 border border-amber-500/30">
-                  <Clock className="h-4 w-4 text-amber-400" />
-                </div>
-                <span className="text-2xl font-bold text-foreground">{scheduledCount}</span>
-              </div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Scheduled</h3>
-              <p className="text-xs text-muted-foreground/60">Ready to send</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20 border border-green-500/30">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                </div>
-                <span className="text-2xl font-bold text-foreground">{publishedCount}</span>
-              </div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Published</h3>
-              <p className="text-xs text-muted-foreground/60">Successfully sent</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
-                  <BarChart3 className="h-4 w-4 text-purple-400" />
-                </div>
-                <span className="text-2xl font-bold text-foreground">{Math.round(avgOpenRate * 100)}%</span>
-              </div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Avg Open Rate</h3>
-              <p className="text-xs text-muted-foreground/60">Across all newsletters</p>
-            </CardContent>
-          </Card>
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            <Link href="/dashboard/newsletters/create">
+              <button className="bg-[#1C1C1C] text-white rounded-full px-5 py-2 text-sm font-medium hover:bg-[#2C2C2C] transition-colors flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Create Newsletter
+              </button>
+            </Link>
+          </div>
         </div>
 
         {/* Filters and Search */}

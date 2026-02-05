@@ -397,91 +397,51 @@ export default function ContentPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="p-6 space-y-6 h-full overflow-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
-              <FileText className="h-6 w-6 text-purple-400" />
+      <div className="p-8 max-w-[1400px]">
+        {/* Header - Inline Stats + Actions */}
+        <div className="flex items-center justify-between mb-8">
+          {/* Inline Stats */}
+          <div className="flex items-center gap-8">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{totalDrafts}</span>
+              <span className="text-sm text-muted-foreground">drafts</span>
             </div>
-            <div>
-              <h1 className="text-2xl font-semibold text-foreground tracking-tight">Content Management</h1>
-              <p className="text-sm text-muted-foreground">
-                Create drafts, manage templates, and organize content ideas
-              </p>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{totalLayoutTemplates}</span>
+              <span className="text-sm text-muted-foreground">templates</span>
+            </div>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{totalIdeas}</span>
+              <span className="text-sm text-muted-foreground">ideas</span>
+              {totalIdeas > 0 && <span className="h-1.5 w-1.5 rounded-full bg-amber-500 ml-1" />}
+            </div>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{publishedCount}</span>
+              <span className="text-sm text-muted-foreground">published</span>
+              {publishedCount > 0 && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 ml-1" />}
             </div>
           </div>
+
+          {/* Actions */}
           <div className="flex items-center gap-2">
-            <Button
-              onClick={() => setCreateDraftDialogOpen(true)}
-              className="bg-purple-500/20 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Create Draft
-            </Button>
-            <Button
+            <button
               onClick={() => setSaveIdeaDialogOpen(true)}
-              className="bg-blue-500/20 border border-blue-500/30 text-blue-300 hover:bg-blue-500/30"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-black/[0.06] hover:border-black/[0.12] transition-colors text-sm"
             >
-              <Lightbulb className="h-4 w-4 mr-2" />
-              Save Idea
-            </Button>
+              <Lightbulb className="h-4 w-4 text-amber-500" />
+              <span>Save Idea</span>
+            </button>
+            <button
+              onClick={() => setCreateDraftDialogOpen(true)}
+              className="bg-[#1C1C1C] text-white rounded-full px-5 py-2 text-sm font-medium hover:bg-[#2C2C2C] transition-colors flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Create Draft
+            </button>
           </div>
-        </div>
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-card border">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
-                  <FileText className="h-4 w-4 text-blue-400" />
-                </div>
-                <span className="text-2xl font-bold text-foreground">{totalDrafts}</span>
-              </div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Drafts</h3>
-              <p className="text-xs text-muted-foreground/60">All content drafts</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
-                  <LayoutTemplate className="h-4 w-4 text-blue-400" />
-                </div>
-                <span className="text-2xl font-bold text-foreground">{totalLayoutTemplates}</span>
-              </div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">LayoutTemplates</h3>
-              <p className="text-xs text-muted-foreground/60">Reusable content templates</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 border border-amber-500/30">
-                  <Lightbulb className="h-4 w-4 text-amber-400" />
-                </div>
-                <span className="text-2xl font-bold text-foreground">{totalIdeas}</span>
-              </div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Saved Ideas</h3>
-              <p className="text-xs text-muted-foreground/60">Content inspiration</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20 border border-green-500/30">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                </div>
-                <span className="text-2xl font-bold text-foreground">{publishedCount}</span>
-              </div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Published</h3>
-              <p className="text-xs text-muted-foreground/60">Live content pieces</p>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Filters and Search */}

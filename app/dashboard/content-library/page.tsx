@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import {
   Search,
   Filter,
@@ -205,85 +206,44 @@ export default function ContentLibraryPage() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="p-6 space-y-6"
+        className="p-8 max-w-[1400px]"
       >
-        {/* Header */}
-        <motion.div variants={itemVariants} className="flex items-center gap-3 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/20 border border-purple-500/30">
-            <Library className="h-6 w-6 text-purple-400" />
+        {/* Header - Inline Stats + Actions */}
+        <motion.div variants={itemVariants} className="flex items-center justify-between mb-8">
+          {/* Inline Stats */}
+          <div className="flex items-center gap-8">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{contentStats.total}</span>
+              <span className="text-sm text-muted-foreground">items</span>
+            </div>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{contentStats.drafts}</span>
+              <span className="text-sm text-muted-foreground">drafts</span>
+              {contentStats.drafts > 0 && <span className="h-1.5 w-1.5 rounded-full bg-amber-500 ml-1" />}
+            </div>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{contentStats.scheduled}</span>
+              <span className="text-sm text-muted-foreground">scheduled</span>
+              {contentStats.scheduled > 0 && <span className="h-1.5 w-1.5 rounded-full bg-blue-500 ml-1" />}
+            </div>
+            <div className="h-8 w-px bg-black/[0.06]" />
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-light text-foreground">{contentStats.published}</span>
+              <span className="text-sm text-muted-foreground">published</span>
+              {contentStats.published > 0 && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 ml-1" />}
+            </div>
           </div>
-          <div className="flex-1">
-            <h1 className="text-2xl font-semibold text-foreground tracking-tight">Content Library</h1>
-            <p className="text-sm text-muted-foreground">Manage your content across all formats and channels</p>
-          </div>
-          <button className="bg-purple-500/10 border border-purple-500/20 rounded-lg px-4 py-2 transition-colors hover:bg-purple-500/20 flex items-center gap-2">
-            <Plus className="h-4 w-4 text-purple-400" />
-            <span className="text-sm text-purple-300">Create Content</span>
-          </button>
-        </motion.div>
 
-        {/* Stats Cards */}
-        <motion.div variants={itemVariants}>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <motion.div
-              whileHover={{ y: -2 }}
-              className="bg-card border rounded-lg p-6 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Items</p>
-                  <p className="text-2xl font-bold text-foreground">{contentStats.total}</p>
-                </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
-                  <FileText className="h-6 w-6 text-blue-400" />
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              whileHover={{ y: -2 }}
-              className="bg-card border rounded-lg p-6 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Drafts</p>
-                  <p className="text-2xl font-bold text-foreground">{contentStats.drafts}</p>
-                </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-500/20 border border-amber-500/30">
-                  <Edit className="h-6 w-6 text-amber-400" />
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              whileHover={{ y: -2 }}
-              className="bg-card border rounded-lg p-6 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Scheduled</p>
-                  <p className="text-2xl font-bold text-foreground">{contentStats.scheduled}</p>
-                </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/20 border border-blue-500/30">
-                  <Clock className="h-6 w-6 text-blue-400" />
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              whileHover={{ y: -2 }}
-              className="bg-card border rounded-lg p-6 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Published</p>
-                  <p className="text-2xl font-bold text-foreground">{contentStats.published}</p>
-                </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-500/20 border border-green-500/30">
-                  <Globe className="h-6 w-6 text-green-400" />
-                </div>
-              </div>
-            </motion.div>
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            <Link href="/dashboard/content-ideation">
+              <button className="bg-[#1C1C1C] text-white rounded-full px-5 py-2 text-sm font-medium hover:bg-[#2C2C2C] transition-colors flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Create Content
+              </button>
+            </Link>
           </div>
         </motion.div>
 
