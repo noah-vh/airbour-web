@@ -171,23 +171,41 @@ export function OutputShowcase() {
                 />
               </div>
 
-              {/* Content with smooth layout + crossfade */}
+              {/* Content with smooth layout + layered zoom effect */}
               <motion.div
                 layout
                 transition={{
-                  layout: { type: "spring", stiffness: 300, damping: 30 }
+                  layout: { type: "spring", stiffness: 200, damping: 28 }
                 }}
                 className="p-4 relative"
               >
                 <AnimatePresence mode="popLayout" initial={false}>
                   <motion.div
                     key={active}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{
-                      opacity: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
+                    initial={{
+                      opacity: 0,
+                      scale: 1.04,
+                      filter: "blur(8px)"
                     }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      filter: "blur(0px)"
+                    }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.92,
+                      filter: "blur(8px)",
+                      position: "absolute",
+                      inset: 0,
+                      padding: "1rem",
+                      zIndex: 0
+                    }}
+                    transition={{
+                      duration: 0.6,
+                      ease: [0.32, 0.72, 0, 1]
+                    }}
+                    style={{ zIndex: 1 }}
                   >
                     {active === "newsletter" && <NewsletterPreviewContent />}
                     {active === "linkedin" && <LinkedInPreviewContent />}
