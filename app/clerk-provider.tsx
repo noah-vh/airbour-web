@@ -1,12 +1,12 @@
 "use client";
 
+import { ClerkProvider } from "@clerk/nextjs";
 import type { ReactNode } from "react";
 
 interface ClerkWrapperProps {
   children: ReactNode;
 }
 
-// Clerk authentication disabled for now - just pass through children
 export function ClerkWrapper({ children }: ClerkWrapperProps) {
-  return <>{children}</>;
+  return <ClerkProvider>{children}</ClerkProvider>;
 }
