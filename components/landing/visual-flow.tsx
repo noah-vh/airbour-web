@@ -69,36 +69,29 @@ export function VisualFlow() {
           From noise to clarity
         </motion.h2>
 
-        {/* Mobile: Compact horizontal flow */}
-        <div className="md:hidden -mx-5 px-5">
-          <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-thin">
-            {steps.map((step, i) => (
-              <div
-                key={step.label}
-                className="flex-shrink-0 w-[260px] bg-[var(--background-elevated)] border border-[var(--border)] rounded-xl p-4"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 rounded-lg bg-[var(--accent-blue)]/10 flex items-center justify-center">
+        {/* Mobile: Clean stacked flow with connecting line */}
+        <div className="md:hidden">
+          <div className="relative">
+            {/* Vertical connecting line */}
+            <div className="absolute left-5 top-8 bottom-8 w-px bg-gradient-to-b from-[var(--accent-blue)]/20 via-[var(--accent-blue)]/40 to-[var(--accent-blue)]/20" />
+
+            <div className="space-y-4">
+              {steps.map((step, i) => (
+                <div key={step.label} className="relative flex gap-4">
+                  {/* Step number circle */}
+                  <div className="relative z-10 w-10 h-10 rounded-full bg-[var(--background)] border-2 border-[var(--accent-blue)]/30 flex items-center justify-center flex-shrink-0">
                     <step.icon className="h-4 w-4 text-[var(--accent-blue)]" />
                   </div>
-                  <div>
+
+                  {/* Content */}
+                  <div className="flex-1 pb-2">
                     <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--foreground-muted)]">{step.tagline}</span>
-                    <h3 className="font-serif text-base">{step.label}</h3>
+                    <h3 className="font-serif text-lg mb-1">{step.label}</h3>
+                    <p className="text-sm text-[var(--foreground-muted)]">{step.description}</p>
                   </div>
                 </div>
-                <p className="text-xs text-[var(--foreground-muted)] mb-3">{step.description}</p>
-                <div className="rounded-lg bg-[var(--background-secondary)] p-3">
-                  {i === 0 && <GatherVisualMobile />}
-                  {i === 1 && <AnalyzeVisualMobile />}
-                  {i === 2 && <DeliverVisualMobile />}
-                </div>
-                {i < steps.length - 1 && (
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2">
-                    <ArrowRight className="h-4 w-4 text-[var(--foreground-muted)]" />
-                  </div>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 

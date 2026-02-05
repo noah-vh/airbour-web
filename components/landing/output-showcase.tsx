@@ -34,6 +34,20 @@ export function OutputShowcase() {
   const sectionRef = useRef<HTMLElement>(null);
   const isMobile = useIsMobile();
 
+  // Auto-cycle tabs on mobile
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const interval = setInterval(() => {
+      setActive(current => {
+        const currentIndex = outputs.findIndex(o => o.id === current);
+        return outputs[(currentIndex + 1) % outputs.length].id;
+      });
+    }, 4000); // 4 seconds per tab
+
+    return () => clearInterval(interval);
+  }, [isMobile]);
+
   // Scroll-based tab switching with smoother progression - only on desktop
   useEffect(() => {
     // Disable scroll-based tab switching on mobile
@@ -105,26 +119,58 @@ export function OutputShowcase() {
         {/* Mobile: Horizontal scrolling tabs + stacked preview */}
         {/* Desktop: Split layout with sidebar */}
         <div className="max-w-5xl mx-auto">
-          {/* Mobile Tab Selector - horizontal scrolling pills */}
-          <div className="lg:hidden mb-6 -mx-5 px-5">
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
-              {outputs.map((output) => {
-                const isActive = active === output.id;
-                return (
-                  <button
-                    key={output.id}
-                    onClick={() => setActive(output.id)}
-                    className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all ${
-                      isActive
-                        ? "bg-[var(--accent-blue)] text-white shadow-md"
-                        : "bg-[var(--background-elevated)] text-[var(--foreground-secondary)] border border-[var(--border)]"
-                    }`}
-                  >
-                    <output.icon className="h-4 w-4" />
-                    {output.label}
-                  </button>
-                );
-              })}
+          {/* Mobile: Auto-cycling with integrated header */}
+          <div className="lg:hidden">
+            {/* Card with header showing current format */}
+            <div className="bg-[var(--background-elevated)] rounded-xl border border-[var(--border)] overflow-hidden">
+              {/* Header with format indicator and progress dots */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
+                <div className="flex items-center gap-2">
+                  {outputs.find(o => o.id === active)?.icon && (
+                    <>
+                      {active === "newsletter" && <Mail className="h-4 w-4 text-[var(--accent-blue)]" />}
+                      {active === "linkedin" && <Linkedin className="h-4 w-4 text-[var(--accent-blue)]" />}
+                      {active === "twitter" && <Twitter className="h-4 w-4 text-[var(--accent-blue)]" />}
+                      {active === "brief" && <FileText className="h-4 w-4 text-[var(--accent-blue)]" />}
+                    </>
+                  )}
+                  <span className="text-sm font-medium">{outputs.find(o => o.id === active)?.label}</span>
+                </div>
+                {/* Progress indicators */}
+                <div className="flex items-center gap-1.5">
+                  {outputs.map((output) => (
+                    <button
+                      key={output.id}
+                      onClick={() => setActive(output.id)}
+                      className="relative w-6 h-1.5 rounded-full overflow-hidden bg-black/[0.06]"
+                    >
+                      {active === output.id && (
+                        <motion.div
+                          className="absolute inset-0 bg-[var(--accent-blue)] rounded-full"
+                          initial={{ scaleX: 0, originX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ duration: 4, ease: "linear" }}
+                          key={`progress-${output.id}-${Date.now()}`}
+                        />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Content preview */}
+              <motion.div
+                key={active}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="p-4"
+              >
+                {active === "newsletter" && <NewsletterPreviewContent />}
+                {active === "linkedin" && <LinkedInPreviewContent />}
+                {active === "twitter" && <TwitterPreviewContent />}
+                {active === "brief" && <BriefPreviewContent />}
+              </motion.div>
             </div>
           </div>
 
@@ -209,15 +255,6 @@ export function OutputShowcase() {
             </motion.div>
           </div>
 
-          {/* Mobile Preview - Compact version */}
-          <div className="lg:hidden">
-            <AnimatePresence mode="wait">
-              {active === "newsletter" && <NewsletterPreviewMobile key="newsletter-mobile" />}
-              {active === "linkedin" && <LinkedInPreviewMobile key="linkedin-mobile" />}
-              {active === "twitter" && <TwitterPreviewMobile key="twitter-mobile" />}
-              {active === "brief" && <BriefPreviewMobile key="brief-mobile" />}
-            </AnimatePresence>
-          </div>
         </div>
       </div>
     </section>
@@ -423,58 +460,32 @@ function BriefPreview() {
 }
 
 // ============================================
-// Mobile-optimized compact preview components
+// Mobile content-only preview components
 // ============================================
 
-const mobilePreviewVariants = {
-  initial: { opacity: 0, y: 10 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-  exit: { opacity: 0, y: -10, transition: { duration: 0.2 } }
-};
-
-function NewsletterPreviewMobile() {
+function NewsletterPreviewContent() {
   return (
-    <motion.div
-      variants={mobilePreviewVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="bg-[var(--background-elevated)] rounded-xl border border-[var(--border)] overflow-hidden"
-    >
-      <div className="px-4 py-3 border-b border-[var(--border)] bg-gradient-to-r from-[var(--accent-blue)]/5 to-transparent">
-        <div className="flex items-center gap-2">
-          <Mail className="h-4 w-4 text-[var(--accent-blue)]" />
-          <span className="font-medium text-sm">Weekly Brief</span>
-        </div>
-      </div>
-      <div className="p-4 space-y-3">
-        <p className="text-xs text-[var(--foreground-muted)]">Top signals this week:</p>
-        <ul className="space-y-2">
-          {[
-            "AI agents up 340% on GitHub",
-            "Climate tech investments surge",
-            "Enterprise LLM adoption accelerating"
-          ].map((item, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-[var(--foreground-secondary)]">
-              <span className="w-1 h-1 rounded-full bg-[var(--accent-blue)] mt-2 flex-shrink-0" />
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </motion.div>
+    <div className="space-y-3">
+      <p className="text-xs text-[var(--foreground-muted)]">Top signals this week:</p>
+      <ul className="space-y-2">
+        {[
+          "AI agents up 340% on GitHub",
+          "Climate tech investments surge",
+          "Enterprise LLM adoption accelerating"
+        ].map((item, i) => (
+          <li key={i} className="flex items-start gap-2 text-sm text-[var(--foreground-secondary)]">
+            <span className="w-1 h-1 rounded-full bg-[var(--accent-blue)] mt-2 flex-shrink-0" />
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
-function LinkedInPreviewMobile() {
+function LinkedInPreviewContent() {
   return (
-    <motion.div
-      variants={mobilePreviewVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="bg-[var(--background-elevated)] rounded-xl border border-[var(--border)] p-4"
-    >
+    <>
       <div className="flex items-center gap-3 mb-3">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent-blue)]/20 to-[var(--accent-purple)]/20" />
         <div>
@@ -490,19 +501,13 @@ function LinkedInPreviewMobile() {
         <span>💬 23</span>
         <span>🔄 18</span>
       </div>
-    </motion.div>
+    </>
   );
 }
 
-function TwitterPreviewMobile() {
+function TwitterPreviewContent() {
   return (
-    <motion.div
-      variants={mobilePreviewVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="bg-[var(--background-elevated)] rounded-xl border border-[var(--border)] p-4"
-    >
+    <>
       <div className="flex items-center gap-2 mb-3">
         <div className="w-8 h-8 rounded-full bg-[var(--foreground)]/10" />
         <span className="font-medium text-sm">You</span>
@@ -516,40 +521,29 @@ function TwitterPreviewMobile() {
         <span>🔄 128</span>
         <span>❤️ 412</span>
       </div>
-    </motion.div>
+    </>
   );
 }
 
-function BriefPreviewMobile() {
+function BriefPreviewContent() {
   return (
-    <motion.div
-      variants={mobilePreviewVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="bg-[var(--background-elevated)] rounded-xl border border-[var(--border)] overflow-hidden"
-    >
-      <div className="px-4 py-3 border-b border-[var(--border)] bg-gradient-to-r from-[var(--accent-purple)]/5 to-transparent">
-        <span className="text-xs text-[var(--accent-purple)] uppercase tracking-wide font-medium">Executive Brief</span>
+    <>
+      <h4 className="font-serif text-base mb-3">AI Agents Market Update</h4>
+      <div className="grid grid-cols-3 gap-3 py-3 border-y border-[var(--border)] mb-3">
+        {[
+          { value: "340%", label: "Growth" },
+          { value: "89%", label: "Confidence" },
+          { value: "High", label: "Priority" }
+        ].map((metric, i) => (
+          <div key={i} className="text-center">
+            <div className="text-lg font-serif text-[var(--accent-blue)]">{metric.value}</div>
+            <div className="text-[10px] text-[var(--foreground-muted)]">{metric.label}</div>
+          </div>
+        ))}
       </div>
-      <div className="p-4">
-        <h4 className="font-serif text-base mb-3">AI Agents Market Update</h4>
-        <div className="grid grid-cols-3 gap-3 py-3 border-y border-[var(--border)] mb-3">
-          {[
-            { value: "340%", label: "Growth" },
-            { value: "89%", label: "Confidence" },
-            { value: "High", label: "Priority" }
-          ].map((metric, i) => (
-            <div key={i} className="text-center">
-              <div className="text-lg font-serif text-[var(--accent-blue)]">{metric.value}</div>
-              <div className="text-[10px] text-[var(--foreground-muted)]">{metric.label}</div>
-            </div>
-          ))}
-        </div>
-        <p className="text-xs text-[var(--foreground-secondary)]">
-          Prioritize agent framework evaluation. Early movers gaining advantage.
-        </p>
-      </div>
-    </motion.div>
+      <p className="text-xs text-[var(--foreground-secondary)]">
+        Prioritize agent framework evaluation. Early movers gaining advantage.
+      </p>
+    </>
   );
 }

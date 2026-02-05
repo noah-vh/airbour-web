@@ -103,31 +103,26 @@ export function FeaturesSection() {
           </motion.p>
         </div>
 
-        {/* Mobile: Horizontal scrolling feature cards */}
-        <div className="md:hidden -mx-5 px-5">
-          <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-thin">
-            {features.map((feature) => (
-              <div
-                key={feature.title}
-                className="flex-shrink-0 w-[200px] p-4 rounded-xl bg-[var(--background-elevated)] border border-[var(--border)]"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-9 h-9 rounded-lg bg-[var(--accent-blue)]/10 flex items-center justify-center">
-                    <feature.icon className="h-4 w-4 text-[var(--accent-blue)]" />
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-serif text-[var(--accent-blue)]">{feature.stat}</div>
-                    <div className="text-[8px] uppercase tracking-wider text-[var(--foreground-muted)]">{feature.statLabel}</div>
-                  </div>
+        {/* Mobile: Wrapped 2-column grid */}
+        <div className="md:hidden grid grid-cols-2 gap-3">
+          {features.map((feature) => (
+            <div
+              key={feature.title}
+              className="p-3 rounded-xl bg-[var(--background-elevated)] border border-[var(--border)]"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 rounded-lg bg-[var(--accent-blue)]/10 flex items-center justify-center">
+                  <feature.icon className="h-4 w-4 text-[var(--accent-blue)]" />
                 </div>
-
-                <h3 className="font-semibold text-sm mb-1.5">{feature.title}</h3>
-                <p className="text-[11px] text-[var(--foreground-secondary)] leading-relaxed line-clamp-3">
-                  {feature.description}
-                </p>
+                <div className="text-lg font-serif text-[var(--accent-blue)]">{feature.stat}</div>
               </div>
-            ))}
-          </div>
+
+              <h3 className="font-semibold text-sm mb-1">{feature.title}</h3>
+              <p className="text-[10px] text-[var(--foreground-muted)] leading-relaxed line-clamp-2">
+                {feature.description}
+              </p>
+            </div>
+          ))}
         </div>
 
         {/* Desktop: Full grid - unchanged */}

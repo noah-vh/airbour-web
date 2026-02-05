@@ -44,6 +44,20 @@ export function Hero() {
 
   const createSubscriber = useMutation(api.subscribers.create);
 
+  // Auto-cycle tabs on mobile
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const interval = setInterval(() => {
+      setActiveTab(current => {
+        const currentIndex = tabs.indexOf(current);
+        return tabs[(currentIndex + 1) % tabs.length];
+      });
+    }, 4000); // 4 seconds per tab
+
+    return () => clearInterval(interval);
+  }, [isMobile]);
+
   // Scroll-based tab switching - only on desktop
   useEffect(() => {
     // Disable scroll-based tab switching on mobile
@@ -240,40 +254,55 @@ export function Hero() {
             transition={isMobile ? undefined : { duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-5xl mx-auto"
           >
-            {/* Mobile: Horizontal scrolling tabs + content */}
+            {/* Mobile: Auto-cycling demo with subtle indicators */}
             <div className="lg:hidden">
-              {/* Mobile tab selector - horizontal scrolling pills */}
-              <div className="-mx-5 px-5 mb-4">
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
-                  {[
-                    { id: "signals" as const, icon: BarChart3, label: "Live Signals" },
-                    { id: "sources" as const, icon: Radio, label: "500+ Sources" },
-                    { id: "ai" as const, icon: Sparkles, label: "AI Analysis" },
-                  ].map((feature) => {
-                    const isActive = activeTab === feature.id;
-                    return (
-                      <button
-                        key={feature.id}
-                        onClick={() => setActiveTab(feature.id)}
-                        className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all ${
-                          isActive
-                            ? "bg-[var(--accent-blue)] text-white shadow-md"
-                            : "bg-[var(--background-elevated)] text-[var(--foreground-secondary)] border border-[var(--border)]"
-                        }`}
-                      >
-                        <feature.icon className="h-4 w-4" />
-                        {feature.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Mobile demo content */}
+              {/* Demo card with integrated header */}
               <div className="float-card rounded-xl overflow-hidden">
-                {activeTab === "signals" && <SignalsDemoMobile />}
-                {activeTab === "sources" && <SourcesDemoMobile />}
-                {activeTab === "ai" && <AIDemoMobile />}
+                {/* Header with feature name and indicators */}
+                <div className="flex items-center justify-between px-4 pt-4 pb-2">
+                  <div className="flex items-center gap-2">
+                    {activeTab === "signals" && <BarChart3 className="h-4 w-4 text-[var(--accent-blue)]" />}
+                    {activeTab === "sources" && <Radio className="h-4 w-4 text-[var(--accent-blue)]" />}
+                    {activeTab === "ai" && <Sparkles className="h-4 w-4 text-purple-500" />}
+                    <span className="text-sm font-medium">
+                      {activeTab === "signals" && "Live Signals"}
+                      {activeTab === "sources" && "500+ Sources"}
+                      {activeTab === "ai" && "AI Analysis"}
+                    </span>
+                  </div>
+                  {/* Dot indicators with progress */}
+                  <div className="flex items-center gap-1.5">
+                    {tabs.map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className="relative w-6 h-1.5 rounded-full overflow-hidden bg-black/[0.06]"
+                      >
+                        {activeTab === tab && (
+                          <motion.div
+                            className="absolute inset-0 bg-[var(--accent-blue)] rounded-full"
+                            initial={{ scaleX: 0, originX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{ duration: 4, ease: "linear" }}
+                            key={`progress-${tab}-${Date.now()}`}
+                          />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Content with fade transition */}
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {activeTab === "signals" && <SignalsDemoMobile />}
+                  {activeTab === "sources" && <SourcesDemoMobile />}
+                  {activeTab === "ai" && <AIDemoMobile />}
+                </motion.div>
               </div>
             </div>
 
