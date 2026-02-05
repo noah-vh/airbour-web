@@ -544,6 +544,36 @@ body {
 }
 
 /* ===========================================
+   Mobile Animation Fallbacks
+   Ensures content is visible even if Framer Motion
+   whileInView doesn't trigger on mobile Safari
+   =========================================== */
+@media (max-width: 768px) {
+  /* Force visibility for landing page sections on mobile */
+  main section,
+  main section > div,
+  main section h1,
+  main section h2,
+  main section h3,
+  main section p,
+  main section button,
+  main section form,
+  main section .grid > div,
+  main section .space-y-3 > button,
+  main section .float-card {
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+  }
+
+  /* Ensure form cards are visible */
+  main .bg-\[var\(--background-elevated\)\] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ===========================================
    Feature List Pattern
    =========================================== */
 .feature-list {

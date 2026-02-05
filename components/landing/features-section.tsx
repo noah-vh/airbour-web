@@ -1,7 +1,24 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Zap, Brain, TrendingUp, Shield, Clock, Users } from "lucide-react";
+
+// Check if we're on mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return isMobile;
+}
 
 const features = [
   {
@@ -49,32 +66,37 @@ const features = [
 ];
 
 export function FeaturesSection() {
+  const isMobile = useIsMobile();
+
   return (
     <section className="section-padding section-gradient-soft section-hr">
       <div className="container-wide">
         {/* Header */}
         <div className="max-w-2xl mx-auto text-center mb-16">
           <motion.p
-            initial={{ opacity: 0 }}
+            initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
             whileInView={{ opacity: 1 }}
+            animate={isMobile ? { opacity: 1 } : undefined}
             viewport={{ once: true }}
             className="section-label mb-4"
           >
             Capabilities
           </motion.p>
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
+            initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            animate={isMobile ? { opacity: 1, y: 0 } : undefined}
             viewport={{ once: true }}
             className="font-serif text-headline mb-4"
           >
             Intelligence, engineered
           </motion.h2>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            animate={isMobile ? { opacity: 1, y: 0 } : undefined}
             viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
+            transition={isMobile ? undefined : { delay: 0.1 }}
             className="text-[var(--foreground-secondary)]"
           >
             Every feature designed to give you an unfair advantage in spotting what's next.
@@ -83,13 +105,9 @@ export function FeaturesSection() {
 
         {/* Features grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {features.map((feature, index) => (
-            <motion.div
+          {features.map((feature) => (
+            <div
               key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.08 }}
               className="group p-6 rounded-2xl bg-[var(--background-elevated)] border border-[var(--border)] hover:border-[var(--border-hover)] hover:shadow-[var(--shadow-lifted)] transition-all duration-300"
             >
               <div className="flex items-start justify-between mb-4">
@@ -106,7 +124,7 @@ export function FeaturesSection() {
               <p className="text-sm text-[var(--foreground-secondary)] leading-relaxed">
                 {feature.description}
               </p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

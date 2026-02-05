@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 
 export function GradientOrbs() {
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    // Hidden on mobile for performance - blur animations are heavy on mobile browsers
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 hidden md:block">
       <motion.div
         animate={{
           x: [0, 100, 0],

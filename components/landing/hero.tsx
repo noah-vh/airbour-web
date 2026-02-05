@@ -18,17 +18,37 @@ import { TabSlider } from "@/components/ui/tab-slider";
 const tabs = ["signals", "sources", "ai"] as const;
 type TabType = typeof tabs[number];
 
+// Check if we're on mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return isMobile;
+}
+
 export function Hero() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [activeTab, setActiveTab] = useState<TabType>("signals");
   const demoRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   const createSubscriber = useMutation(api.subscribers.create);
 
-  // Scroll-based tab switching
+  // Scroll-based tab switching - only on desktop
   useEffect(() => {
+    // Disable scroll-based tab switching on mobile
+    if (isMobile) return;
+
     const handleScroll = () => {
       if (!demoRef.current) return;
 
@@ -55,7 +75,7 @@ export function Hero() {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isMobile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,12 +95,21 @@ export function Hero() {
     }
   };
 
+  // Animation variants - simplified on mobile
+  const fadeInUp = isMobile
+    ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } }
+    : { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 } };
+
+  const fadeInUpDelayed = (delay: number) => isMobile
+    ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 }, transition: undefined }
+    : { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] as const } };
+
   return (
     <>
       {/* Hero statement - premium editorial layout */}
       <section className="relative py-24 md:py-32 lg:py-40 overflow-hidden">
-        {/* Ambient glow */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-[var(--accent-blue)]/[0.03] rounded-full blur-[100px] pointer-events-none" />
+        {/* Ambient glow - hidden on mobile for performance */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-[var(--accent-blue)]/[0.03] rounded-full blur-[100px] pointer-events-none hidden md:block" />
 
         <div className="container-wide relative z-10">
           <div className="max-w-5xl mx-auto">
@@ -89,9 +118,9 @@ export function Hero() {
               <div>
                 {/* Product name */}
                 <motion.p
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  initial={fadeInUp.initial}
+                  animate={fadeInUp.animate}
+                  transition={isMobile ? undefined : { duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   className="font-serif text-3xl md:text-4xl text-[var(--foreground)] mb-4"
                 >
                   Airbour
@@ -99,9 +128,9 @@ export function Hero() {
 
                 {/* Main Headline */}
                 <motion.h1
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                  initial={fadeInUpDelayed(0.1).initial}
+                  animate={fadeInUpDelayed(0.1).animate}
+                  transition={fadeInUpDelayed(0.1).transition}
                   className="font-serif text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.05] mb-6"
                 >
                   <span className="inline-block">Know First.</span>{" "}
@@ -109,9 +138,9 @@ export function Hero() {
                 </motion.h1>
 
                 <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  initial={fadeInUpDelayed(0.2).initial}
+                  animate={fadeInUpDelayed(0.2).animate}
+                  transition={isMobile ? undefined : { duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                   className="text-xl md:text-2xl text-[var(--foreground-secondary)] leading-relaxed max-w-lg"
                 >
                   AI that watches the world so you can shape it.
@@ -120,9 +149,9 @@ export function Hero() {
 
               {/* Right: Signup form card */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                transition={isMobile ? undefined : { duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
               >
                 {status === "success" ? (
                   <div className="p-8 md:p-10 bg-[var(--background-elevated)] border border-[var(--border)] rounded-2xl shadow-[var(--shadow-elevated)]">
@@ -204,10 +233,11 @@ export function Hero() {
       <section className="pb-20 md:pb-32" ref={demoRef}>
         <div className="container-wide">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
+            animate={isMobile ? { opacity: 1, y: 0 } : undefined}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            transition={isMobile ? undefined : { duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-5xl mx-auto"
           >
             {/* Split layout: Features left, Demo right */}

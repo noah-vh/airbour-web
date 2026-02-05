@@ -1,6 +1,23 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+
+// Check if we're on mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return isMobile;
+}
 
 const audiences = [
   {
@@ -26,6 +43,8 @@ const audiences = [
 ];
 
 export function UseCasesStrip() {
+  const isMobile = useIsMobile();
+
   return (
     <section className="py-24 md:py-32 section-alt-2 section-hr">
       <div className="container-wide">
@@ -33,18 +52,20 @@ export function UseCasesStrip() {
           {/* Editorial header */}
           <div className="mb-16 md:mb-20">
             <motion.p
-              initial={{ opacity: 0 }}
+              initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
               whileInView={{ opacity: 1 }}
+              animate={isMobile ? { opacity: 1 } : undefined}
               viewport={{ once: true }}
               className="section-label mb-4"
             >
               Who It's For
             </motion.p>
             <motion.h2
-              initial={{ opacity: 0, y: 20 }}
+              initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
+              animate={isMobile ? { opacity: 1, y: 0 } : undefined}
               viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
+              transition={isMobile ? undefined : { delay: 0.1 }}
               className="font-serif text-3xl md:text-4xl tracking-tight max-w-2xl"
             >
               Built for those who shape markets—
@@ -54,13 +75,9 @@ export function UseCasesStrip() {
 
           {/* Editorial audience grid */}
           <div className="space-y-0">
-            {audiences.map((audience, i) => (
-              <motion.div
+            {audiences.map((audience) => (
+              <div
                 key={audience.role}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                 className="group grid md:grid-cols-[200px_1fr_1fr] gap-6 md:gap-10 py-8 md:py-10 border-b border-[var(--border)] last:border-b-0 hover:bg-[var(--background-elevated)]/30 -mx-6 px-6 transition-colors duration-300"
               >
                 {/* Role */}
@@ -89,7 +106,7 @@ export function UseCasesStrip() {
                     {audience.outcome}
                   </p>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>

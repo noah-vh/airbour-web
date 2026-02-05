@@ -1,8 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
+
+// Check if we're on mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return isMobile;
+}
 
 const faqs = [
   {
@@ -33,6 +49,7 @@ const faqs = [
 
 export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const isMobile = useIsMobile();
 
   return (
     <section className="section-padding section-bordered">
@@ -41,16 +58,18 @@ export function FAQSection() {
           {/* Header */}
           <div className="text-center mb-12">
             <motion.p
-              initial={{ opacity: 0 }}
+              initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
               whileInView={{ opacity: 1 }}
+              animate={isMobile ? { opacity: 1 } : undefined}
               viewport={{ once: true }}
               className="section-label mb-4"
             >
               FAQ
             </motion.p>
             <motion.h2
-              initial={{ opacity: 0, y: 20 }}
+              initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
+              animate={isMobile ? { opacity: 1, y: 0 } : undefined}
               viewport={{ once: true }}
               className="font-serif text-headline"
             >
@@ -63,12 +82,8 @@ export function FAQSection() {
             {faqs.map((faq, index) => {
               const isOpen = openIndex === index;
               return (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.05 }}
                   className={`rounded-2xl border transition-all duration-300 ${
                     isOpen
                       ? "bg-[var(--background-elevated)] border-[var(--border-hover)] shadow-[var(--shadow-elevated)]"
@@ -110,7 +125,7 @@ export function FAQSection() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </motion.div>
+                </div>
               );
             })}
           </div>

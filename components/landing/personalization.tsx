@@ -1,7 +1,24 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Brain } from "lucide-react";
+
+// Check if we're on mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return isMobile;
+}
 
 const interests = [
   { label: "AI & Machine Learning", value: 92 },
@@ -11,16 +28,19 @@ const interests = [
 ];
 
 export function Personalization() {
+  const isMobile = useIsMobile();
+
   return (
     <section className="section-padding section-dark-tint section-bordered">
       <div className="container-wide">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left: Copy */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
+            animate={isMobile ? { opacity: 1, x: 0 } : undefined}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={isMobile ? undefined : { duration: 0.6 }}
           >
             <p className="section-label mb-4">Personalization</p>
             <h2 className="font-serif text-headline tracking-tight mb-4">
@@ -34,10 +54,11 @@ export function Personalization() {
 
           {/* Right: Visual demo */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
+            animate={isMobile ? { opacity: 1, x: 0 } : undefined}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            transition={isMobile ? undefined : { duration: 0.6, delay: 0.1 }}
           >
             <div className="card-elevated p-6 rounded-xl">
               {/* Profile header */}
@@ -53,19 +74,16 @@ export function Personalization() {
 
               {/* Interest bars */}
               <div className="space-y-4 mb-6">
-                {interests.map((interest, i) => (
+                {interests.map((interest) => (
                   <div key={interest.label}>
                     <div className="flex justify-between mb-1.5">
                       <span className="text-sm">{interest.label}</span>
                       <span className="text-sm text-[var(--foreground-muted)]">{interest.value}%</span>
                     </div>
                     <div className="h-2 bg-[var(--background-secondary)] rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${interest.value}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.2 + i * 0.1 }}
-                        className="h-full bg-[var(--accent-purple)] rounded-full"
+                      <div
+                        className="h-full bg-[var(--accent-purple)] rounded-full transition-all duration-500"
+                        style={{ width: `${interest.value}%` }}
                       />
                     </div>
                   </div>

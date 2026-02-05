@@ -13,12 +13,32 @@ const outputs = [
 
 type OutputType = typeof outputs[number]["id"];
 
+// Check if we're on mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return isMobile;
+}
+
 export function OutputShowcase() {
   const [active, setActive] = useState<OutputType>("newsletter");
   const sectionRef = useRef<HTMLElement>(null);
+  const isMobile = useIsMobile();
 
-  // Scroll-based tab switching with smoother progression
+  // Scroll-based tab switching with smoother progression - only on desktop
   useEffect(() => {
+    // Disable scroll-based tab switching on mobile
+    if (isMobile) return;
+
     const handleScroll = () => {
       if (!sectionRef.current) return;
 
@@ -45,7 +65,7 @@ export function OutputShowcase() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll(); // Initial check
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isMobile]);
 
   return (
     <section className="section-padding section-cool section-hr" ref={sectionRef}>
@@ -53,26 +73,29 @@ export function OutputShowcase() {
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
           <motion.p
-            initial={{ opacity: 0 }}
+            initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
             whileInView={{ opacity: 1 }}
+            animate={isMobile ? { opacity: 1 } : undefined}
             viewport={{ once: true }}
             className="section-label mb-4"
           >
             Output
           </motion.p>
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
+            initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            animate={isMobile ? { opacity: 1, y: 0 } : undefined}
             viewport={{ once: true }}
             className="font-serif text-headline mb-4"
           >
             Insight becomes influence
           </motion.h2>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            animate={isMobile ? { opacity: 1, y: 0 } : undefined}
             viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
+            transition={isMobile ? undefined : { delay: 0.1 }}
             className="text-[var(--foreground-muted)]"
           >
             Your intelligence, every format
@@ -83,8 +106,9 @@ export function OutputShowcase() {
         <div className="grid lg:grid-cols-[280px_1fr] gap-8 lg:gap-12 max-w-5xl mx-auto">
           {/* Left: Format selector */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
+            animate={isMobile ? { opacity: 1, x: 0 } : undefined}
             viewport={{ once: true }}
             className="space-y-2"
           >
@@ -144,8 +168,9 @@ export function OutputShowcase() {
 
           {/* Right: Content preview */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
+            animate={isMobile ? { opacity: 1, x: 0 } : undefined}
             viewport={{ once: true }}
             className="relative min-h-[400px]"
           >

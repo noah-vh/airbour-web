@@ -1,15 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Loader2, CheckCircle, AlertCircle, ArrowRight } from "lucide-react";
 
+// Check if we're on mobile
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return isMobile;
+}
+
 export function CTASection() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const isMobile = useIsMobile();
 
   const createSubscriber = useMutation(api.subscribers.create);
 
@@ -49,8 +66,8 @@ export function CTASection() {
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20" />
 
-      {/* Ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-[var(--accent-blue)]/5 rounded-full blur-[120px] pointer-events-none" />
+      {/* Ambient glow - hidden on mobile for performance */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-[var(--accent-blue)]/5 rounded-full blur-[120px] pointer-events-none hidden md:block" />
 
       <div className="container-wide relative z-10">
         <div className="max-w-4xl mx-auto">
@@ -59,8 +76,9 @@ export function CTASection() {
             {/* Left: Statement */}
             <div>
               <motion.p
-                initial={{ opacity: 0 }}
+                initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
                 whileInView={{ opacity: 1 }}
+                animate={isMobile ? { opacity: 1 } : undefined}
                 viewport={{ once: true }}
                 className="text-xs uppercase tracking-[0.2em] text-white/40 mb-6"
               >
@@ -68,20 +86,22 @@ export function CTASection() {
               </motion.p>
 
               <motion.h2
-                initial={{ opacity: 0, y: 24 }}
+                initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                animate={isMobile ? { opacity: 1, y: 0 } : undefined}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                transition={isMobile ? undefined : { duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                 className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight leading-[1.1] mb-6"
               >
                 The future satisfies those who see it first.
               </motion.h2>
 
               <motion.p
-                initial={{ opacity: 0, y: 20 }}
+                initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                animate={isMobile ? { opacity: 1, y: 0 } : undefined}
                 viewport={{ once: true }}
-                transition={{ delay: 0.1, duration: 0.6 }}
+                transition={isMobile ? undefined : { delay: 0.1, duration: 0.6 }}
                 className="text-lg text-white/60 leading-relaxed"
               >
                 Early access to Airbour. Be among the first to transform how you track emerging signals and opportunities.
@@ -90,10 +110,11 @@ export function CTASection() {
 
             {/* Right: Form */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
+              animate={isMobile ? { opacity: 1, y: 0 } : undefined}
               viewport={{ once: true }}
-              transition={{ delay: 0.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              transition={isMobile ? undefined : { delay: 0.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
               {status === "success" ? (
                 <div className="p-10 bg-white/[0.03] border border-white/10 rounded-2xl backdrop-blur-sm">
