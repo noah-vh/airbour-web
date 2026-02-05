@@ -310,34 +310,30 @@ export function Hero() {
                   />
                 </div>
 
-                {/* Content with card-stack transition */}
-                <div className="relative overflow-hidden">
-                  <AnimatePresence initial={false}>
+                {/* Content with smooth layout + crossfade */}
+                <motion.div
+                  layout
+                  transition={{
+                    layout: { type: "spring", stiffness: 300, damping: 30 }
+                  }}
+                  className="relative"
+                >
+                  <AnimatePresence mode="popLayout" initial={false}>
                     <motion.div
                       key={activeTab}
-                      initial={{ opacity: 0, scale: 1.08, y: -10, filter: "blur(4px)" }}
-                      animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
-                      exit={{
-                        opacity: 0,
-                        scale: 0.88,
-                        y: 20,
-                        filter: "blur(6px)",
-                        position: "absolute",
-                        inset: 0,
-                        zIndex: 0
-                      }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
                       transition={{
-                        duration: 0.75,
-                        ease: [0.16, 1, 0.3, 1]
+                        opacity: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
                       }}
-                      style={{ zIndex: 1 }}
                     >
                       {activeTab === "signals" && <SignalsDemoMobile />}
                       {activeTab === "sources" && <SourcesDemoMobile />}
                       {activeTab === "ai" && <AIDemoMobile />}
                     </motion.div>
                   </AnimatePresence>
-                </div>
+                </motion.div>
               </motion.div>
             </div>
 
