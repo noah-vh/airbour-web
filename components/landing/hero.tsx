@@ -254,42 +254,62 @@ export function Hero() {
             transition={isMobile ? undefined : { duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-5xl mx-auto"
           >
-            {/* Mobile: Auto-cycling demo with subtle indicators */}
+            {/* Mobile: Auto-cycling demo with visible tabs and swipe */}
             <div className="lg:hidden">
-              {/* Demo card with integrated header */}
-              <div className="float-card rounded-xl overflow-hidden">
-                {/* Header with feature name and indicators */}
-                <div className="flex items-center justify-between px-4 pt-4 pb-2">
-                  <div className="flex items-center gap-2">
-                    {activeTab === "signals" && <BarChart3 className="h-4 w-4 text-[var(--accent-blue)]" />}
-                    {activeTab === "sources" && <Radio className="h-4 w-4 text-[var(--accent-blue)]" />}
-                    {activeTab === "ai" && <Sparkles className="h-4 w-4 text-purple-500" />}
-                    <span className="text-sm font-medium">
-                      {activeTab === "signals" && "Live Signals"}
-                      {activeTab === "sources" && "500+ Sources"}
-                      {activeTab === "ai" && "AI Analysis"}
-                    </span>
-                  </div>
-                  {/* Dot indicators with progress */}
-                  <div className="flex items-center gap-1.5">
-                    {tabs.map((tab) => (
-                      <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className="relative w-6 h-1.5 rounded-full overflow-hidden bg-black/[0.06]"
-                      >
-                        {activeTab === tab && (
-                          <motion.div
-                            className="absolute inset-0 bg-[var(--accent-blue)] rounded-full"
-                            initial={{ scaleX: 0, originX: 0 }}
-                            animate={{ scaleX: 1 }}
-                            transition={{ duration: 4, ease: "linear" }}
-                            key={`progress-${tab}-${Date.now()}`}
-                          />
-                        )}
-                      </button>
-                    ))}
-                  </div>
+              {/* Visible tab bar */}
+              <div className="flex items-center gap-1 mb-3">
+                {[
+                  { id: "signals" as const, icon: BarChart3, label: "Signals" },
+                  { id: "sources" as const, icon: Radio, label: "Sources" },
+                  { id: "ai" as const, icon: Sparkles, label: "AI" },
+                ].map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-all ${
+                        isActive
+                          ? "bg-[var(--accent-blue)] text-white"
+                          : "bg-[var(--background-elevated)] text-[var(--foreground-muted)] border border-[var(--border)]"
+                      }`}
+                    >
+                      <tab.icon className="h-3.5 w-3.5" />
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Swipeable content card */}
+              <motion.div
+                className="float-card rounded-xl overflow-hidden touch-pan-y"
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragEnd={(_, info) => {
+                  if (info.offset.x > 50) {
+                    // Swiped right - go to previous
+                    const currentIndex = tabs.indexOf(activeTab);
+                    const prevIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;
+                    setActiveTab(tabs[prevIndex]);
+                  } else if (info.offset.x < -50) {
+                    // Swiped left - go to next
+                    const currentIndex = tabs.indexOf(activeTab);
+                    const nextIndex = (currentIndex + 1) % tabs.length;
+                    setActiveTab(tabs[nextIndex]);
+                  }
+                }}
+              >
+                {/* Progress bar */}
+                <div className="h-0.5 bg-black/[0.04] relative">
+                  <motion.div
+                    className="absolute inset-y-0 left-0 bg-[var(--accent-blue)]"
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 4, ease: "linear" }}
+                    key={`progress-${activeTab}`}
+                  />
                 </div>
 
                 {/* Content with fade transition */}
@@ -297,13 +317,13 @@ export function Hero() {
                   key={activeTab}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.2 }}
                 >
                   {activeTab === "signals" && <SignalsDemoMobile />}
                   {activeTab === "sources" && <SourcesDemoMobile />}
                   {activeTab === "ai" && <AIDemoMobile />}
                 </motion.div>
-              </div>
+              </motion.div>
             </div>
 
             {/* Desktop: Split layout - unchanged */}
@@ -607,12 +627,12 @@ function SignalsDemoMobile() {
 
   return (
     <div className="p-4">
-      <div className="flex items-center justify-between mb-3 pb-3 border-b border-black/[0.04]">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-sm font-medium">Live Signals</span>
-        </div>
-        <span className="text-xs text-[var(--foreground-muted)]">247 active</span>
+      <div className="flex items-center justify-between mb-3 text-xs text-[var(--foreground-muted)]">
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          247 active signals
+        </span>
+        <span>Updated 2m ago</span>
       </div>
 
       <div className="space-y-2">
@@ -646,9 +666,9 @@ function SourcesDemoMobile() {
 
   return (
     <div className="p-4">
-      <div className="flex items-center justify-between mb-3 pb-3 border-b border-black/[0.04]">
-        <span className="text-sm font-medium">Sources</span>
-        <span className="flex items-center gap-1.5 text-xs text-emerald-600">
+      <div className="flex items-center justify-between mb-3 text-xs text-[var(--foreground-muted)]">
+        <span>500+ sources monitored</span>
+        <span className="flex items-center gap-1.5 text-emerald-600">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
           All active
         </span>
@@ -669,8 +689,6 @@ function SourcesDemoMobile() {
           </div>
         ))}
       </div>
-
-      <p className="text-center text-xs text-[var(--foreground-muted)] mt-3">500+ sources monitored</p>
     </div>
   );
 }
@@ -678,14 +696,11 @@ function SourcesDemoMobile() {
 function AIDemoMobile() {
   return (
     <div className="p-4">
-      <div className="flex items-center justify-between mb-3 pb-3 border-b border-black/[0.04]">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-purple-500" />
-          <span className="text-sm font-medium">AI Analysis</span>
-        </div>
+      <div className="flex items-center justify-between mb-3 text-xs text-[var(--foreground-muted)]">
+        <span>Powered by AI</span>
         <div className="flex items-center gap-1">
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-600">Claude</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600">Gemini</span>
+          <span className="px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-600">Claude</span>
+          <span className="px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600">Gemini</span>
         </div>
       </div>
 

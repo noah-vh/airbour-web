@@ -103,24 +103,25 @@ export function FeaturesSection() {
           </motion.p>
         </div>
 
-        {/* Mobile: Wrapped 2-column grid */}
-        <div className="md:hidden grid grid-cols-2 gap-3">
+        {/* Mobile: Clean list layout */}
+        <div className="md:hidden space-y-2">
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="p-3 rounded-xl bg-[var(--background-elevated)] border border-[var(--border)]"
+              className="flex items-center gap-4 p-4 rounded-xl bg-[var(--background-elevated)] border border-[var(--border)]"
             >
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-[var(--accent-blue)]/10 flex items-center justify-center">
-                  <feature.icon className="h-4 w-4 text-[var(--accent-blue)]" />
-                </div>
-                <div className="text-lg font-serif text-[var(--accent-blue)]">{feature.stat}</div>
+              <div className="w-10 h-10 rounded-xl bg-[var(--accent-blue)]/10 flex items-center justify-center flex-shrink-0">
+                <feature.icon className="h-5 w-5 text-[var(--accent-blue)]" />
               </div>
-
-              <h3 className="font-semibold text-sm mb-1">{feature.title}</h3>
-              <p className="text-[10px] text-[var(--foreground-muted)] leading-relaxed line-clamp-2">
-                {feature.description}
-              </p>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-sm">{feature.title}</h3>
+                  <span className="text-sm font-serif text-[var(--accent-blue)]">{feature.stat}</span>
+                </div>
+                <p className="text-xs text-[var(--foreground-muted)] line-clamp-1">
+                  {feature.description}
+                </p>
+              </div>
             </div>
           ))}
         </div>

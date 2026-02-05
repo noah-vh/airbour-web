@@ -119,43 +119,56 @@ export function OutputShowcase() {
         {/* Mobile: Horizontal scrolling tabs + stacked preview */}
         {/* Desktop: Split layout with sidebar */}
         <div className="max-w-5xl mx-auto">
-          {/* Mobile: Auto-cycling with integrated header */}
+          {/* Mobile: Auto-cycling with visible tabs and swipe */}
           <div className="lg:hidden">
-            {/* Card with header showing current format */}
-            <div className="bg-[var(--background-elevated)] rounded-xl border border-[var(--border)] overflow-hidden">
-              {/* Header with format indicator and progress dots */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
-                <div className="flex items-center gap-2">
-                  {outputs.find(o => o.id === active)?.icon && (
-                    <>
-                      {active === "newsletter" && <Mail className="h-4 w-4 text-[var(--accent-blue)]" />}
-                      {active === "linkedin" && <Linkedin className="h-4 w-4 text-[var(--accent-blue)]" />}
-                      {active === "twitter" && <Twitter className="h-4 w-4 text-[var(--accent-blue)]" />}
-                      {active === "brief" && <FileText className="h-4 w-4 text-[var(--accent-blue)]" />}
-                    </>
-                  )}
-                  <span className="text-sm font-medium">{outputs.find(o => o.id === active)?.label}</span>
-                </div>
-                {/* Progress indicators */}
-                <div className="flex items-center gap-1.5">
-                  {outputs.map((output) => (
-                    <button
-                      key={output.id}
-                      onClick={() => setActive(output.id)}
-                      className="relative w-6 h-1.5 rounded-full overflow-hidden bg-black/[0.06]"
-                    >
-                      {active === output.id && (
-                        <motion.div
-                          className="absolute inset-0 bg-[var(--accent-blue)] rounded-full"
-                          initial={{ scaleX: 0, originX: 0 }}
-                          animate={{ scaleX: 1 }}
-                          transition={{ duration: 4, ease: "linear" }}
-                          key={`progress-${output.id}-${Date.now()}`}
-                        />
-                      )}
-                    </button>
-                  ))}
-                </div>
+            {/* Visible tab bar */}
+            <div className="flex items-center gap-1 mb-3">
+              {outputs.map((output) => {
+                const isActive = active === output.id;
+                return (
+                  <button
+                    key={output.id}
+                    onClick={() => setActive(output.id)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-all ${
+                      isActive
+                        ? "bg-[var(--accent-blue)] text-white"
+                        : "bg-[var(--background-elevated)] text-[var(--foreground-muted)] border border-[var(--border)]"
+                    }`}
+                  >
+                    <output.icon className="h-3.5 w-3.5" />
+                    <span className="hidden xs:inline">{output.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Swipeable content card */}
+            <motion.div
+              className="bg-[var(--background-elevated)] rounded-xl border border-[var(--border)] overflow-hidden touch-pan-y"
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.2}
+              onDragEnd={(_, info) => {
+                if (info.offset.x > 50) {
+                  const currentIndex = outputs.findIndex(o => o.id === active);
+                  const prevIndex = currentIndex === 0 ? outputs.length - 1 : currentIndex - 1;
+                  setActive(outputs[prevIndex].id);
+                } else if (info.offset.x < -50) {
+                  const currentIndex = outputs.findIndex(o => o.id === active);
+                  const nextIndex = (currentIndex + 1) % outputs.length;
+                  setActive(outputs[nextIndex].id);
+                }
+              }}
+            >
+              {/* Progress bar */}
+              <div className="h-0.5 bg-black/[0.04] relative">
+                <motion.div
+                  className="absolute inset-y-0 left-0 bg-[var(--accent-blue)]"
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 4, ease: "linear" }}
+                  key={`progress-${active}`}
+                />
               </div>
 
               {/* Content preview */}
@@ -163,7 +176,7 @@ export function OutputShowcase() {
                 key={active}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.2 }}
                 className="p-4"
               >
                 {active === "newsletter" && <NewsletterPreviewContent />}
@@ -171,7 +184,7 @@ export function OutputShowcase() {
                 {active === "twitter" && <TwitterPreviewContent />}
                 {active === "brief" && <BriefPreviewContent />}
               </motion.div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Desktop Layout - unchanged */}
