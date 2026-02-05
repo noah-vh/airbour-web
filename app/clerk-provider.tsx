@@ -8,5 +8,10 @@ interface ClerkWrapperProps {
 }
 
 export function ClerkWrapper({ children }: ClerkWrapperProps) {
+  // Only use ClerkProvider if publishable key is configured
+  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+    return <>{children}</>;
+  }
+
   return <ClerkProvider>{children}</ClerkProvider>;
 }

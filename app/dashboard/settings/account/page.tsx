@@ -1,6 +1,5 @@
 "use client";
 
-import { useUser, useClerk } from "@clerk/nextjs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Mail } from "lucide-react";
 
-export default function AccountSettingsPage() {
+// Only import Clerk hooks if configured
+const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+function AccountWithClerk() {
+  const { useUser, useClerk } = require("@clerk/nextjs");
   const { user, isLoaded } = useUser();
   const { openUserProfile } = useClerk();
 
@@ -34,7 +37,6 @@ export default function AccountSettingsPage() {
 
   return (
     <div className="space-y-6 p-6">
-      {/* Profile Section */}
       <Card className="bg-card border">
         <CardHeader>
           <CardTitle className="text-foreground flex items-center gap-2">
@@ -49,14 +51,10 @@ export default function AccountSettingsPage() {
           <div className="flex items-center gap-6">
             <Avatar className="h-20 w-20 border-2 border">
               <AvatarImage src={user?.imageUrl} alt={user?.fullName || "User"} />
-              <AvatarFallback className="text-xl">
-                {initials}
-              </AvatarFallback>
+              <AvatarFallback className="text-xl">{initials}</AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="text-lg font-medium text-foreground">
-                {user?.fullName || "User"}
-              </h3>
+              <h3 className="text-lg font-medium text-foreground">{user?.fullName || "User"}</h3>
               <p className="text-sm text-muted-foreground">
                 Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
               </p>
@@ -65,28 +63,17 @@ export default function AccountSettingsPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName" className="text-foreground">First Name</Label>
-              <Input
-                id="firstName"
-                defaultValue={user?.firstName || ""}
-                className="bg-muted/50 border"
-                readOnly
-              />
+              <Label htmlFor="firstName">First Name</Label>
+              <Input id="firstName" defaultValue={user?.firstName || ""} readOnly />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName" className="text-foreground">Last Name</Label>
-              <Input
-                id="lastName"
-                defaultValue={user?.lastName || ""}
-                className="bg-muted/50 border"
-                readOnly
-              />
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input id="lastName" defaultValue={user?.lastName || ""} readOnly />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Email Section */}
       <Card className="bg-card border">
         <CardHeader>
           <CardTitle className="text-foreground flex items-center gap-2">
@@ -95,33 +82,53 @@ export default function AccountSettingsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {user?.emailAddresses.map((email) => (
-            <div
-              key={email.id}
-              className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border"
-            >
-              <span className="text-foreground">{email.emailAddress}</span>
+          {user?.emailAddresses.map((email: any) => (
+            <div key={email.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border">
+              <span>{email.emailAddress}</span>
               {email.id === user.primaryEmailAddressId && (
-                <span className="px-2 py-0.5 text-xs rounded bg-green-100 text-green-700">
-                  Primary
-                </span>
+                <span className="px-2 py-0.5 text-xs rounded bg-green-100 text-green-700">Primary</span>
               )}
             </div>
           ))}
         </CardContent>
       </Card>
 
-      {/* Actions */}
       <Card className="bg-card border">
         <CardHeader>
-          <CardTitle className="text-foreground">Account Actions</CardTitle>
+          <CardTitle>Account Actions</CardTitle>
         </CardHeader>
         <CardContent>
-          <Button onClick={() => openUserProfile()}>
-            Manage Account
-          </Button>
+          <Button onClick={() => openUserProfile()}>Manage Account</Button>
         </CardContent>
       </Card>
     </div>
   );
+}
+
+function AccountPlaceholder() {
+  return (
+    <div className="space-y-6 p-6">
+      <Card className="bg-card border">
+        <CardHeader>
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Profile Information
+          </CardTitle>
+          <CardDescription>Authentication not configured</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">
+            User account management requires Clerk to be configured.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default function AccountSettingsPage() {
+  if (!isClerkConfigured) {
+    return <AccountPlaceholder />;
+  }
+  return <AccountWithClerk />;
 }

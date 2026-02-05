@@ -1,4 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
   "/",
@@ -11,11 +13,22 @@ const isPublicRoute = createRouteMatcher([
   "/api/stripe/webhook",
 ]);
 
-export default clerkMiddleware(async (auth, request) => {
+// Check if Clerk is configured
+const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+// Passthrough middleware when Clerk is not configured
+function passthroughMiddleware(request: NextRequest) {
+  return NextResponse.next();
+}
+
+// Clerk middleware when configured
+const clerkMiddlewareHandler = clerkMiddleware(async (auth, request) => {
   if (!isPublicRoute(request)) {
     await auth.protect();
   }
 });
+
+export default isClerkConfigured ? clerkMiddlewareHandler : passthroughMiddleware;
 
 export const config = {
   matcher: [
